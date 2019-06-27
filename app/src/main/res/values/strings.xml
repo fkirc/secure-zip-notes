@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">Secure Zip Notes</string>
+
+    <string name="admob_app_id">ca-app-pub-3394747202744753~4306949160</string>
+
+    <string name="create_new_notes">Create New Zip File</string>
+    <string name="import_existing_notes">Import Zip File</string>
+    <string name="export_zip_file">Export Zip File</string>
+    <string name="master_password">Master Password</string>
+    <string name="sync_with_dropbox">Sync with Dropbox</string>
+    <string name="sync_with_google_drive">Sync with Google Drive</string>
+</resources>

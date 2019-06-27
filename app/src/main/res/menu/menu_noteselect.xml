@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/action_add_note"
+        android:title="@string/create_new_notes"
+        android:icon="@drawable/ic_baseline_add_24px"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/action_export_zip_file"
+        android:title="@string/export_zip_file"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_sync_dropbox"
+        android:title="@string/sync_with_dropbox"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_sync_drive"
+        android:title="@string/sync_with_google_drive"
+        app:showAsAction="never" />
+
+</menu>
