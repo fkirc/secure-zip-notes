@@ -19,3 +19,18 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+# Since this app is open-source I do not want to care about proguard deobfuscation files for Google Play stacktraces.
+-dontobfuscate
+
+# Ignoring warnings may be dangerous but all the sync code still works.
+-ignorewarnings
+
+# ----------------------------------------------------------
+# This suff is copied from the Dropbox Core SDK
+-dontwarn okio.**
+-dontwarn okhttp3.**
+-dontwarn com.squareup.okhttp.**
+-dontwarn com.google.appengine.**
+-dontwarn javax.servlet.**
+
