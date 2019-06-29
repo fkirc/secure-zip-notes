@@ -22,6 +22,8 @@ import com.ditronic.securezipnotes.zip4j.model.FileHeader;
 
 public class NoteEditActivity extends AppCompatActivity {
 
+    // TODO: Make note title in Toolbar editable
+
     private static final String INNER_FILE_NAME = "inner_file_name";
 
     public static void launch(final Context cx, final String innerFileName) {
