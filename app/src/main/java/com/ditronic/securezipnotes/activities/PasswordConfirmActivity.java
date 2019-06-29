@@ -14,6 +14,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 import com.ditronic.securezipnotes.PwManager;
 import com.ditronic.securezipnotes.R;
@@ -37,6 +38,8 @@ public class PasswordConfirmActivity extends AppCompatActivity {
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_password_confirm);
+        final Toolbar toolbar = findViewById(R.id.tool_bar);
+        setSupportActionBar(toolbar);
 
         password = getIntent().getExtras().getString(INTENT_PASSWORD);
         confirmPasswordText = findViewById(R.id.input_password_confirm);

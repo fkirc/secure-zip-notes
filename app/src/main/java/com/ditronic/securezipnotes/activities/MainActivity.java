@@ -22,19 +22,11 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
-import java.io.ByteArrayInputStream;
-
 import com.ditronic.securezipnotes.CryptoZip;
 import com.ditronic.securezipnotes.MenuOptions;
 import com.ditronic.securezipnotes.NotesImport;
 import com.ditronic.securezipnotes.PwManager;
 import com.ditronic.securezipnotes.R;
-
-import com.ditronic.simplefilesync.AbstractFileSync;
-import com.ditronic.simplefilesync.DriveFileSync;
-import com.ditronic.simplefilesync.DropboxFileSync;
-import com.ditronic.simplefilesync.util.ResultCode;
-import com.ditronic.simplefilesync.util.SSyncResult;
 import com.ditronic.securezipnotes.adapters.NoteSelectAdapter;
 import com.ditronic.securezipnotes.util.BannerAds;
 import com.ditronic.securezipnotes.util.Boast;
@@ -42,6 +34,13 @@ import com.ditronic.securezipnotes.util.DeleteDialog;
 import com.ditronic.securezipnotes.util.OnThrottleClickListener;
 import com.ditronic.securezipnotes.util.OnThrottleItemClickListener;
 import com.ditronic.securezipnotes.zip4j.model.FileHeader;
+import com.ditronic.simplefilesync.AbstractFileSync;
+import com.ditronic.simplefilesync.DriveFileSync;
+import com.ditronic.simplefilesync.DropboxFileSync;
+import com.ditronic.simplefilesync.util.ResultCode;
+import com.ditronic.simplefilesync.util.SSyncResult;
+
+import java.io.ByteArrayInputStream;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -62,6 +61,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         final Toolbar toolbar = findViewById(R.id.tool_bar);
         setSupportActionBar(toolbar);
+        toolbar.setTitle(getString(R.string.app_name));
         toolbar.setLogo(R.mipmap.ic_launcher);
 
         noteSelectAdapter = new NoteSelectAdapter(this);
