@@ -13,6 +13,7 @@ import android.widget.EditText;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 import com.ditronic.securezipnotes.CryptoZip;
 import com.ditronic.securezipnotes.R;
@@ -21,8 +22,6 @@ import com.ditronic.securezipnotes.util.Boast;
 import com.ditronic.securezipnotes.zip4j.model.FileHeader;
 
 public class NoteEditActivity extends AppCompatActivity {
-
-    // TODO: Make note title in Toolbar editable
 
     private static final String INNER_FILE_NAME = "inner_file_name";
 
@@ -34,6 +33,7 @@ public class NoteEditActivity extends AppCompatActivity {
 
     private boolean editMode;
     private EditText editTextMain;
+    private EditText editTextTitle;
     private String secretContent;
     private String innerFileName;
 
@@ -42,6 +42,16 @@ public class NoteEditActivity extends AppCompatActivity {
     void applyEditMode(final boolean enable) {
         editMode = enable;
 
+        // Rather simple procedure for title edit text
+        editTextTitle.setCursorVisible(editMode);
+        editTextTitle.setClickable(editMode);
+        editTextTitle.setFocusable(editMode);
+        editTextTitle.setLongClickable(editMode);
+        editTextTitle.setTextIsSelectable(editMode);
+        editTextTitle.setLongClickable(editMode);
+
+
+        // Complicated procedure for the main edit text
         if (Build.VERSION.SDK_INT >= MIN_API_COPY_READ_ONLY) { // 21
             editTextMain.setShowSoftInputOnFocus(editMode);
             editTextMain.setCursorVisible(editMode);
@@ -131,11 +141,18 @@ public class NoteEditActivity extends AppCompatActivity {
             return;
         }
         final String newContent = editTextMain.getText().toString();
-        if (newContent.equals(secretContent)) {
+        String newFileName = editTextTitle.getText().toString();
+        if (newContent.equals(secretContent) &&
+                newFileName.equals(getFileHeader().getDisplayName())) {
             return; // Nothing to save, text unchanged
         }
+        if (newFileName.isEmpty()) {
+            // Silently keep old file name if this is empty
+            newFileName = getFileHeader().getDisplayName();
+            editTextTitle.setText(getFileHeader().getDisplayName());
+        }
         secretContent = newContent;
-        innerFileName = CryptoZip.instance(this).updateStream(getFileHeader(), secretContent);
+        innerFileName = CryptoZip.instance(this).updateStream(getFileHeader(), newFileName, secretContent);
         Boast.makeText(this, "Saved " + getFileHeader().getDisplayName()).show();
     }
 
@@ -154,6 +171,10 @@ public class NoteEditActivity extends AppCompatActivity {
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_note_edit);
+        final Toolbar toolbar = findViewById(R.id.tool_bar_edit);
+        setSupportActionBar(toolbar);
+
+        editTextTitle = findViewById(R.id.edit_text_title);
         editTextMain = findViewById(R.id.edit_text_main);
 
         if (savedInstanceState != null) {
@@ -167,7 +188,8 @@ public class NoteEditActivity extends AppCompatActivity {
         if (getSupportActionBar() != null) { // add back arrow to toolbar
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setDisplayShowHomeEnabled(true);
-            getSupportActionBar().setTitle(fileHeader.getDisplayName());
+            // We do not want a "title" since the EditText consumes all the space
+            getSupportActionBar().setDisplayShowTitleEnabled(false);
         }
 
         secretContent = CryptoZip.instance(this).extractFileString(fileHeader);
@@ -176,6 +198,7 @@ public class NoteEditActivity extends AppCompatActivity {
             return;
         }
         applyEditMode(secretContent.isEmpty());
+        editTextTitle.setText(fileHeader.getDisplayName());
         editTextMain.setText(secretContent);
 
         // Required to make links clickable

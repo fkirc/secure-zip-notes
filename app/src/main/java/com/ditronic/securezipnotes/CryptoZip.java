@@ -107,14 +107,13 @@ public class CryptoZip {
         return parameters.getFileNameInZip();
     }
 
-    public String updateStream(final FileHeader fileHeader, final String newContent) {
+    public String updateStream(final FileHeader fileHeader, final String newFileName, final String newContent) {
 
-        final String displayName = getDisplayName(fileHeader);
         String newInnerFileName;
 
         final InputStream is = new ByteArrayInputStream(newContent.getBytes());
         try {
-            newInnerFileName = addStream(displayName, is);
+            newInnerFileName = addStream(newFileName, is);
             zipFile.removeFile(fileHeader);
         } catch (Exception e) {
             throw new RuntimeException(e);
