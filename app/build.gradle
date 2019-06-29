@@ -22,6 +22,7 @@ android {
         debug {
             // A different "package name" for debug builds enables a clean separation during development.
             applicationIdSuffix = ".dev"
+            versionNameSuffix '-DEBUG'
 
             // (minifyEnabled=true + useProguard=false) uses the builtin R8 compiler instead of ProGuard.
             // R8 shrinks at least as good as ProGuard and it works with Instant Run (unlike ProGuard).
