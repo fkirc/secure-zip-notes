@@ -61,8 +61,10 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         final Toolbar toolbar = findViewById(R.id.tool_bar);
         setSupportActionBar(toolbar);
-        toolbar.setTitle(getString(R.string.app_name));
         toolbar.setLogo(R.mipmap.ic_launcher);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setTitle(R.string.app_name_main_activity);
+        }
 
         noteSelectAdapter = new NoteSelectAdapter(this);
         final ListView notesListView = findViewById(R.id.list_view_notes);
