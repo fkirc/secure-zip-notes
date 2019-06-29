@@ -9,11 +9,12 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
-
-import java.security.SecureRandom;
+import androidx.appcompat.widget.Toolbar;
 
 import com.ditronic.securezipnotes.R;
 import com.ditronic.securezipnotes.util.OnThrottleClickListener;
+
+import java.security.SecureRandom;
 
 
 public class NewPasswordActivity extends AppCompatActivity {
@@ -40,6 +41,8 @@ public class NewPasswordActivity extends AppCompatActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_new_password);
+        final Toolbar toolbar = findViewById(R.id.tool_bar);
+        setSupportActionBar(toolbar);
 
         passwordText = findViewById(R.id.input_password);
 

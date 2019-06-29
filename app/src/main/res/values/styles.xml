@@ -1,6 +1,6 @@
 <resources>
 
-    <style name="BaseAppTheme" parent="Theme.MaterialComponents.Light">
+    <style name="BaseAppTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryVariant">@color/colorPrimaryDark</item>

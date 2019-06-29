@@ -11,7 +11,7 @@ Then Secure Zip Notes is your solution.
 - Uses hardware-protected storage to avoid retyping the master password every time.
 - Open Source: Fetch this app from github if you do not trust us.
 
-This app only supports secure notes.
+This app only supports text notes.
 If you are seeking advanced features like auto-fill passwords, then we recommend an app like Keepass2Android.
 
 ## Technical details:
@@ -19,8 +19,8 @@ If you are seeking advanced features like auto-fill passwords, then we recommend
 - Encryption: AES-256 Counter Mode + HMAC-SHA1
 - Key derivation: PBKDF2
 
-Not all operating systems support Zip files with AES encryption by default.
-Therefore you might need to install a tool like this app or 7-zip.
+Not all PC operating systems support Zip files with AES encryption by default.
+Therefore, you might need to install a PC software like 7-zip.
 
 ## Simple File Sync for Android:
 The [SimpleFileSync](simplefilesync/) library is maintained as a separate module within this repository.
