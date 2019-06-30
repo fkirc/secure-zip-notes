@@ -29,6 +29,8 @@ The [SimpleFileSync](simplefilesync/) library is maintained as a separate module
 Pull requests are always welcome.
 You may also open an issue to ask for new functionality.
 
+Potential new features: Search for text
+
 ## Copyright:
 You are allowed to download this code for personal usage.
 You must not redistribute this app or any modified version of this app in the Google Play Store or any other App Store.
