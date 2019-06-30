@@ -302,6 +302,7 @@ public class MainActivity extends AppCompatActivity {
         } else if (res.getResultCode() == ResultCode.FILES_NOT_EXIST_OR_EMPTY
                 && res.isSyncTriggeredByUser()) {
             // Special case for new users that click "Dropbox sync" without having any data.
+            Boast.makeText(MainActivity.this, "Could not find a " + cloudBackend + " backup - Creating new Zip file...", Toast.LENGTH_LONG).show();
             btnNewNote();
         } else if (res.getResultCode() == ResultCode.REMOTE_EQUALS_LOCAL
                 && res.isSyncTriggeredByUser()) {
