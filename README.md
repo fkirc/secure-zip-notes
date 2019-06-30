@@ -21,6 +21,7 @@ If you are seeking advanced features like auto-fill passwords, then we recommend
 
 Not all PC operating systems support Zip files with AES encryption by default.
 Therefore, you might need to install a PC software like 7-zip.
+_____________________________________________________________________
 
 ## Simple File Sync for Android:
 The [SimpleFileSync](simplefilesync/) library is maintained as a separate module within this repository.
@@ -28,8 +29,7 @@ The [SimpleFileSync](simplefilesync/) library is maintained as a separate module
 ## Contributions:
 Pull requests are always welcome.
 You may also open an issue to ask for new functionality.
-
-Potential new features: Search for text
+The [backlog](BACKLOG.md) contains a list of potential tasks and features for future releases of Secure Zip Notes.
 
 ## Copyright:
 You are allowed to download this code for personal usage.
