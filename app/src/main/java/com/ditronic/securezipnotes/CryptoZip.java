@@ -5,14 +5,6 @@ import android.content.Context;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.List;
-import java.util.UUID;
-
 import com.ditronic.securezipnotes.util.Boast;
 
 import net.lingala.zip4j.ZipFile;
@@ -24,6 +16,17 @@ import net.lingala.zip4j.model.enums.AesKeyStrength;
 import net.lingala.zip4j.model.enums.CompressionLevel;
 import net.lingala.zip4j.model.enums.CompressionMethod;
 import net.lingala.zip4j.model.enums.EncryptionMethod;
+
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.nio.charset.Charset;
+import java.util.List;
+import java.util.UUID;
 
 
 /**
@@ -157,6 +160,10 @@ public class CryptoZip {
             final ZipInputStream is = zipFile.getInputStream(fileHeader);
             is.close();
         } catch (ZipException e) {
+            // This check is a workaround for a bug in Zip4j version 2.0.3.
+            if (e.getMessage().contains("Wrong Password")) {
+                return false;
+            }
             if (e.getType() == ZipException.Type.WRONG_PASSWORD) {
                 return false;
             } else {
@@ -210,6 +217,18 @@ public class CryptoZip {
         return fileHeaders.size();
     }
 
+    private static String inputStreamToString(final InputStream is) {
+
+        StringBuilder textBuilder = new StringBuilder();
+        Reader reader = new BufferedReader(new InputStreamReader
+                (is, Charset.forName("UTF-8"))) {
+            int c = 0;
+            while ((c = reader.read()) != -1) {
+                textBuilder.append((char) c);
+            }
+        };
+    }
+
     public @Nullable String extractFileString(final FileHeader fileHeader) {
 
         final char[] pw = PwManager.instance().getPasswordFast();
@@ -220,7 +239,7 @@ public class CryptoZip {
 
         try {
             final ZipInputStream is = zipFile.getInputStream(fileHeader);
-            final String content = is.toString();
+            final String content = inputStreamToString(is);
             is.close();
             return content;
         } catch (Exception e) {
