@@ -151,7 +151,6 @@ public class CryptoZip {
 
         fileHeader.setPassword(password.toCharArray());
 
-        // TODO: Performance optimization - Use this ZipInputStream instead of closing it right away.
         try {
             final ZipInputStream is = zipFile.getInputStream(fileHeader);
             //is.close();
@@ -217,10 +216,11 @@ public class CryptoZip {
 
     private static String inputStreamToString(final ZipInputStream is) throws IOException {
         final InputStreamReader ir = new InputStreamReader(is, "UTF-8");
-        int c;
-        StringBuilder sb = new StringBuilder();
-        while ((c = ir.read()) != -1) {
-            sb.append((char)c);
+        final StringBuilder sb = new StringBuilder();
+        final char[] buf = new char[1024];
+        int n;
+        while ((n = ir.read(buf)) != -1) {
+            sb.append(buf, 0, n);
         }
         return sb.toString();
     }
