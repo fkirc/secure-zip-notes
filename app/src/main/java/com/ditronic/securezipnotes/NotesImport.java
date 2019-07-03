@@ -10,16 +10,17 @@ import androidx.appcompat.app.AlertDialog;
 
 import com.ditronic.simplefilesync.util.FilesUtil;
 
+import net.lingala.zip4j.ZipFile;
+import net.lingala.zip4j.model.AESExtraDataRecord;
+import net.lingala.zip4j.model.FileHeader;
+import net.lingala.zip4j.model.enums.EncryptionMethod;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
-import com.ditronic.securezipnotes.zip4j.core.ZipFile;
-import com.ditronic.securezipnotes.zip4j.model.AESExtraDataRecord;
-import com.ditronic.securezipnotes.zip4j.model.FileHeader;
-import com.ditronic.securezipnotes.zip4j.util.Zip4jConstants;
 
 import static com.ditronic.securezipnotes.CryptoZip.MIN_INNER_FILE_NAME_LEN;
 
@@ -63,7 +64,7 @@ public class NotesImport {
             }
         }
         for (final FileHeader fh : fileHeaders) {
-            if (fh.getEncryptionMethod() != Zip4jConstants.ENC_METHOD_AES) {
+            if (fh.getEncryptionMethod() != EncryptionMethod.AES) {
                 alertDialog(cx, "Import failed due to unsupported encryption algorithm. This app only supports Zip files with AES encryption.");
                 return false;
             }

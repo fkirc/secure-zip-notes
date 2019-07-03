@@ -33,12 +33,13 @@ import com.ditronic.securezipnotes.util.Boast;
 import com.ditronic.securezipnotes.util.DeleteDialog;
 import com.ditronic.securezipnotes.util.OnThrottleClickListener;
 import com.ditronic.securezipnotes.util.OnThrottleItemClickListener;
-import com.ditronic.securezipnotes.zip4j.model.FileHeader;
 import com.ditronic.simplefilesync.AbstractFileSync;
 import com.ditronic.simplefilesync.DriveFileSync;
 import com.ditronic.simplefilesync.DropboxFileSync;
 import com.ditronic.simplefilesync.util.ResultCode;
 import com.ditronic.simplefilesync.util.SSyncResult;
+
+import net.lingala.zip4j.model.FileHeader;
 
 import java.io.ByteArrayInputStream;
 
@@ -135,7 +136,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     void askNoteDelete(final FileHeader fileHeader) {
-        DeleteDialog.showDeleteQuestion("Delete " + fileHeader.getDisplayName() + "?", this, new DeleteDialog.DialogActions() {
+        DeleteDialog.showDeleteQuestion("Delete " + CryptoZip.getDisplayName(fileHeader) + "?", this, new DeleteDialog.DialogActions() {
             @Override
             public void onPositiveClick() {
                 CryptoZip.instance(MainActivity.this).removeFile(MainActivity.this, fileHeader);
@@ -154,10 +155,10 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void run() {
                 final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-                builder.setTitle("Rename " + fileHeader.getDisplayName());
+                builder.setTitle("Rename " + CryptoZip.getDisplayName(fileHeader));
                 final EditText input = new EditText(MainActivity.this);
                 input.setInputType(InputType.TYPE_CLASS_TEXT);
-                input.setText(fileHeader.getDisplayName());
+                input.setText(CryptoZip.getDisplayName(fileHeader));
                 builder.setView(input);
                 builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                     @Override

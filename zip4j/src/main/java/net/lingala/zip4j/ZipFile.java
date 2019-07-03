@@ -67,6 +67,21 @@ import static net.lingala.zip4j.util.Zip4jUtil.isStringNotNullAndNotEmpty;
 
 public class ZipFile {
 
+  /** -------------------- DiTronic changes -------------------- **/
+  // This is a quick workaround for API changes, maybe we will remove this setter method later on.
+  public void setPassword(final char[] pw) {
+    this.password = pw;
+  }
+
+  public List getFileHeadersFast() {
+    // Skip reading file headers
+    if (zipModel == null || zipModel.getCentralDirectory() == null) {
+      return null;
+    }
+    return zipModel.getCentralDirectory().getFileHeaders();
+  }
+  /** -------------------- End DiTronic changes -------------------- **/
+
   private File zipFile;
   private ZipModel zipModel;
   private boolean isEncrypted;
@@ -816,7 +831,7 @@ public class ZipFile {
    *
    * @throws ZipException
    */
-  private void readZipInfo() throws ZipException {
+  public void readZipInfo() throws ZipException {
     if (!zipFile.exists()) {
       createNewZipModel();
       return;

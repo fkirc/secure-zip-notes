@@ -19,7 +19,8 @@ import com.ditronic.securezipnotes.CryptoZip;
 import com.ditronic.securezipnotes.R;
 import com.ditronic.securezipnotes.util.BannerAds;
 import com.ditronic.securezipnotes.util.Boast;
-import com.ditronic.securezipnotes.zip4j.model.FileHeader;
+
+import net.lingala.zip4j.model.FileHeader;
 
 public class NoteEditActivity extends AppCompatActivity {
 
@@ -143,17 +144,17 @@ public class NoteEditActivity extends AppCompatActivity {
         final String newContent = editTextMain.getText().toString();
         String newFileName = editTextTitle.getText().toString();
         if (newContent.equals(secretContent) &&
-                newFileName.equals(getFileHeader().getDisplayName())) {
+                newFileName.equals(CryptoZip.getDisplayName(getFileHeader()))) {
             return; // Nothing to save, text unchanged
         }
         if (newFileName.isEmpty()) {
             // Silently keep old file name if this is empty
-            newFileName = getFileHeader().getDisplayName();
-            editTextTitle.setText(getFileHeader().getDisplayName());
+            newFileName = CryptoZip.getDisplayName(getFileHeader());
+            editTextTitle.setText(CryptoZip.getDisplayName(getFileHeader()));
         }
         secretContent = newContent;
         innerFileName = CryptoZip.instance(this).updateStream(getFileHeader(), newFileName, secretContent);
-        Boast.makeText(this, "Saved " + getFileHeader().getDisplayName()).show();
+        Boast.makeText(this, "Saved " + CryptoZip.getDisplayName(getFileHeader())).show();
     }
 
     void saveClick() {
@@ -198,7 +199,7 @@ public class NoteEditActivity extends AppCompatActivity {
             return;
         }
         applyEditMode(secretContent.isEmpty());
-        editTextTitle.setText(fileHeader.getDisplayName());
+        editTextTitle.setText(CryptoZip.getDisplayName(fileHeader));
         editTextMain.setText(secretContent);
 
         // Required to make links clickable

@@ -16,7 +16,9 @@ import java.util.Locale;
 
 import com.ditronic.securezipnotes.CryptoZip;
 import com.ditronic.securezipnotes.R;
-import com.ditronic.securezipnotes.zip4j.model.FileHeader;
+
+import net.lingala.zip4j.model.FileHeader;
+import net.lingala.zip4j.util.Zip4jUtil;
 
 public class NoteSelectAdapter extends BaseAdapter {
 
@@ -27,18 +29,6 @@ public class NoteSelectAdapter extends BaseAdapter {
     }
 
     private static final String TAG = NoteSelectAdapter.class.getSimpleName();
-
-    private static long dosToJavaTime(final long dosTime) {
-        final Calendar cal = Calendar.getInstance();
-        cal.set(Calendar.YEAR, (int) ((dosTime >> 25) & 0x7f) + 1980);
-        cal.set(Calendar.MONTH, (int) ((dosTime >> 21) & 0x0f) - 1);
-        cal.set(Calendar.DATE, (int) (dosTime >> 16) & 0x1f);
-        cal.set(Calendar.HOUR_OF_DAY, (int) (dosTime >> 11) & 0x1f);
-        cal.set(Calendar.MINUTE, (int) (dosTime >> 5) & 0x3f);
-        cal.set(Calendar.SECOND, (int) (dosTime << 1) & 0x3e);
-        cal.set(Calendar.MILLISECOND, 0);
-        return cal.getTime().getTime();
-    }
 
     @Override
     public int getCount() {
@@ -66,10 +56,11 @@ public class NoteSelectAdapter extends BaseAdapter {
         }
 
         final TextView tx = convertView.findViewById(R.id.txt_cardview);
-        tx.setText(fileHeader.getDisplayName());
+        tx.setText(CryptoZip.getDisplayName(fileHeader));
 
         final TextView tx2 = convertView.findViewById(R.id.txt_cardview_2);
-        final Date epochMillis = new Date(dosToJavaTime((long)fileHeader.getLastModFileTime()));
+        final long lastModZip = fileHeader.getLastModifiedTime();
+        final Date epochMillis = new Date(Zip4jUtil.dosToJavaTme(lastModZip));
         final String lastModStr = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(epochMillis);
         tx2.setText(lastModStr);
 

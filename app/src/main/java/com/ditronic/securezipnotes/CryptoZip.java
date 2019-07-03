@@ -2,6 +2,7 @@ package com.ditronic.securezipnotes;
 
 import android.content.Context;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import java.io.ByteArrayInputStream;
@@ -13,13 +14,17 @@ import java.util.List;
 import java.util.UUID;
 
 import com.ditronic.securezipnotes.util.Boast;
-import com.ditronic.securezipnotes.zip4j.core.ZipFile;
-import com.ditronic.securezipnotes.zip4j.exception.ZipException;
-import com.ditronic.securezipnotes.zip4j.exception.ZipExceptionConstants;
-import com.ditronic.securezipnotes.zip4j.io.ZipInputStream;
-import com.ditronic.securezipnotes.zip4j.model.FileHeader;
-import com.ditronic.securezipnotes.zip4j.model.ZipParameters;
-import com.ditronic.securezipnotes.zip4j.util.Zip4jConstants;
+
+import net.lingala.zip4j.ZipFile;
+import net.lingala.zip4j.exception.ZipException;
+import net.lingala.zip4j.io.inputstream.ZipInputStream;
+import net.lingala.zip4j.model.FileHeader;
+import net.lingala.zip4j.model.ZipParameters;
+import net.lingala.zip4j.model.enums.AesKeyStrength;
+import net.lingala.zip4j.model.enums.CompressionLevel;
+import net.lingala.zip4j.model.enums.CompressionMethod;
+import net.lingala.zip4j.model.enums.EncryptionMethod;
+
 
 /**
  * This singleton class acts as a frontend to the zip4j library, holding the main zip file instance.
@@ -90,13 +95,16 @@ public class CryptoZip {
         final ZipParameters parameters = new ZipParameters();
         final String innerFileName = constructUIDName(displayName);
         parameters.setFileNameInZip(innerFileName);
-        parameters.setCompressionMethod(Zip4jConstants.COMP_STORE);
-        parameters.setCompressionLevel(Zip4jConstants.DEFLATE_LEVEL_NORMAL);
-        parameters.setSourceExternalStream(true);
+        // For security reasons, it is best to NOT compress data before encrypting it.
+        // Compressing data after encryption is useless since the entropy of encrypted data is expected to be maximal.
+        parameters.setCompressionMethod(CompressionMethod.STORE);
+        parameters.setCompressionLevel(CompressionLevel.FASTEST);
         parameters.setEncryptFiles(true);
-        parameters.setEncryptionMethod(Zip4jConstants.ENC_METHOD_AES);
-        parameters.setAesKeyStrength(Zip4jConstants.AES_STRENGTH_256);
-        parameters.setPassword(PwManager.instance().getPasswordFast());
+        // The standard Zip encryption is broken, therefore we use AES.
+        parameters.setEncryptionMethod(EncryptionMethod.AES);
+        parameters.setAesKeyStrength(AesKeyStrength.KEY_STRENGTH_256);
+
+        zipFile.setPassword(PwManager.instance().getPasswordFast());
 
         try {
             zipFile.addStream(is, parameters);
@@ -123,8 +131,9 @@ public class CryptoZip {
 
     public void renameFile(final FileHeader fileHeader, final String newDisplayName) {
 
+        zipFile.setPassword(PwManager.instance().getPasswordFast());
+
         try {
-            fileHeader.setPassword(PwManager.instance().getPasswordFast().toCharArray());
             final ZipInputStream is = zipFile.getInputStream(fileHeader);
             addStream(newDisplayName, is); // closes input stream
             zipFile.removeFile(fileHeader);
@@ -133,19 +142,22 @@ public class CryptoZip {
         }
     }
 
-    public boolean isPasswordValid(final FileHeader fileHeader, final String password) {
+    public boolean isPasswordValid(final FileHeader fileHeader, @NonNull final String password) {
         if (!fileHeader.isEncrypted()) {
             throw new RuntimeException("Expected encrypted file header");
         }
         if (password.isEmpty()) {
             return false;
         }
+
+        zipFile.setPassword(password.toCharArray());
+
+        // TODO: Performance optimization - Use this ZipInputStream instead of closing it right away.
         try {
-            fileHeader.setPassword(password.toCharArray());
             final ZipInputStream is = zipFile.getInputStream(fileHeader);
-            is.close(true);
+            is.close();
         } catch (ZipException e) {
-            if (e.getCode() == ZipExceptionConstants.WRONG_PASSWORD) {
+            if (e.getType() == ZipException.Type.WRONG_PASSWORD) {
                 return false;
             } else {
                 throw new RuntimeException(e);
@@ -169,7 +181,7 @@ public class CryptoZip {
                 throw new RuntimeException(e);
             }
         }
-        Boast.makeText(cx, "Removed " + fileHeader.getDisplayName()).show();
+        Boast.makeText(cx, "Removed " + getDisplayName(fileHeader)).show();
     }
 
     private static final String TAG = CryptoZip.class.getName();
@@ -199,15 +211,17 @@ public class CryptoZip {
     }
 
     public @Nullable String extractFileString(final FileHeader fileHeader) {
-        final String pw = PwManager.instance().getPasswordFast();
+
+        final char[] pw = PwManager.instance().getPasswordFast();
         if (pw == null) {
             return null; // Prior singleton instance has been killed, we cannot recreate it synchronously
         }
-        fileHeader.setPassword(pw.toCharArray());
-        final ByteArrayOutputStream os = zipFile.extractFile(fileHeader);
+        zipFile.setPassword(pw);
+
         try {
-            final String content = os.toString();
-            os.close();
+            final ZipInputStream is = zipFile.getInputStream(fileHeader);
+            final String content = is.toString();
+            is.close();
             return content;
         } catch (Exception e) {
             throw new RuntimeException(e);

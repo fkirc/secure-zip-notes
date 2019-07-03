@@ -25,6 +25,8 @@ import android.widget.TextView;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
+import net.lingala.zip4j.model.FileHeader;
+
 import java.io.IOException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
@@ -44,8 +46,6 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.IvParameterSpec;
-
-import com.ditronic.securezipnotes.zip4j.model.FileHeader;
 
 import static android.app.Activity.RESULT_OK;
 import static android.content.Context.MODE_PRIVATE;
@@ -186,8 +186,12 @@ public class PwManager {
         saveEncPw(cx, encPw, encPwIv);
     }
 
-    public @Nullable String getPasswordFast() {
-        return password;
+    public @Nullable char[] getPasswordFast() {
+        if (password == null) {
+            return null;
+        } else {
+            return password.toCharArray();
+        }
     }
 
 
