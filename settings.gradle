@@ -1,1 +1,1 @@
-include ':app', ':simplefilesync'
+include ':app', ':simplefilesync', ':zip4j'
