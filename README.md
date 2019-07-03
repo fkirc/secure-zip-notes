@@ -8,7 +8,7 @@ You do not trust bloated password managers with undocumented file formats?
 You want to retain 100% control over your data?
 Then Secure Zip Notes is your solution.
 
-## Features:
+## Features
 - View and edit encrypted text files on any platform, using password-protected Zip files.
 - Sync with Google Drive or Dropbox.
 - Uses hardware-protected storage to avoid retyping the master password every time.
@@ -21,7 +21,7 @@ Secure Zip Notes guarantees that you can easily decrypt your data in 50 years ev
 This app only supports text notes.
 If you are seeking advanced features like auto-fill passwords, then we recommend an app like Keepass2Android.
 
-## Technical details:
+## Technical details
 - Supported independent programs: 7-Zip, WinZip, The Unarchiver (macOS), Gnome Archive Manager
 - Encryption: AES-256 Counter Mode + HMAC-SHA1
 - Key derivation: PBKDF2
@@ -30,15 +30,15 @@ Not all PC operating systems support Zip files with AES encryption by default.
 Therefore, you might need to install a PC software like 7-zip.
 _____________________________________________________________________
 
-## Simple File Sync for Android:
+## Simple File Sync for Android
 The [SimpleFileSync](simplefilesync/) library is maintained as a separate module within this repository.
 
-## Contributions:
+## Contributions
 Pull requests are always welcome.
 You may also open an issue to ask for new functionality.
 The [backlog](BACKLOG.md) contains a list of potential tasks and features for future releases of Secure Zip Notes.
 
-## Copyright:
+## Copyright
 You are allowed to download this code for personal usage.
 You must not redistribute this app or any modified version of this app in the Google Play Store or any other App Store.
 The `simplefilesync` subfolder is licenced separately under the MIT license.
