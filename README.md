@@ -14,6 +14,10 @@ Then Secure Zip Notes is your solution.
 - Uses hardware-protected storage to avoid retyping the master password every time.
 - Open Source: Fetch this app from github if you do not trust us.
 
+Our top priority is not only security and privacy, but also long-term stability.
+We take the responsiblity to retain your data seriously.
+Secure Zip Notes guarantees that you can easily decrypt your data in 50 years even if DiTronic Apps ceases to exist.
+
 This app only supports text notes.
 If you are seeking advanced features like auto-fill passwords, then we recommend an app like Keepass2Android.
 
