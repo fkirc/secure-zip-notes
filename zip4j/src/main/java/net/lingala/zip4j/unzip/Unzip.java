@@ -133,16 +133,22 @@ public class Unzip {
 			if (!outPath.endsWith(InternalZipConstants.FILE_SEPARATOR)) {
 				outPath += InternalZipConstants.FILE_SEPARATOR;
 			}
-			
+
+			// make sure no file is extracted outside of the target directory (a.k.a zip slip)
+			String fileName = fileHeader.getFileName();
+			String completePath = outPath + fileName;
+			if (!new File(completePath).getCanonicalPath().startsWith(new File(outPath).getCanonicalPath())) {
+				throw new ZipException(
+						"illegal file name that breaks out of the target directory: " + fileHeader.getFileName());
+			}
+
 			// If file header is a directory, then check if the directory exists
 			// If not then create a directory and return
 			if (fileHeader.isDirectory()) {
 				try {
-					String fileName = fileHeader.getFileName();
 					if (!Zip4jUtil.isStringNotNullAndNotEmpty(fileName)) {
 						return;
 					}
-					String completePath = outPath + fileName;
 					File file = new File(completePath);
 					if (!file.exists()) {
 						file.mkdirs();

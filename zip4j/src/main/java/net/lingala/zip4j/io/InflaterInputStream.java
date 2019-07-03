@@ -121,7 +121,7 @@ public class InflaterInputStream extends PartInputStream {
      * @param n the number of bytes to skip
      * @return the actual number of bytes skipped.
      * @exception IOException if an I/O error has occurred
-     * @exception IllegalArgumentException if n < 0
+     * @exception IllegalArgumentException if n is less than 0
      */
 	public long skip(long n) throws IOException {
         if (n < 0) {
@@ -156,7 +156,6 @@ public class InflaterInputStream extends PartInputStream {
      * of bytes that could be read without blocking.
      *
      * @return     1 before EOF and 0 after EOF.
-     * @exception  IOException  if an I/O error occurs.
      * 
      */
 	public int available() {

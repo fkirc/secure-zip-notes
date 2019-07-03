@@ -92,7 +92,7 @@ public class DeflaterOutputStream extends CipherOutputStream {
 			deflater.setInput(buf, off, len);
 			 while (!deflater.needsInput()) {
 				 deflate();
-             }
+			 }
 		}		
 	}
 	
@@ -105,6 +105,7 @@ public class DeflaterOutputStream extends CipherOutputStream {
 				}
 			}
 			firstBytesRead = false;
+			deflater.end();
 		}
 		super.closeEntry();
 	}

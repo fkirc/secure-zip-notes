@@ -437,7 +437,7 @@ public class UnzipEngine {
 	}
 	
 	private String getOutputFileNameWithPath(String outPath, String newFileName) throws ZipException {
-		String fileName = null;
+		String fileName;
 		if (Zip4jUtil.isStringNotNullAndNotEmpty(newFileName)) {
 			fileName = newFileName;
 		} else {

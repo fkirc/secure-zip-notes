@@ -63,7 +63,7 @@ public class ZipFile {
 		return zipModel.getCentralDirectory().getFileHeaders();
 	}
 	/** -------------------- End DiTronic changes -------------------- **/
-	
+
 	private String file;
 	private int mode;
 	private ZipModel zipModel;

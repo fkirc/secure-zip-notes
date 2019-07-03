@@ -17,14 +17,15 @@
 package net.lingala.zip4j.util;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 import java.util.TimeZone;
-import java.util.Locale;
 
 import net.lingala.zip4j.exception.ZipException;
 import net.lingala.zip4j.model.FileHeader;
@@ -134,7 +135,7 @@ public class Zip4jUtil {
 	
 	public static boolean isWindows(){
 		String os = System.getProperty("os.name").toLowerCase();
-	    return (os.indexOf( "win" ) >= 0); 
+		return (os.indexOf( "win" ) >= 0);
 	}
 	
 	public static void setFileReadOnly(File file) throws ZipException {
@@ -147,66 +148,40 @@ public class Zip4jUtil {
 		}
 	}
 	
-	public static void setFileHidden(File file) throws ZipException {		
-//		if (file == null) {
-//			throw new ZipException("input file is null. cannot set hidden file attribute");
-//		}
-//		
-//		if (!isWindows()) {
-//			return;
-//		}
-//		
-//		if (file.exists()) {
-//			try {
-//				Runtime.getRuntime().exec("attrib +H \"" + file.getAbsolutePath() + "\"");
-//			} catch (IOException e) {
-//				// do nothing as this is not of a higher priority
-//				// add log statements here when logging is done
-//			}
-//		}
+	public static void setFileHidden(File file) throws ZipException {
+		if (!isWindows()) {
+			return;
+		}
+
+		try {
+			Files.setAttribute(file.toPath(), "dos:hidden", true);
+		} catch (IOException e) {
+			throw new ZipException(e);
+		}
 	}
 	
 	public static void setFileArchive(File file) throws ZipException {		
-//		if (file == null) {
-//			throw new ZipException("input file is null. cannot set archive file attribute");
-//		}
-//		
-//		if (!isWindows()) {
-//			return;
-//		}
-//		
-//		if (file.exists()) {
-//			try {
-//				if (file.isDirectory()) {
-//					Runtime.getRuntime().exec("attrib +A \"" + file.getAbsolutePath() + "\"");
-//				} else {
-//					Runtime.getRuntime().exec("attrib +A \"" + file.getAbsolutePath() + "\"");
-//				}
-//				
-//			} catch (IOException e) {
-//				// do nothing as this is not of a higher priority
-//				// add log statements here when logging is done
-//			}
-//		}
+		if (!isWindows()) {
+			return;
+		}
+
+		try {
+			Files.setAttribute(file.toPath(), "dos:archive", true);
+		} catch (IOException e) {
+			throw new ZipException(e);
+		}
 	}
 	
 	public static void setFileSystemMode(File file) throws ZipException {
-//		if (file == null) {
-//			throw new ZipException("input file is null. cannot set archive file attribute");
-//		}
-//		
-//		if (!isWindows()) {
-//			return;
-//		}
-//		
-//		if (file.exists()) {
-//			try {
-//				Runtime.getRuntime().exec("attrib +S \"" + file.getAbsolutePath() + "\"");
-//			} catch (IOException e) {
-//				// do nothing as this is not of a higher priority
-//				// add log statements here when logging is done
-//			}
-//		}
+		if (!isWindows()) {
+			return;
+		}
+
+		try {
+			Files.setAttribute(file.toPath(), "dos:system", true);
+		} catch (IOException e) {
+			throw new ZipException(e);
+		}
 	}
 	
 	public static long getLastModifiedFileTime(File file, TimeZone timeZone) throws ZipException {
@@ -284,9 +259,6 @@ public class Zip4jUtil {
 	    int day = (dosTime >> 16) & 0x1f;
 	    int mon = ((dosTime >> 21) & 0xf) - 1;
 	    int year = ((dosTime >> 25) & 0x7f) + 1980;
-	    /*if (Locale.getDefault(Locale.Category.FORMAT).toString().equals("th_TH")) {
-		year += 543;
-	    }*/
 	    
 	    Calendar cal = Calendar.getInstance();
 		cal.set(year, mon, day, hrs, min, sec);
