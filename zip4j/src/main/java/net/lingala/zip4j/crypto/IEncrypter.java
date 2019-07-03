@@ -14,38 +14,14 @@
 * limitations under the License. 
 */
 
-package net.lingala.zip4j.model;
+package net.lingala.zip4j.crypto;
 
-public class DataDescriptor {
+import net.lingala.zip4j.exception.ZipException;
+
+public interface IEncrypter {
 	
-	private String crc32;
+	public int encryptData(byte[] buff) throws ZipException;
 	
-	private int compressedSize;
-	
-	private int uncompressedSize;
-
-	public String getCrc32() {
-		return crc32;
-	}
-
-	public void setCrc32(String crc32) {
-		this.crc32 = crc32;
-	}
-
-	public int getCompressedSize() {
-		return compressedSize;
-	}
-
-	public void setCompressedSize(int compressedSize) {
-		this.compressedSize = compressedSize;
-	}
-
-	public int getUncompressedSize() {
-		return uncompressedSize;
-	}
-
-	public void setUncompressedSize(int uncompressedSize) {
-		this.uncompressedSize = uncompressedSize;
-	}
+	public int encryptData(byte[] buff, int start, int len) throws ZipException;
 	
 }

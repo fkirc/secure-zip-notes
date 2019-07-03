@@ -14,38 +14,18 @@
 * limitations under the License. 
 */
 
-package net.lingala.zip4j.model;
+package net.lingala.zip4j.exception;
 
-public class DataDescriptor {
+public interface ZipExceptionConstants {
 	
-	private String crc32;
+	public static int inputZipParamIsNull = 0001;
 	
-	private int compressedSize;
+	public static int constuctorFileNotFoundException = 0002;
 	
-	private int uncompressedSize;
-
-	public String getCrc32() {
-		return crc32;
-	}
-
-	public void setCrc32(String crc32) {
-		this.crc32 = crc32;
-	}
-
-	public int getCompressedSize() {
-		return compressedSize;
-	}
-
-	public void setCompressedSize(int compressedSize) {
-		this.compressedSize = compressedSize;
-	}
-
-	public int getUncompressedSize() {
-		return uncompressedSize;
-	}
-
-	public void setUncompressedSize(int uncompressedSize) {
-		this.uncompressedSize = uncompressedSize;
-	}
+	public static int randomAccessFileNull = 0003;
 	
+	public static int notZipFile = 0004;
+	
+	public static int WRONG_PASSWORD = 0005;
+
 }

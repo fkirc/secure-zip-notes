@@ -59,7 +59,7 @@ public class NoteSelectAdapter extends BaseAdapter {
         tx.setText(CryptoZip.getDisplayName(fileHeader));
 
         final TextView tx2 = convertView.findViewById(R.id.txt_cardview_2);
-        final long lastModZip = fileHeader.getLastModifiedTime();
+        final int lastModZip = fileHeader.getLastModFileTime();
         final Date epochMillis = new Date(Zip4jUtil.dosToJavaTme(lastModZip));
         final String lastModStr = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(epochMillis);
         tx2.setText(lastModStr);

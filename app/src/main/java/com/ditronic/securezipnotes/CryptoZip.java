@@ -7,24 +7,19 @@ import androidx.annotation.Nullable;
 
 import com.ditronic.securezipnotes.util.Boast;
 
-import net.lingala.zip4j.ZipFile;
+import net.lingala.zip4j.core.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
-import net.lingala.zip4j.io.inputstream.ZipInputStream;
+import net.lingala.zip4j.exception.ZipExceptionConstants;
+import net.lingala.zip4j.io.ZipInputStream;
 import net.lingala.zip4j.model.FileHeader;
 import net.lingala.zip4j.model.ZipParameters;
-import net.lingala.zip4j.model.enums.AesKeyStrength;
-import net.lingala.zip4j.model.enums.CompressionLevel;
-import net.lingala.zip4j.model.enums.CompressionMethod;
-import net.lingala.zip4j.model.enums.EncryptionMethod;
+import net.lingala.zip4j.util.Zip4jConstants;
 
-import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.Reader;
-import java.nio.charset.Charset;
 import java.util.List;
 import java.util.UUID;
 
@@ -100,14 +95,15 @@ public class CryptoZip {
         parameters.setFileNameInZip(innerFileName);
         // For security reasons, it is best to NOT compress data before encrypting it.
         // Compressing data after encryption is useless since the entropy of encrypted data is expected to be maximal.
-        parameters.setCompressionMethod(CompressionMethod.STORE);
-        parameters.setCompressionLevel(CompressionLevel.FASTEST);
+        parameters.setCompressionMethod(Zip4jConstants.COMP_STORE);
+        //parameters.setCompressionLevel(Zip4jConstants.DEFLATE_LEVEL_FASTEST);
         parameters.setEncryptFiles(true);
+        parameters.setSourceExternalStream(true);
         // The standard Zip encryption is broken, therefore we use AES.
-        parameters.setEncryptionMethod(EncryptionMethod.AES);
-        parameters.setAesKeyStrength(AesKeyStrength.KEY_STRENGTH_256);
+        parameters.setEncryptionMethod(Zip4jConstants.ENC_METHOD_AES);
+        parameters.setAesKeyStrength(Zip4jConstants.AES_STRENGTH_256);
 
-        zipFile.setPassword(PwManager.instance().getPasswordFast());
+        parameters.setPassword(PwManager.instance().getPasswordFast());
 
         try {
             zipFile.addStream(is, parameters);
@@ -134,7 +130,7 @@ public class CryptoZip {
 
     public void renameFile(final FileHeader fileHeader, final String newDisplayName) {
 
-        zipFile.setPassword(PwManager.instance().getPasswordFast());
+        fileHeader.setPassword(PwManager.instance().getPasswordFast());
 
         try {
             final ZipInputStream is = zipFile.getInputStream(fileHeader);
@@ -153,18 +149,19 @@ public class CryptoZip {
             return false;
         }
 
-        zipFile.setPassword(password.toCharArray());
+        fileHeader.setPassword(password.toCharArray());
 
         // TODO: Performance optimization - Use this ZipInputStream instead of closing it right away.
         try {
             final ZipInputStream is = zipFile.getInputStream(fileHeader);
-            is.close();
+            //is.close();
+            is.close(true);
         } catch (ZipException e) {
             // This check is a workaround for a bug in Zip4j version 2.0.3.
             if (e.getMessage().contains("Wrong Password")) {
                 return false;
             }
-            if (e.getType() == ZipException.Type.WRONG_PASSWORD) {
+            if (e.getCode() == ZipExceptionConstants.WRONG_PASSWORD) {
                 return false;
             } else {
                 throw new RuntimeException(e);
@@ -217,17 +214,17 @@ public class CryptoZip {
         return fileHeaders.size();
     }
 
-    private static String inputStreamToString(final InputStream is) {
 
-        StringBuilder textBuilder = new StringBuilder();
-        Reader reader = new BufferedReader(new InputStreamReader
-                (is, Charset.forName("UTF-8"))) {
-            int c = 0;
-            while ((c = reader.read()) != -1) {
-                textBuilder.append((char) c);
-            }
-        };
+    private static String inputStreamToString(final ZipInputStream is) throws IOException {
+        final InputStreamReader ir = new InputStreamReader(is, "UTF-8");
+        int c;
+        StringBuilder sb = new StringBuilder();
+        while ((c = ir.read()) != -1) {
+            sb.append((char)c);
+        }
+        return sb.toString();
     }
+
 
     public @Nullable String extractFileString(final FileHeader fileHeader) {
 
@@ -235,7 +232,7 @@ public class CryptoZip {
         if (pw == null) {
             return null; // Prior singleton instance has been killed, we cannot recreate it synchronously
         }
-        zipFile.setPassword(pw);
+        fileHeader.setPassword(pw);
 
         try {
             final ZipInputStream is = zipFile.getInputStream(fileHeader);

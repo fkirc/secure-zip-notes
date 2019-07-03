@@ -14,38 +14,14 @@
 * limitations under the License. 
 */
 
-package net.lingala.zip4j.model;
+package net.lingala.zip4j.io;
 
-public class DataDescriptor {
-	
-	private String crc32;
-	
-	private int compressedSize;
-	
-	private int uncompressedSize;
+import java.io.IOException;
+import java.io.OutputStream;
 
-	public String getCrc32() {
-		return crc32;
+public abstract class BaseOutputStream extends OutputStream {
+
+	public void write(int b) throws IOException {
 	}
 
-	public void setCrc32(String crc32) {
-		this.crc32 = crc32;
-	}
-
-	public int getCompressedSize() {
-		return compressedSize;
-	}
-
-	public void setCompressedSize(int compressedSize) {
-		this.compressedSize = compressedSize;
-	}
-
-	public int getUncompressedSize() {
-		return uncompressedSize;
-	}
-
-	public void setUncompressedSize(int uncompressedSize) {
-		this.uncompressedSize = uncompressedSize;
-	}
-	
 }
