@@ -284,9 +284,9 @@ public class Zip4jUtil {
 	    int day = (dosTime >> 16) & 0x1f;
 	    int mon = ((dosTime >> 21) & 0xf) - 1;
 	    int year = ((dosTime >> 25) & 0x7f) + 1980;
-	    if (Locale.getDefault(Locale.Category.FORMAT).toString().equals("th_TH")) {
+	    /*if (Locale.getDefault(Locale.Category.FORMAT).toString().equals("th_TH")) {
 		year += 543;
-	    }
+	    }*/
 	    
 	    Calendar cal = Calendar.getInstance();
 		cal.set(year, mon, day, hrs, min, sec);

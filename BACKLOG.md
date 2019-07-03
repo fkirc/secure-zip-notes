@@ -1,7 +1,5 @@
 This file contains a list of potential tasks and features for the continous development of Secure Zip Notes.
 
-- zip4j adaptions to make upstream merges easier, remove unnecessary modifications
-
 - Translations for other languages, including the upper part of the README (which is the play store text).
 
 - Tests: UI tests with Espresso, reaching a reasonable code coverage.
