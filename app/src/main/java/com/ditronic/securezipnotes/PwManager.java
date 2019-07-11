@@ -71,6 +71,7 @@ public class PwManager {
     private static final String PREF_FILE = "pref_private_no_backup";
     private static final String PREF_ENC_PW = "pref_enc_pw";
     private static final String PREF_ENC_PW_IV = "pref_enc_pw_iv";
+    private static final String PREF_LOW_API_PW = "pref_low_api_pw";
 
     private static @Nullable byte[] getEncPw(final Context cx) {
         final SharedPreferences prefs = cx.getSharedPreferences(PREF_FILE, MODE_PRIVATE);
@@ -127,8 +128,13 @@ public class PwManager {
 
     private static @Nullable String decryptPasswordUnchecked(final Context cx)
             throws NoSuchAlgorithmException, NoSuchPaddingException, IOException, InvalidKeyException,
-            BadPaddingException, IllegalBlockSizeException, InvalidAlgorithmParameterException, InvalidKeySpecException,
-            KeyStoreException, NoSuchProviderException, CertificateException, UnrecoverableEntryException {
+            BadPaddingException, IllegalBlockSizeException, InvalidAlgorithmParameterException,
+            KeyStoreException, CertificateException, UnrecoverableEntryException {
+
+        if (Build.VERSION.SDK_INT < 23) {
+            final SharedPreferences prefs = cx.getSharedPreferences(PREF_FILE, MODE_PRIVATE);
+            return prefs.getString(PREF_LOW_API_PW, null);
+        }
 
         final byte[] encPw = getEncPw(cx);
         if (encPw == null) {
@@ -144,19 +150,24 @@ public class PwManager {
         }
 
         final Cipher cipher = Cipher.getInstance(PW_ENCRYPT_ALGORITHM);
-        if (Build.VERSION.SDK_INT >= 19) {
-            final GCMParameterSpec spec = new GCMParameterSpec(128, encPwIv);
-            cipher.init(Cipher.DECRYPT_MODE, secretKey, spec);
-        } else {
-            final IvParameterSpec spec = new IvParameterSpec(encPwIv, 0, GCM_IV_LEN);
-            cipher.init(Cipher.DECRYPT_MODE, secretKey, spec);
-        }
+        final GCMParameterSpec spec = new GCMParameterSpec(128, encPwIv);
+        cipher.init(Cipher.DECRYPT_MODE, secretKey, spec);
         return new String(cipher.doFinal(encPw), "UTF-8");
     }
 
     private static void savePasswordUnchecked(final Context cx, final String password)
             throws NoSuchAlgorithmException, KeyStoreException, NoSuchPaddingException, InvalidKeyException,
             IOException, BadPaddingException, CertificateException, IllegalBlockSizeException {
+
+        if (Build.VERSION.SDK_INT < 23) {
+            // Low API levels do not support AndroidKeystore with symmetric encryption.
+            // Or they might even not support AndroidKeystore at all.
+            final SharedPreferences prefs = cx.getSharedPreferences(PREF_FILE, MODE_PRIVATE);
+            SharedPreferences.Editor edit = prefs.edit();
+            edit.putString(PREF_LOW_API_PW, password);
+            edit.apply();
+            return;
+        }
 
         // The salt must be different for each file since this ZIP format uses counter mode with a constant IV!
         // Therefore we cannot simply store a key that is derived via PBKDF2. Instead, we encrypt the password via KeyStore.
@@ -166,17 +177,13 @@ public class PwManager {
         keyGenerator.init(AES_KEY_LEN);
         final SecretKey pwEncKey = keyGenerator.generateKey();
 
-        if (Build.VERSION.SDK_INT >= 23) {
-            final KeyProtection keyProtection = new KeyProtection.Builder(KeyProperties.PURPOSE_ENCRYPT | KeyProperties.PURPOSE_DECRYPT)
-                    .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
-                    .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
-                    .setUserAuthenticationRequired(true)
-                    .setUserAuthenticationValidityDurationSeconds(5) // Repeat authentication if app is force-closed
-                    .build();
-            ks.setEntry(SEC_ALIAS, new KeyStore.SecretKeyEntry(pwEncKey), keyProtection);
-        } else {
-            ks.setEntry(SEC_ALIAS, new KeyStore.SecretKeyEntry(pwEncKey), null);
-        }
+        final KeyProtection keyProtection = new KeyProtection.Builder(KeyProperties.PURPOSE_ENCRYPT | KeyProperties.PURPOSE_DECRYPT)
+                .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
+                .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
+                .setUserAuthenticationRequired(true)
+                .setUserAuthenticationValidityDurationSeconds(5) // Repeat authentication if app is force-closed
+                .build();
+        ks.setEntry(SEC_ALIAS, new KeyStore.SecretKeyEntry(pwEncKey), keyProtection);
 
         // Use the key outside of secure hardware for the first encryption to prevent a useless authentication screen right after typing in the password.
         final Cipher cipher = Cipher.getInstance(PW_ENCRYPT_ALGORITHM);
