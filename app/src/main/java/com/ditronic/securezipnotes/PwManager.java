@@ -163,9 +163,7 @@ public class PwManager {
             // Low API levels do not support AndroidKeystore with symmetric encryption.
             // Or they might even not support AndroidKeystore at all.
             final SharedPreferences prefs = cx.getSharedPreferences(PREF_FILE, MODE_PRIVATE);
-            SharedPreferences.Editor edit = prefs.edit();
-            edit.putString(PREF_LOW_API_PW, password);
-            edit.apply();
+            prefs.edit().putString(PREF_LOW_API_PW, password).apply();
             return;
         }
 
