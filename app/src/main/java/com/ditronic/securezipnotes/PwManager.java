@@ -68,7 +68,13 @@ public class PwManager {
     private static final String PREF_ENC_PW_IV = "pref_enc_pw_iv" + SEC_ALIAS;
     private static final String PREF_LOW_API_PW = "pref_low_api_pw" + SEC_ALIAS;
 
-    private static final String PW_ENCRYPT_ALGORITHM = "AES/CBC/PKCS7Padding";
+    @RequiresApi(23)
+    private static final String BLOCK_MODE = KeyProperties.BLOCK_MODE_CBC;
+    @RequiresApi(23)
+    private static final String PADDING = KeyProperties.ENCRYPTION_PADDING_PKCS7;
+    @RequiresApi(23)
+    private static final String PW_ENCRYPT_ALGORITHM = "AES/" + BLOCK_MODE + "/" + PADDING;
+
     private static final String KEY_STORE = "AndroidKeyStore";
     private static final String TAG = PwManager.class.getName();
 
@@ -332,8 +338,8 @@ public class PwManager {
         // Generate a symmetric key within the AndroidKeyStore.
         final KeyGenerator keyGenerator = KeyGenerator.getInstance("AES", KEY_STORE);
         final KeyGenParameterSpec keyGenParameterSpec = new KeyGenParameterSpec.Builder(SEC_ALIAS, KeyProperties.PURPOSE_ENCRYPT | KeyProperties.PURPOSE_DECRYPT)
-                .setBlockModes(KeyProperties.BLOCK_MODE_CBC)
-                .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_PKCS7)
+                .setBlockModes(BLOCK_MODE)
+                .setEncryptionPaddings(PADDING)
                 .setUserAuthenticationRequired(true)
                 //.setUserAuthenticationValidityDurationSeconds(5) // Repeat authentication if app is force-closed
                 .build();
@@ -348,6 +354,7 @@ public class PwManager {
             throw new RuntimeException(e);
         }
 
+        // TODO: The new activity opens before this has a chance to execute...
         // Unlock the freshly created key in order to encrypt the password.
         unlockCipherWithBiometricPrompt(ac, cipherToUnlock, unlockedCipher ->  {
             if (unlockedCipher == null) {
