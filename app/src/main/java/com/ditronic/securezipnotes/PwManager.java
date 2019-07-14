@@ -1,13 +1,12 @@
 package com.ditronic.securezipnotes;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Build;
+import android.security.keystore.KeyGenParameterSpec;
 import android.security.keystore.KeyProperties;
-import android.security.keystore.KeyProtection;
 import android.text.InputType;
 import android.util.Base64;
 import android.util.Log;
@@ -23,30 +22,25 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.biometric.BiometricConstants;
 import androidx.biometric.BiometricPrompt;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 
+import com.ditronic.securezipnotes.util.Boast;
+
 import net.lingala.zip4j.model.FileHeader;
 
-import java.io.IOException;
 import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
 import java.security.KeyStore;
-import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
-import java.security.UnrecoverableEntryException;
-import java.security.cert.CertificateException;
+import java.security.NoSuchProviderException;
 import java.util.concurrent.Executor;
 
-import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.KeyGenerator;
-import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
-import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.IvParameterSpec;
 
 import static android.content.Context.MODE_PRIVATE;
@@ -66,12 +60,18 @@ public class PwManager {
     }
 
     private String password;
-    private Cipher decryptCipher;
+
+    private static final String SEC_ALIAS = "test_pw_enc_key_alias_v8";
 
     private static final String PREF_FILE = "pref_private_no_backup";
-    private static final String PREF_ENC_PW = "pref_enc_pw";
-    private static final String PREF_ENC_PW_IV = "pref_enc_pw_iv";
-    private static final String PREF_LOW_API_PW = "pref_low_api_pw";
+    private static final String PREF_ENC_PW = "pref_enc_pw" + SEC_ALIAS;
+    private static final String PREF_ENC_PW_IV = "pref_enc_pw_iv" + SEC_ALIAS;
+    private static final String PREF_LOW_API_PW = "pref_low_api_pw" + SEC_ALIAS;
+
+    private static final String PW_ENCRYPT_ALGORITHM = "AES/CBC/PKCS7Padding";
+    private static final String KEY_STORE = "AndroidKeyStore";
+    private static final String TAG = PwManager.class.getName();
+
 
     private static @Nullable byte[] getEncPw(final Context cx) {
         final SharedPreferences prefs = cx.getSharedPreferences(PREF_FILE, MODE_PRIVATE);
@@ -91,56 +91,17 @@ public class PwManager {
         return Base64.decode(encPwIv, Base64.NO_WRAP);
     }
 
-    private static void saveEncPw(final Context cx, final byte[] encPw, final byte[] encPwIv) {
-        final SharedPreferences prefs = cx.getSharedPreferences(PREF_FILE, MODE_PRIVATE);
-        SharedPreferences.Editor edit = prefs.edit();
-        edit.putString(PREF_ENC_PW, Base64.encodeToString(encPw, Base64.NO_WRAP));
-        edit.putString(PREF_ENC_PW_IV, Base64.encodeToString(encPwIv, Base64.NO_WRAP));
-        edit.apply();
-    }
 
-    private static boolean passwordMaterialAvailable(final Context cx) {
-        if (getOldApiPw(cx) != null) {
-            return true;
-        }
-        if (getEncPw(cx) != null && getEncPwIv(cx) != null) {
-            return true;
-        }
-        return false;
-    }
-
-    private static final String PW_ENCRYPT_ALGORITHM = "AES/CBC/PKCS7Padding";
-
-    private static final String TAG = PwManager.class.getName();
-
-    private static final String KEY_STORE = "AndroidKeyStore";
-
-    private static KeyStore getKeyStore() throws KeyStoreException, CertificateException, NoSuchAlgorithmException, IOException {
-        final KeyStore ks = KeyStore.getInstance(KEY_STORE);
-        ks.load(null);
-        return ks;
-    }
-
-    private static @Nullable SecretKey getPwEncKey() throws KeyStoreException, CertificateException,
-            IOException, NoSuchAlgorithmException, UnrecoverableEntryException {
-        KeyStore ks = getKeyStore();
-        if (!ks.containsAlias(SEC_ALIAS)) {
-            return null;
-        }
-        return (SecretKey)ks.getKey(SEC_ALIAS, null);
-    }
-
-    private static final String SEC_ALIAS = "test_pw_enc_key_alias_v3";
-
-    private static final int AES_KEY_LEN = 256;
-
-    private @Nullable String decryptPassword(final Context cx) {
+    private static @Nullable SecretKey getPwEncKey() {
         try {
-            return decryptPasswordUnchecked(cx);
+            final KeyStore ks = KeyStore.getInstance(KEY_STORE);
+            ks.load(null);
+            return (SecretKey) ks.getKey(SEC_ALIAS, null);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
+
 
     private static @Nullable String getOldApiPw(final Context cx) {
         if (Build.VERSION.SDK_INT >= 23) {
@@ -150,74 +111,6 @@ public class PwManager {
         return prefs.getString(PREF_LOW_API_PW, null);
     }
 
-    private @Nullable String decryptPasswordUnchecked(final Context cx)
-            throws CertificateException, IOException, NoSuchAlgorithmException, NoSuchPaddingException,
-            KeyStoreException, UnrecoverableEntryException, InvalidAlgorithmParameterException, InvalidKeyException,
-            BadPaddingException, IllegalBlockSizeException {
-
-        if (Build.VERSION.SDK_INT < 23) {
-            return getOldApiPw(cx);
-        }
-
-        final byte[] encPw = getEncPw(cx);
-        if (encPw == null) {
-            return null;
-        }
-        final byte[] encPwIv = getEncPwIv(cx);
-        if (encPwIv == null) {
-            return null;
-        }
-        final SecretKey secretKey = getPwEncKey();
-        if (secretKey == null) {
-            return null;
-        }
-
-        if (decryptCipher == null) {
-            decryptCipher = Cipher.getInstance(PW_ENCRYPT_ALGORITHM);
-            final IvParameterSpec spec = new IvParameterSpec(encPwIv);
-            decryptCipher.init(Cipher.DECRYPT_MODE, secretKey, spec);
-        }
-        //final GCMParameterSpec spec = new GCMParameterSpec(128, encPwIv);
-        // The init call may fail regularly with an UserNotAuthenticatedException.
-        return new String(decryptCipher.doFinal(encPw), "UTF-8");
-    }
-
-    private static void savePasswordUnchecked(final Context cx, final String password)
-            throws NoSuchAlgorithmException, KeyStoreException, NoSuchPaddingException, InvalidKeyException,
-            IOException, BadPaddingException, CertificateException, IllegalBlockSizeException {
-
-        if (Build.VERSION.SDK_INT < 23) {
-            // Low API levels do not support AndroidKeystore with symmetric encryption.
-            // Or they might even not support AndroidKeystore at all.
-            final SharedPreferences prefs = cx.getSharedPreferences(PREF_FILE, MODE_PRIVATE);
-            prefs.edit().putString(PREF_LOW_API_PW, password).apply();
-            return;
-        }
-
-        // The salt must be different for each file since this ZIP format uses counter mode with a constant IV!
-        // Therefore we cannot simply store a key that is derived via PBKDF2. Instead, we encrypt the password via KeyStore.
-        KeyStore ks = getKeyStore();
-
-        final KeyGenerator keyGenerator = KeyGenerator.getInstance("AES");
-        keyGenerator.init(AES_KEY_LEN);
-        final SecretKey pwEncKey = keyGenerator.generateKey();
-
-        final KeyProtection keyProtection = new KeyProtection.Builder(KeyProperties.PURPOSE_ENCRYPT | KeyProperties.PURPOSE_DECRYPT)
-                .setBlockModes(KeyProperties.BLOCK_MODE_CBC)
-                .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_PKCS7)
-                // This should be re-enabled once it works in combination with the BiometricPrompt API.
-                .setUserAuthenticationRequired(true)
-                .setUserAuthenticationValidityDurationSeconds(5) // Repeat authentication if app is force-closed
-                .build();
-        ks.setEntry(SEC_ALIAS, new KeyStore.SecretKeyEntry(pwEncKey), keyProtection);
-
-        // Use the key outside of secure hardware for the first encryption to prevent a useless authentication screen right after typing in the password.
-        final Cipher cipher = Cipher.getInstance(PW_ENCRYPT_ALGORITHM);
-        cipher.init(Cipher.ENCRYPT_MODE, pwEncKey);
-        final byte[] encPwIv = cipher.getIV();
-        final byte[] encPw = cipher.doFinal(password.getBytes("UTF-8"));
-        saveEncPw(cx, encPw, encPwIv);
-    }
 
     public @Nullable char[] getPasswordFast() {
         if (password == null) {
@@ -228,7 +121,14 @@ public class PwManager {
     }
 
 
-    private void showAuthenticationScreen(final FragmentActivity ac, final Runnable authCallback) {
+    private interface BiometricAuthCb {
+        void onBiometricPromptSuccess(@Nullable Cipher unlockedCipher);
+    }
+
+    // TODO: Check in advance whether BiometricPrompt is available
+
+    @RequiresApi(23)
+    private void unlockCipherWithBiometricPrompt(final FragmentActivity ac, final Cipher cipherToUnlock, final BiometricAuthCb authCallback) {
 
         // Here we should use BiometricPrompt.Builder.setDeviceCredentialAllowed(true).
         // However, setDeviceCredentialAllowed is not yet available within the compat lib.
@@ -249,7 +149,8 @@ public class PwManager {
             @Override
             public void onAuthenticationSucceeded(@NonNull BiometricPrompt.AuthenticationResult result) {
                 super.onAuthenticationSucceeded(result);
-                authCallback.run();
+                final BiometricPrompt.CryptoObject cryptoObject = result.getCryptoObject();
+                authCallback.onBiometricPromptSuccess(cryptoObject != null ? cryptoObject.getCipher() : null);
             }
             @Override
             public void onAuthenticationFailed() {
@@ -264,23 +165,20 @@ public class PwManager {
                 .setNegativeButtonText(ac.getString(android.R.string.cancel))
                 .build();
 
+        final BiometricPrompt.CryptoObject cryptoObject = new BiometricPrompt.CryptoObject(cipherToUnlock);
+        biometricPrompt.authenticate(promptInfo, cryptoObject);
+    }
+
+
+    private @Nullable String decryptPassword(final Context cx, final Cipher cipher) {
         try {
-            final SecretKey secretKey = getPwEncKey();
-            if (secretKey != null) {
-                decryptCipher = Cipher.getInstance(PW_ENCRYPT_ALGORITHM);
-                //final GCMParameterSpec spec = new GCMParameterSpec(128, encPwIv);
-                final IvParameterSpec spec = new IvParameterSpec(getEncPwIv(ac));
-                decryptCipher.init(Cipher.DECRYPT_MODE, getPwEncKey(), spec);
+            final byte[] encPw = getEncPw(cx);
+            if (encPw == null) {
+                return null;
             }
+            return new String(cipher.doFinal(encPw), "UTF-8");
         } catch (Exception e) {
             throw new RuntimeException(e);
-        }
-
-        if (decryptCipher != null) {
-            final BiometricPrompt.CryptoObject cryptoObject = new BiometricPrompt.CryptoObject(decryptCipher);
-            biometricPrompt.authenticate(promptInfo, cryptoObject);
-        } else {
-            biometricPrompt.authenticate(promptInfo);
         }
     }
 
@@ -308,28 +206,45 @@ public class PwManager {
             return;
         }
 
-        if (!passwordMaterialAvailable(ac)) {
+        if (Build.VERSION.SDK_INT < 23) {
+            password = getOldApiPw(ac);
+            if (password != null) {
+                onRetrievedPassword(ac, fileHeader, cb);
+            } else {
+                showPasswordDialog(ac, fileHeader, cb);
+            }
+            return;
+        }
+
+        final SecretKey secretKey = getPwEncKey();
+        final byte[] pwEncIv = getEncPwIv(ac);
+        if (secretKey == null || pwEncIv == null) {
             showPasswordDialog(ac, fileHeader, cb);
             return;
         }
 
-        // "Password material" is available at this point, but this does not imply that decryption succeeds.
-        // Therefore, we might still be forced to show the password dialog and save a new password.
-        showAuthenticationScreen(ac, new Runnable() {
-            @Override
-            public void run() {
-                password = decryptPassword(ac);
+        final Cipher cipherToUnlock;
+        try {
+            cipherToUnlock = Cipher.getInstance(PW_ENCRYPT_ALGORITHM);
+            cipherToUnlock.init(Cipher.DECRYPT_MODE, secretKey, new IvParameterSpec(pwEncIv));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        unlockCipherWithBiometricPrompt(ac, cipherToUnlock, unlockedCipher -> {
+                if (unlockedCipher != null) {
+                    password = decryptPassword(ac, unlockedCipher);
+                }
                 if (password != null) {
                     onRetrievedPassword(ac, fileHeader, cb);
                 } else {
                     showPasswordDialog(ac, fileHeader, cb);
                 }
-            }
         });
     }
 
 
-    private void showPasswordDialog(final Activity ac, final FileHeader fileHeader, final Runnable cb) {
+    private void showPasswordDialog(final FragmentActivity ac, final FileHeader fileHeader, final Runnable cb) {
 
         // Ask the user for the password (asynchronously)
         final AlertDialog.Builder builder = new AlertDialog.Builder(ac);
@@ -377,12 +292,11 @@ public class PwManager {
     }
 
 
-    private void onPosBtnClick(final Activity cx, final EditText input, final FileHeader fileHeader, final Runnable cb, final AlertDialog dialog) {
+    private void onPosBtnClick(final FragmentActivity ac, final EditText input, final FileHeader fileHeader, final Runnable cb, final AlertDialog dialog) {
         final String typedPassword = input.getText().toString();
-        if (CryptoZip.instance(cx).isPasswordValid(fileHeader, typedPassword)) {
-            //Boast.makeText(cx, "Password correct").show();
+        if (CryptoZip.instance(ac).isPasswordValid(fileHeader, typedPassword)) {
             input.setError(null);
-            saveUserProvidedPassword(cx, typedPassword);
+            saveUserProvidedPassword(ac, typedPassword);
             cb.run();
             dialog.dismiss();
         } else {
@@ -391,12 +305,74 @@ public class PwManager {
     }
 
 
-    public void saveUserProvidedPassword(final Activity cx, final String pwd) {
+    public void saveUserProvidedPassword(final FragmentActivity ac, final String pwd) {
         try {
-            savePasswordUnchecked(cx, pwd);
+            savePasswordUnchecked(ac, pwd);
             password = pwd;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+
+    private void savePasswordUnchecked(final FragmentActivity ac, final String password)
+            throws InvalidAlgorithmParameterException, NoSuchProviderException, NoSuchAlgorithmException {
+
+        // The salt must be different for each file since this ZIP format uses counter mode with a constant IV!
+        // Therefore we cannot simply store a key that is derived via PBKDF2. Instead, we encrypt the password via KeyStore.
+
+        if (Build.VERSION.SDK_INT < 23) {
+            // Low API levels do not support AndroidKeystore with symmetric encryption.
+            // Or they might even not support AndroidKeystore at all.
+            final SharedPreferences prefs = ac.getSharedPreferences(PREF_FILE, MODE_PRIVATE);
+            prefs.edit().putString(PREF_LOW_API_PW, password).apply();
+            return;
+        }
+
+        // Generate a symmetric key within the AndroidKeyStore.
+        final KeyGenerator keyGenerator = KeyGenerator.getInstance("AES", KEY_STORE);
+        final KeyGenParameterSpec keyGenParameterSpec = new KeyGenParameterSpec.Builder(SEC_ALIAS, KeyProperties.PURPOSE_ENCRYPT | KeyProperties.PURPOSE_DECRYPT)
+                .setBlockModes(KeyProperties.BLOCK_MODE_CBC)
+                .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_PKCS7)
+                .setUserAuthenticationRequired(true)
+                //.setUserAuthenticationValidityDurationSeconds(5) // Repeat authentication if app is force-closed
+                .build();
+        keyGenerator.init(keyGenParameterSpec);
+        final SecretKey secretKey = keyGenerator.generateKey();
+
+        final Cipher cipherToUnlock;
+        try {
+            cipherToUnlock = Cipher.getInstance(PW_ENCRYPT_ALGORITHM);
+            cipherToUnlock.init(Cipher.ENCRYPT_MODE, secretKey);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        // Unlock the freshly created key in order to encrypt the password.
+        unlockCipherWithBiometricPrompt(ac, cipherToUnlock, unlockedCipher ->  {
+            if (unlockedCipher == null) {
+                // Should never happen
+                Toast.makeText(ac, "Failed to encrypt the password", Toast.LENGTH_LONG).show();
+                return;
+            }
+            final byte[] encPwIv = unlockedCipher.getIV();
+            final byte[] encPw;
+            try {
+                encPw = unlockedCipher.doFinal(password.getBytes("UTF-8"));
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+            saveEncPw(ac, encPw, encPwIv);
+        });
+    }
+
+
+    private static void saveEncPw(final Context cx, final byte[] encPw, final byte[] encPwIv) {
+        final SharedPreferences prefs = cx.getSharedPreferences(PREF_FILE, MODE_PRIVATE);
+        SharedPreferences.Editor edit = prefs.edit();
+        edit.putString(PREF_ENC_PW, Base64.encodeToString(encPw, Base64.NO_WRAP));
+        edit.putString(PREF_ENC_PW_IV, Base64.encodeToString(encPwIv, Base64.NO_WRAP));
+        edit.apply();
+        Boast.makeText(cx, "Password correct").show();
     }
 }
