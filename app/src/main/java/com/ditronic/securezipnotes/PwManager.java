@@ -47,6 +47,7 @@ import javax.crypto.KeyGenerator;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.GCMParameterSpec;
+import javax.crypto.spec.IvParameterSpec;
 
 import static android.content.Context.MODE_PRIVATE;
 
@@ -65,6 +66,7 @@ public class PwManager {
     }
 
     private String password;
+    private Cipher decryptCipher;
 
     private static final String PREF_FILE = "pref_private_no_backup";
     private static final String PREF_ENC_PW = "pref_enc_pw";
@@ -107,7 +109,7 @@ public class PwManager {
         return false;
     }
 
-    private static final String PW_ENCRYPT_ALGORITHM = "AES/GCM/NoPadding";
+    private static final String PW_ENCRYPT_ALGORITHM = "AES/CBC/PKCS7Padding";
 
     private static final String TAG = PwManager.class.getName();
 
@@ -128,7 +130,7 @@ public class PwManager {
         return (SecretKey)ks.getKey(SEC_ALIAS, null);
     }
 
-    private static final String SEC_ALIAS = "pw_enc_key_alias_v2";
+    private static final String SEC_ALIAS = "test_pw_enc_key_alias_v3";
 
     private static final int AES_KEY_LEN = 256;
 
@@ -170,10 +172,13 @@ public class PwManager {
             return null;
         }
 
-        final Cipher decryptCipher = Cipher.getInstance(PW_ENCRYPT_ALGORITHM);
-        final GCMParameterSpec spec = new GCMParameterSpec(128, encPwIv);
+        if (decryptCipher == null) {
+            decryptCipher = Cipher.getInstance(PW_ENCRYPT_ALGORITHM);
+            final IvParameterSpec spec = new IvParameterSpec(encPwIv);
+            decryptCipher.init(Cipher.DECRYPT_MODE, secretKey, spec);
+        }
+        //final GCMParameterSpec spec = new GCMParameterSpec(128, encPwIv);
         // The init call may fail regularly with an UserNotAuthenticatedException.
-        decryptCipher.init(Cipher.DECRYPT_MODE, secretKey, spec);
         return new String(decryptCipher.doFinal(encPw), "UTF-8");
     }
 
@@ -198,11 +203,11 @@ public class PwManager {
         final SecretKey pwEncKey = keyGenerator.generateKey();
 
         final KeyProtection keyProtection = new KeyProtection.Builder(KeyProperties.PURPOSE_ENCRYPT | KeyProperties.PURPOSE_DECRYPT)
-                .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
-                .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
+                .setBlockModes(KeyProperties.BLOCK_MODE_CBC)
+                .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_PKCS7)
                 // This should be re-enabled once it works in combination with the BiometricPrompt API.
-                //.setUserAuthenticationRequired(true)
-                //.setUserAuthenticationValidityDurationSeconds(5) // Repeat authentication if app is force-closed
+                .setUserAuthenticationRequired(true)
+                .setUserAuthenticationValidityDurationSeconds(5) // Repeat authentication if app is force-closed
                 .build();
         ks.setEntry(SEC_ALIAS, new KeyStore.SecretKeyEntry(pwEncKey), keyProtection);
 
@@ -259,8 +264,24 @@ public class PwManager {
                 .setNegativeButtonText(ac.getString(android.R.string.cancel))
                 .build();
 
-        //biometricPrompt.authenticate(promptInfo, cryptoObject);
-        biometricPrompt.authenticate(promptInfo);
+        try {
+            final SecretKey secretKey = getPwEncKey();
+            if (secretKey != null) {
+                decryptCipher = Cipher.getInstance(PW_ENCRYPT_ALGORITHM);
+                //final GCMParameterSpec spec = new GCMParameterSpec(128, encPwIv);
+                final IvParameterSpec spec = new IvParameterSpec(getEncPwIv(ac));
+                decryptCipher.init(Cipher.DECRYPT_MODE, getPwEncKey(), spec);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        if (decryptCipher != null) {
+            final BiometricPrompt.CryptoObject cryptoObject = new BiometricPrompt.CryptoObject(decryptCipher);
+            biometricPrompt.authenticate(promptInfo, cryptoObject);
+        } else {
+            biometricPrompt.authenticate(promptInfo);
+        }
     }
 
 
