@@ -235,7 +235,6 @@ public class MainActivity extends AppCompatActivity {
 
 
     private static final int REQUEST_CODE_IMPORT_FILE_RES_CODE = 1;
-    public static final int REQUEST_CODE_CONFIRM_DEVICE_CREDENTIALS = 2;
 
     @Override
     protected void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
@@ -248,8 +247,6 @@ public class MainActivity extends AppCompatActivity {
             final Uri importUri = data.getData();
             NotesImport.importFromUri(this, importUri);
             noteSelectAdapter.notifyDataSetChanged();
-        } else if (requestCode == REQUEST_CODE_CONFIRM_DEVICE_CREDENTIALS) {
-            PwManager.instance().onActivityResult(requestCode, resultCode, data);
         }
     }
 
