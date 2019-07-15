@@ -104,7 +104,8 @@ public class PwManager {
             ks.load(null);
             return (SecretKey) ks.getKey(SEC_ALIAS, null);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            Log.e(TAG, "Failed to retrieve KeyStore key", e);
+            return null;
         }
     }
 
@@ -133,7 +134,7 @@ public class PwManager {
 
 
     @RequiresApi(23)
-    private void unlockCipherWithBiometricPrompt(final FragmentActivity ac, final Cipher cipherToUnlock, final BiometricAuthCb authCallback) {
+    private static void unlockCipherWithBiometricPrompt(final FragmentActivity ac, final Cipher cipherToUnlock, final BiometricAuthCb authCallback) {
 
         // Here we should use BiometricPrompt.Builder.setDeviceCredentialAllowed(true).
         // However, setDeviceCredentialAllowed is not yet available within the compat lib.
@@ -184,14 +185,16 @@ public class PwManager {
             }
             return new String(cipher.doFinal(encPw), "UTF-8");
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            Log.e(TAG, "doFinal failed to decrypt the password", e);
+            return null;
         }
     }
 
 
     private void onRetrievedPassword(final FragmentActivity ac, final FileHeader fileHeader, final Runnable cb) {
         if (password == null) {
-            throw new IllegalStateException();
+            showPasswordDialog(ac, fileHeader, cb);
+            return;
         }
         if (CryptoZip.instance(ac).isPasswordValid(fileHeader, password)) {
             cb.run(); // Password valid, run success callback.
@@ -199,7 +202,7 @@ public class PwManager {
             Log.d(TAG, "Outdated password, invalidate preferences and show password dialog");
             password = null;
             ac.getSharedPreferences(PREF_FILE, MODE_PRIVATE).edit().clear().apply();
-            // Ask the user for the right password.
+            // Ask the user for the right password, which runs the callback later on.
             showPasswordDialog(ac, fileHeader, cb);
         }
     }
@@ -207,26 +210,28 @@ public class PwManager {
 
     public void retrievePasswordAsync(final FragmentActivity ac, final FileHeader fileHeader, final Runnable cb) {
 
-        if (password != null) {
+        final boolean aSync = retrievePasswordInternal(ac, fileHeader, cb);
+        if (!aSync) {
             onRetrievedPassword(ac, fileHeader, cb);
-            return;
+        }
+    }
+    
+
+    private boolean retrievePasswordInternal(final FragmentActivity ac, final FileHeader fileHeader, final Runnable cb) {
+
+        if (password != null) {
+            return false; // Password already present.
         }
 
         if (Build.VERSION.SDK_INT < 23) {
             password = getOldApiPw(ac);
-            if (password != null) {
-                onRetrievedPassword(ac, fileHeader, cb);
-            } else {
-                showPasswordDialog(ac, fileHeader, cb);
-            }
-            return;
+            return false;
         }
 
         final SecretKey secretKey = getPwEncKey();
         final byte[] pwEncIv = getEncPwIv(ac);
         if (secretKey == null || pwEncIv == null) {
-            showPasswordDialog(ac, fileHeader, cb);
-            return;
+            return false; // Password material not available.
         }
 
         final Cipher cipherToUnlock;
@@ -235,21 +240,16 @@ public class PwManager {
             cipherToUnlock.init(Cipher.DECRYPT_MODE, secretKey, new IvParameterSpec(pwEncIv));
         } catch (Exception e) {
             Log.d(TAG, "Failed to init decrypt cipher", e);
-            // Fallback to password dialog
-            showPasswordDialog(ac, fileHeader, cb);
-            return;
+            return false;
         }
 
         unlockCipherWithBiometricPrompt(ac, cipherToUnlock, unlockedCipher -> {
-                if (unlockedCipher != null) {
-                    password = decryptPassword(ac, unlockedCipher);
-                }
-                if (password != null) {
-                    onRetrievedPassword(ac, fileHeader, cb);
-                } else {
-                    showPasswordDialog(ac, fileHeader, cb);
-                }
+            if (unlockedCipher != null) {
+                password = decryptPassword(ac, unlockedCipher);
+            }
+            onRetrievedPassword(ac, fileHeader, cb);
         });
+        return true; // Asynchronous case
     }
 
 
@@ -305,16 +305,25 @@ public class PwManager {
         final String typedPassword = input.getText().toString();
         if (CryptoZip.instance(ac).isPasswordValid(fileHeader, typedPassword)) {
             input.setError(null);
-            saveUserProvidedPassword(ac, typedPassword);
-            cb.run(); // TODO: Pass this callback to saveUserProvidedPassword
+            saveUserProvidedPassword(ac, typedPassword, cb);
             dialog.dismiss();
         } else {
             input.setError("Wrong password");
         }
     }
 
+    public void saveUserProvidedPassword(final FragmentActivity ac, @NonNull final String password, final Runnable cb) {
+        
+        final boolean aSync = savePasswordInternal(ac, password, cb);
+        if (!aSync) {
+            cb.run();
+        }
+    }
 
-    public void saveUserProvidedPassword(final FragmentActivity ac, final String password) {
+
+    private boolean savePasswordInternal(final FragmentActivity ac, @NonNull final String pw, final Runnable cb) {
+        
+        password = pw; // This should be assigned before any callback is executed.
 
         // The salt must be different for each file since this ZIP format uses counter mode with a constant IV!
         // Therefore we cannot simply store a key that is derived via PBKDF2. Instead, we encrypt the password via KeyStore.
@@ -323,8 +332,8 @@ public class PwManager {
             // Low API levels do not support AndroidKeystore with symmetric encryption.
             // Or they might even not support AndroidKeystore at all.
             final SharedPreferences prefs = ac.getSharedPreferences(PREF_FILE, MODE_PRIVATE);
-            prefs.edit().putString(PREF_LOW_API_PW, password).apply();
-            return;
+            prefs.edit().putString(PREF_LOW_API_PW, pw).apply();
+            return false;
         }
 
         SecretKey secretKey = null;
@@ -339,7 +348,7 @@ public class PwManager {
             }
         }
         if (secretKey == null) {
-            return; // Failure
+            return false; // Failure
         }
 
         final Cipher cipherToUnlock;
@@ -348,31 +357,25 @@ public class PwManager {
             cipherToUnlock.init(Cipher.ENCRYPT_MODE, secretKey);
         } catch (Exception e) {
             Log.d(TAG, "Failed to init encrypt cipher", e);
-            return;
+            return false;
         }
 
-        // TODO: The new activity opens before this has a chance to execute...
         // Unlock the freshly created key in order to encrypt the password.
         unlockCipherWithBiometricPrompt(ac, cipherToUnlock, unlockedCipher ->  {
-            if (unlockedCipher == null) {
-                // Should never happen
+            final boolean success = finalizePwEncryption(ac, pw, cipherToUnlock);
+            if (!success) {
                 Toast.makeText(ac, "Failed to encrypt the password", Toast.LENGTH_LONG).show();
-                return;
+            } else {
+                Toast.makeText(ac, "Password configured successfully", Toast.LENGTH_LONG).show();
             }
-            final byte[] encPwIv = unlockedCipher.getIV();
-            final byte[] encPw;
-            try {
-                encPw = unlockedCipher.doFinal(password.getBytes("UTF-8"));
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-            saveEncPw(ac, encPw, encPwIv);
+            cb.run(); // Callback must be executed regardless of success or failure.
         });
+        return true; // Asynchronous case
     }
 
 
     @RequiresApi(23)
-    private SecretKey tryGenerateKeystoreKey(final boolean userAuthenticationRequired)
+    private static SecretKey tryGenerateKeystoreKey(final boolean userAuthenticationRequired)
             throws NoSuchAlgorithmException, NoSuchProviderException, InvalidAlgorithmParameterException {
 
         // Try to generate a symmetric key within the AndroidKeyStore.
@@ -383,8 +386,25 @@ public class PwManager {
                 .setUserAuthenticationRequired(userAuthenticationRequired)
                 .build();
         keyGenerator.init(keyGenParameterSpec);
-        final SecretKey secretKey = keyGenerator.generateKey();
-        return secretKey;
+        return keyGenerator.generateKey();
+    }
+
+
+    private static boolean finalizePwEncryption(final Context cx, final String password, final @Nullable Cipher unlockedCipher) {
+        if (unlockedCipher == null) {
+            // Should never happen
+            return false;
+        }
+        final byte[] encPwIv = unlockedCipher.getIV();
+        final byte[] encPw;
+        try {
+            encPw = unlockedCipher.doFinal(password.getBytes("UTF-8"));
+        } catch (Exception e) {
+            Log.e(TAG, "doFinal failed to encrypt the password", e);
+            return false;
+        }
+        saveEncPw(cx, encPw, encPwIv);
+        return true;
     }
 
 

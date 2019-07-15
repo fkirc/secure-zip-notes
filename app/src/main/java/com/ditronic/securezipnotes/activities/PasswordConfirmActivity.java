@@ -11,14 +11,12 @@ import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import com.ditronic.securezipnotes.PwManager;
 import com.ditronic.securezipnotes.R;
-import com.ditronic.securezipnotes.util.Boast;
 import com.ditronic.securezipnotes.util.OnThrottleClickListener;
 
 public class PasswordConfirmActivity extends AppCompatActivity {
@@ -85,9 +83,9 @@ public class PasswordConfirmActivity extends AppCompatActivity {
         }
         confirmPasswordText.setError(null);
 
-        PwManager.instance().saveUserProvidedPassword(this, confirmedPassword);
-        Boast.makeText(this, "Password configured successfully", Toast.LENGTH_LONG).show();
-        MainActivity.launchCleanWithNewNote(this); // TODO: Fix the return to MainActivity, API level 29
+        PwManager.instance().saveUserProvidedPassword(this, confirmedPassword, () -> {
+            MainActivity.launchCleanWithNewNote(this);
+        });
     }
 
     @Override
