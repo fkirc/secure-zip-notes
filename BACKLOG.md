@@ -4,6 +4,8 @@ This file contains a list of potential tasks and features for the continous deve
 
 - Tests: UI tests with Espresso, reaching a reasonable code coverage.
 
+- Kotlin: Convert the app module from Java to Kotlin.
+
 - Simple search functionality for open notes.
 
 - Potential time stamp bug: Keep upstream time stamps after downloading from Dropbox/Google Drive.

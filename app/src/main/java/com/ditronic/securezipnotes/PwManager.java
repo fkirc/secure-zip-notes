@@ -128,10 +128,9 @@ public class PwManager {
 
 
     private interface BiometricAuthCb {
-        void onBiometricPromptSuccess(@Nullable Cipher unlockedCipher);
+        void onBiometricPromptFinished(@Nullable Cipher unlockedCipher);
     }
 
-    // TODO: Check in advance whether BiometricPrompt is available
 
     @RequiresApi(23)
     private void unlockCipherWithBiometricPrompt(final FragmentActivity ac, final Cipher cipherToUnlock, final BiometricAuthCb authCallback) {
@@ -145,18 +144,19 @@ public class PwManager {
             public void onAuthenticationError(int errorCode, @NonNull CharSequence errString) {
                 super.onAuthenticationError(errorCode, errString);
                 Log.d(TAG, "onAuthenticationError " + errorCode + ": " + errString);
-                // Important message in case of too many tries
                 if (errorCode != BiometricConstants.ERROR_USER_CANCELED &&
                     errorCode != BiometricConstants.ERROR_CANCELED &&
                     errorCode != BiometricConstants.ERROR_NEGATIVE_BUTTON) {
+                    // Use password dialog fallback mode in case of too many tries
                     Toast.makeText(ac, "Authentication failed: " + errString, Toast.LENGTH_LONG).show();
+                    authCallback.onBiometricPromptFinished(null);
                 }
             }
             @Override
             public void onAuthenticationSucceeded(@NonNull BiometricPrompt.AuthenticationResult result) {
                 super.onAuthenticationSucceeded(result);
                 final BiometricPrompt.CryptoObject cryptoObject = result.getCryptoObject();
-                authCallback.onBiometricPromptSuccess(cryptoObject != null ? cryptoObject.getCipher() : null);
+                authCallback.onBiometricPromptFinished(cryptoObject != null ? cryptoObject.getCipher() : null);
             }
             @Override
             public void onAuthenticationFailed() {
@@ -234,7 +234,10 @@ public class PwManager {
             cipherToUnlock = Cipher.getInstance(PW_ENCRYPT_ALGORITHM);
             cipherToUnlock.init(Cipher.DECRYPT_MODE, secretKey, new IvParameterSpec(pwEncIv));
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            Log.d(TAG, "Failed to init decrypt cipher", e);
+            // Fallback to password dialog
+            showPasswordDialog(ac, fileHeader, cb);
+            return;
         }
 
         unlockCipherWithBiometricPrompt(ac, cipherToUnlock, unlockedCipher -> {
@@ -303,7 +306,7 @@ public class PwManager {
         if (CryptoZip.instance(ac).isPasswordValid(fileHeader, typedPassword)) {
             input.setError(null);
             saveUserProvidedPassword(ac, typedPassword);
-            cb.run();
+            cb.run(); // TODO: Pass this callback to saveUserProvidedPassword
             dialog.dismiss();
         } else {
             input.setError("Wrong password");
@@ -311,18 +314,7 @@ public class PwManager {
     }
 
 
-    public void saveUserProvidedPassword(final FragmentActivity ac, final String pwd) {
-        try {
-            savePasswordUnchecked(ac, pwd);
-            password = pwd;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-
-    private void savePasswordUnchecked(final FragmentActivity ac, final String password)
-            throws InvalidAlgorithmParameterException, NoSuchProviderException, NoSuchAlgorithmException {
+    public void saveUserProvidedPassword(final FragmentActivity ac, final String password) {
 
         // The salt must be different for each file since this ZIP format uses counter mode with a constant IV!
         // Therefore we cannot simply store a key that is derived via PBKDF2. Instead, we encrypt the password via KeyStore.
@@ -335,25 +327,28 @@ public class PwManager {
             return;
         }
 
-        // Generate a symmetric key within the AndroidKeyStore.
-        final KeyGenerator keyGenerator = KeyGenerator.getInstance("AES", KEY_STORE);
-        final KeyGenParameterSpec keyGenParameterSpec = new KeyGenParameterSpec.Builder(SEC_ALIAS, KeyProperties.PURPOSE_ENCRYPT | KeyProperties.PURPOSE_DECRYPT)
-                .setBlockModes(BLOCK_MODE)
-                .setEncryptionPaddings(PADDING)
-                .setUserAuthenticationRequired(true)
-                //.setUserAuthenticationValidityDurationSeconds(5) // Repeat authentication if app is force-closed
-                .build();
-        keyGenerator.init(keyGenParameterSpec); // TODO: Catch IllegalStateException if the device is "not secure".
-        // TODO: Stage 1 fallback: setUserAuthenticationRequired(false) Stage 2 fallback: Do not use keystore, do not save anything
-        // TODO: Catch all cipher init exceptions since those may fail at any time
-        final SecretKey secretKey = keyGenerator.generateKey();
+        SecretKey secretKey = null;
+        try {
+            secretKey = tryGenerateKeystoreKey(true);
+        } catch (Exception e1) {
+            Log.d(TAG, "Failed to generate key with UserAuthenticationRequired", e1);
+            try {
+                secretKey = tryGenerateKeystoreKey(false);
+            } catch (Exception e2) {
+                Log.d(TAG, "Failed the second attempt to generate a keystore key", e2);
+            }
+        }
+        if (secretKey == null) {
+            return; // Failure
+        }
 
         final Cipher cipherToUnlock;
         try {
             cipherToUnlock = Cipher.getInstance(PW_ENCRYPT_ALGORITHM);
             cipherToUnlock.init(Cipher.ENCRYPT_MODE, secretKey);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            Log.d(TAG, "Failed to init encrypt cipher", e);
+            return;
         }
 
         // TODO: The new activity opens before this has a chance to execute...
@@ -373,6 +368,23 @@ public class PwManager {
             }
             saveEncPw(ac, encPw, encPwIv);
         });
+    }
+
+
+    @RequiresApi(23)
+    private SecretKey tryGenerateKeystoreKey(final boolean userAuthenticationRequired)
+            throws NoSuchAlgorithmException, NoSuchProviderException, InvalidAlgorithmParameterException {
+
+        // Try to generate a symmetric key within the AndroidKeyStore.
+        final KeyGenerator keyGenerator = KeyGenerator.getInstance("AES", KEY_STORE);
+        final KeyGenParameterSpec keyGenParameterSpec = new KeyGenParameterSpec.Builder(SEC_ALIAS, KeyProperties.PURPOSE_ENCRYPT | KeyProperties.PURPOSE_DECRYPT)
+                .setBlockModes(BLOCK_MODE)
+                .setEncryptionPaddings(PADDING)
+                .setUserAuthenticationRequired(userAuthenticationRequired)
+                .build();
+        keyGenerator.init(keyGenParameterSpec);
+        final SecretKey secretKey = keyGenerator.generateKey();
+        return secretKey;
     }
 
 

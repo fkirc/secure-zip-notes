@@ -87,7 +87,7 @@ public class PasswordConfirmActivity extends AppCompatActivity {
 
         PwManager.instance().saveUserProvidedPassword(this, confirmedPassword);
         Boast.makeText(this, "Password configured successfully", Toast.LENGTH_LONG).show();
-        MainActivity.launchCleanWithNewNote(this);
+        MainActivity.launchCleanWithNewNote(this); // TODO: Fix the return to MainActivity, API level 29
     }
 
     @Override
