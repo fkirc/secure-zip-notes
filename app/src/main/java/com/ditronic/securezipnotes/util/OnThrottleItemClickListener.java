@@ -9,7 +9,7 @@ public abstract class OnThrottleItemClickListener implements AdapterView.OnItemC
     private static final long THROTTLE_TIME = 500; // milliseconds
 
     private long lastClickTime = 0;
-    public abstract void onThrottleItemClick(final AdapterView<?> parent, final View view, final int position, final long id);
+    protected abstract void onThrottleItemClick(final AdapterView<?> parent, final View view, final int position, final long id);
 
     @Override
     public void onItemClick(final AdapterView<?> parent, final View view, final int position, final long id) {

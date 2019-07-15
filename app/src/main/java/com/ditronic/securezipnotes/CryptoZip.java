@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.UUID;
 
@@ -175,6 +176,7 @@ public class CryptoZip {
     public void removeFile(final Context cx, final FileHeader fileHeader) {
         if (getNumFileHeaders() <= 1) {
             // Work around seek bug with zero entries and enable a fresh import after deleting everything
+            //noinspection ResultOfMethodCallIgnored
             getMainFilePath(cx).delete();
             instance_ = null;
         } else {
@@ -191,6 +193,7 @@ public class CryptoZip {
 
     public List<FileHeader> getFileHeadersFast() {
         try {
+            //noinspection unchecked
             return zipFile.getFileHeadersFast();
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -215,7 +218,7 @@ public class CryptoZip {
 
 
     private static String inputStreamToString(final ZipInputStream is) throws IOException {
-        final InputStreamReader ir = new InputStreamReader(is, "UTF-8");
+        final InputStreamReader ir = new InputStreamReader(is, StandardCharsets.UTF_8);
         final StringBuilder sb = new StringBuilder();
         final char[] buf = new char[1024];
         int n;

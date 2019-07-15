@@ -54,7 +54,7 @@ public class MainActivity extends AppCompatActivity {
         cx.startActivity(intent);
     }
 
-    NoteSelectAdapter noteSelectAdapter;
+    private NoteSelectAdapter noteSelectAdapter;
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
@@ -77,12 +77,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onThrottleItemClick(AdapterView<?> parent, View view, int position, long id) {
                 final FileHeader fileHeader = (FileHeader)noteSelectAdapter.getItem(position);
-                PwManager.instance().retrievePasswordAsync(MainActivity.this, fileHeader, new Runnable() {
-                    @Override
-                    public void run() {
-                        NoteEditActivity.launch(MainActivity.this, fileHeader.getFileName());
-                    }
-                });
+                PwManager.instance().retrievePasswordAsync(MainActivity.this, fileHeader, () -> NoteEditActivity.launch(MainActivity.this, fileHeader.getFileName()));
             }
         });
         notesListView.setEmptyView(findViewById(R.id.list_view_empty));
@@ -120,7 +115,7 @@ public class MainActivity extends AppCompatActivity {
         BannerAds.loadBottomAdsBanner(this);
     }
 
-    void btnImportExistingNotes() {
+    private void btnImportExistingNotes() {
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.setType("*/*");
         startActivityForResult(intent, REQUEST_CODE_IMPORT_FILE_RES_CODE);
@@ -135,7 +130,7 @@ public class MainActivity extends AppCompatActivity {
         inflater.inflate(R.menu.menu_noteselect_longclick, menu);
     }
 
-    void askNoteDelete(final FileHeader fileHeader) {
+    private void askNoteDelete(final FileHeader fileHeader) {
         DeleteDialog.showDeleteQuestion("Delete " + CryptoZip.getDisplayName(fileHeader) + "?", this, new DeleteDialog.DialogActions() {
             @Override
             public void onPositiveClick() {
@@ -148,47 +143,36 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    void renameFileDialog(final FileHeader fileHeader) {
+    private void renameFileDialog(final FileHeader fileHeader) {
 
         // Retrieving the password for renames should not be necessary, but this is the current implementation
-        PwManager.instance().retrievePasswordAsync(MainActivity.this, fileHeader, new Runnable() {
-            @Override
-            public void run() {
-                final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-                builder.setTitle("Rename " + CryptoZip.getDisplayName(fileHeader));
-                final EditText input = new EditText(MainActivity.this);
-                input.setInputType(InputType.TYPE_CLASS_TEXT);
-                input.setText(CryptoZip.getDisplayName(fileHeader));
-                builder.setView(input);
-                builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        final String newName = input.getText().toString();
-                        if (newName.isEmpty()) {
-                            Boast.makeText(MainActivity.this, "Name must not be empty").show();
-                            return;
-                        }
-
-                        CryptoZip.instance(MainActivity.this).renameFile(fileHeader, newName);
-                        MainActivity.this.noteSelectAdapter.notifyDataSetChanged();
-                    }
-                });
-
-                builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.cancel();
-                    }
-                });
-                final AlertDialog dialog = builder.create();
-                final Window window = dialog.getWindow();
-                if (window != null) {
-                    // Show keyboard automatically
-                    window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+        PwManager.instance().retrievePasswordAsync(MainActivity.this, fileHeader, () -> {
+            final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+            builder.setTitle("Rename " + CryptoZip.getDisplayName(fileHeader));
+            final EditText input = new EditText(MainActivity.this);
+            input.setInputType(InputType.TYPE_CLASS_TEXT);
+            input.setText(CryptoZip.getDisplayName(fileHeader));
+            builder.setView(input);
+            builder.setPositiveButton(android.R.string.ok, (dialog, which) -> {
+                final String newName = input.getText().toString();
+                if (newName.isEmpty()) {
+                    Boast.makeText(MainActivity.this, "Name must not be empty").show();
+                    return;
                 }
-                dialog.show();
-                input.requestFocus();
+
+                CryptoZip.instance(MainActivity.this).renameFile(fileHeader, newName);
+                MainActivity.this.noteSelectAdapter.notifyDataSetChanged();
+            });
+
+            builder.setNegativeButton(android.R.string.cancel, (dialog, which) -> dialog.cancel());
+            final AlertDialog dialog = builder.create();
+            final Window window = dialog.getWindow();
+            if (window != null) {
+                // Show keyboard automatically
+                window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
             }
+            dialog.show();
+            input.requestFocus();
         });
 
     }
@@ -273,20 +257,10 @@ public class MainActivity extends AppCompatActivity {
 
         if (syncBackend.equals(DropboxFileSync.class.getSimpleName())) {
             new DropboxFileSync(this, localFile, REMOTE_BACKUP_FILE_NAME,
-                    new AbstractFileSync.SSyncCallback() {
-                        @Override
-                        public void onSyncCompleted(SSyncResult res) {
-                            MainActivity.this.onSyncCompleted(res, "Dropbox");
-                        }
-                    }).execute();
+                    res -> MainActivity.this.onSyncCompleted(res, "Dropbox")).execute();
         } else if (syncBackend.equals(DriveFileSync.class.getSimpleName())) {
             new DriveFileSync(this, localFile, REMOTE_BACKUP_FILE_NAME,
-                    new AbstractFileSync.SSyncCallback() {
-                        @Override
-                        public void onSyncCompleted(SSyncResult res) {
-                            MainActivity.this.onSyncCompleted(res, "Google Drive");
-                        }
-                    }).execute();
+                    res -> MainActivity.this.onSyncCompleted(res, "Google Drive")).execute();
         }
     }
 
@@ -310,14 +284,14 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    void createNewNote() {
+    private void createNewNote() {
         final String displayName = "Note " + (1 + CryptoZip.instance(this).getNumFileHeaders());
         final String innerFileName = CryptoZip.instance(MainActivity.this).addStream(displayName, new ByteArrayInputStream(new byte[0]));
         noteSelectAdapter.notifyDataSetChanged();
         NoteEditActivity.launch(MainActivity.this, innerFileName);
     }
 
-    void btnNewNote() {
+    private void btnNewNote() {
 
         if (CryptoZip.instance(this).getNumFileHeaders() == 0) {
             if (PwManager.instance().getPasswordFast() == null) {
@@ -328,12 +302,7 @@ public class MainActivity extends AppCompatActivity {
             }
         } else {
             final FileHeader fileHeader = CryptoZip.instance(this).getFileHeadersFast().get(0); // We use this to ensure password consistency accross the zip file
-            PwManager.instance().retrievePasswordAsync(this, fileHeader, new Runnable() {
-                @Override
-                public void run() {
-                    createNewNote();
-                }
-            });
+            PwManager.instance().retrievePasswordAsync(this, fileHeader, () -> createNewNote());
         }
     }
 

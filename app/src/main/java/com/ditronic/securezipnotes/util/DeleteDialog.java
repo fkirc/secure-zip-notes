@@ -1,7 +1,6 @@
 package com.ditronic.securezipnotes.util;
 
 import android.content.Context;
-import android.content.DialogInterface;
 
 import androidx.appcompat.app.AlertDialog;
 
@@ -9,6 +8,7 @@ public class DeleteDialog {
 
     public interface DialogActions {
         void onPositiveClick();
+        @SuppressWarnings("EmptyMethod")
         void onNegativeClick();
     }
 
@@ -16,15 +16,8 @@ public class DeleteDialog {
         new AlertDialog.Builder(cx)
                 .setIcon(android.R.drawable.ic_dialog_alert)
                 .setMessage(message)
-                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        target.onPositiveClick();
-                    }
-                }).setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int id) {
-                        target.onNegativeClick();
-                    }
-                }).show();
+                .setPositiveButton(android.R.string.yes, (dialog, id) -> target.onPositiveClick())
+                .setNegativeButton(android.R.string.no, (dialog, id) -> target.onNegativeClick())
+                .show();
     }
 }

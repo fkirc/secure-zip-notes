@@ -19,6 +19,8 @@ import com.ditronic.securezipnotes.PwManager;
 import com.ditronic.securezipnotes.R;
 import com.ditronic.securezipnotes.util.OnThrottleClickListener;
 
+import java.util.Objects;
+
 public class PasswordConfirmActivity extends AppCompatActivity {
 
     private static final String INTENT_PASSWORD = "intent_password";
@@ -39,7 +41,7 @@ public class PasswordConfirmActivity extends AppCompatActivity {
         final Toolbar toolbar = findViewById(R.id.tool_bar);
         setSupportActionBar(toolbar);
 
-        password = getIntent().getExtras().getString(INTENT_PASSWORD);
+        password = Objects.requireNonNull(getIntent().getExtras()).getString(INTENT_PASSWORD);
         confirmPasswordText = findViewById(R.id.input_password_confirm);
 
         findViewById(R.id.btn_confirm_master_password).setOnClickListener(new OnThrottleClickListener() {
@@ -49,15 +51,12 @@ public class PasswordConfirmActivity extends AppCompatActivity {
             }
         });
 
-        confirmPasswordText.setOnEditorActionListener(new EditText.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                if (actionId == EditorInfo.IME_ACTION_DONE) {
-                    savePassword();
-                    return true;
-                }
-                return false;
+        confirmPasswordText.setOnEditorActionListener((v, actionId, event) -> {
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                savePassword();
+                return true;
             }
+            return false;
         });
 
         if (getSupportActionBar() != null) { // add back arrow to toolbar
@@ -74,7 +73,7 @@ public class PasswordConfirmActivity extends AppCompatActivity {
         confirmPasswordText.requestFocus();
     }
 
-    void savePassword() {
+    private void savePassword() {
 
         final String confirmedPassword = confirmPasswordText.getText().toString();
         if (!confirmedPassword.equals(password)) {

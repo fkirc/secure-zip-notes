@@ -10,7 +10,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
@@ -22,7 +21,7 @@ import net.lingala.zip4j.util.Zip4jUtil;
 
 public class NoteSelectAdapter extends BaseAdapter {
 
-    private Context cx;
+    private final Context cx;
 
     public NoteSelectAdapter(@NonNull Context context) {
         cx = context;

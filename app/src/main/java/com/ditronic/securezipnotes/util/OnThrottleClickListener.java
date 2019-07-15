@@ -8,7 +8,7 @@ public abstract class OnThrottleClickListener implements View.OnClickListener {
     private static final long THROTTLE_TIME = 500; // milliseconds
 
     private long lastClickTime = 0;
-    public abstract void onThrottleClick(View v);
+    protected abstract void onThrottleClick(View v);
 
     @Override
     public void onClick(View v) {

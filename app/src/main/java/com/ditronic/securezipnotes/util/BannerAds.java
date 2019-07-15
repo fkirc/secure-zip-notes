@@ -9,6 +9,7 @@ import com.google.android.gms.ads.MobileAds;*/
 
 public class BannerAds {
 
+    @SuppressWarnings("unused")
     public static void loadBottomAdsBanner(final Activity ac) {
         final String TEST_AD_UNIT_ID = "ca-app-pub-3940256099942544/6300978111";
         final String PRODUCTION_AD_UNIT_ID = "ca-app-pub-3394747202744753/2613883108";

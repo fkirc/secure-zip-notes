@@ -1,7 +1,6 @@
 package com.ditronic.securezipnotes;
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.net.Uri;
 import android.util.Log;
 
@@ -31,9 +30,7 @@ public class NotesImport {
     private static void alertDialog(final Context cx, final String message) {
         new AlertDialog.Builder(cx)
                 .setMessage(message)
-                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                    }
+                .setPositiveButton(android.R.string.ok, (dialog, which) -> {
                 }).show();
     }
 
@@ -49,7 +46,7 @@ public class NotesImport {
             return false;
         }
 
-        final List<FileHeader> fileHeaders = tmpZipFile.getFileHeadersFast();
+        @SuppressWarnings("unchecked") final List<FileHeader> fileHeaders = tmpZipFile.getFileHeadersFast();
 
         for (final FileHeader fh : fileHeaders) {
             if (fh.isDirectory()) {
@@ -86,6 +83,7 @@ public class NotesImport {
         return true;
     }
 
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     public static void importFromFile(final Context cx, final File tmpFile, final String successMessage) {
         if (!isValidAesZipFile(cx, tmpFile)) {
             tmpFile.delete();

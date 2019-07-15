@@ -22,6 +22,8 @@ import com.ditronic.securezipnotes.util.Boast;
 
 import net.lingala.zip4j.model.FileHeader;
 
+import java.util.Objects;
+
 public class NoteEditActivity extends AppCompatActivity {
 
     private static final String INNER_FILE_NAME = "inner_file_name";
@@ -40,7 +42,7 @@ public class NoteEditActivity extends AppCompatActivity {
 
     private static final int MIN_API_COPY_READ_ONLY = 23;
 
-    void applyEditMode(final boolean enable) {
+    private void applyEditMode(final boolean enable) {
         editMode = enable;
 
         // Rather simple procedure for title edit text
@@ -102,7 +104,7 @@ public class NoteEditActivity extends AppCompatActivity {
                 menu.clear(); // We only want copy functionality, no paste, no cut.
                 menu.add(0, android.R.id.copy, 0, title);
             }
-            catch (Exception e) {
+            catch (Exception ignored) {
             }
             return true;
         }
@@ -133,11 +135,11 @@ public class NoteEditActivity extends AppCompatActivity {
         }
     }
 
-    FileHeader getFileHeader() {
+    private FileHeader getFileHeader() {
         return CryptoZip.instance(this).getFileHeader(innerFileName);
     }
 
-    void saveContent() {
+    private void saveContent() {
         if (!editMode) {
             return;
         }
@@ -157,7 +159,7 @@ public class NoteEditActivity extends AppCompatActivity {
         Boast.makeText(this, "Saved " + CryptoZip.getDisplayName(getFileHeader())).show();
     }
 
-    void saveClick() {
+    private void saveClick() {
         saveContent();
         applyEditMode(false);
     }
@@ -181,7 +183,7 @@ public class NoteEditActivity extends AppCompatActivity {
         if (savedInstanceState != null) {
             innerFileName = savedInstanceState.getString(INNER_FILE_NAME);
         } else {
-            innerFileName = getIntent().getExtras().getString(INNER_FILE_NAME);
+            innerFileName = Objects.requireNonNull(getIntent().getExtras()).getString(INNER_FILE_NAME);
         }
 
         final FileHeader fileHeader = CryptoZip.instance(this).getFileHeader(innerFileName);

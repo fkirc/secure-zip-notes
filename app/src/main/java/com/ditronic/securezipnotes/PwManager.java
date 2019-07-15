@@ -30,6 +30,7 @@ import androidx.fragment.app.FragmentActivity;
 
 import net.lingala.zip4j.model.FileHeader;
 
+import java.nio.charset.StandardCharsets;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.KeyStore;
 import java.security.NoSuchAlgorithmException;
@@ -183,7 +184,7 @@ public class PwManager {
             if (encPw == null) {
                 return null;
             }
-            return new String(cipher.doFinal(encPw), "UTF-8");
+            return new String(cipher.doFinal(encPw), StandardCharsets.UTF_8);
         } catch (Exception e) {
             Log.e(TAG, "doFinal failed to decrypt the password", e);
             return null;
@@ -262,27 +263,16 @@ public class PwManager {
         input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
         input.setHint("Master password");
         builder.setView(input);
-        builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                // Ignored
-            }
-        }).setNeutralButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.cancel();
-            }
-        });
+        builder.setPositiveButton(android.R.string.ok, (dialog, which) -> {
+            // Ignored
+        }).setNeutralButton(android.R.string.cancel, (dialog, which) -> dialog.cancel());
         final android.app.AlertDialog dialog = builder.create();
-        input.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(final TextView v, final int actionId, final KeyEvent event) {
-                if (actionId == EditorInfo.IME_ACTION_DONE) {
-                    onPosBtnClick(ac, input, fileHeader, cb, dialog);
-                    return true;
-                }
-                return false;
+        input.setOnEditorActionListener((v, actionId, event) -> {
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                onPosBtnClick(ac, input, fileHeader, cb, dialog);
+                return true;
             }
+            return false;
         });
         final Window window = dialog.getWindow();
         if (window != null) {
@@ -292,12 +282,7 @@ public class PwManager {
         dialog.show();
         input.requestFocus();
         final Button posBtn = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
-        posBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                onPosBtnClick(ac, input, fileHeader, cb, dialog);
-            }
-        });
+        posBtn.setOnClickListener(view -> onPosBtnClick(ac, input, fileHeader, cb, dialog));
     }
 
 
@@ -398,7 +383,7 @@ public class PwManager {
         final byte[] encPwIv = unlockedCipher.getIV();
         final byte[] encPw;
         try {
-            encPw = unlockedCipher.doFinal(password.getBytes("UTF-8"));
+            encPw = unlockedCipher.doFinal(password.getBytes(StandardCharsets.UTF_8));
         } catch (Exception e) {
             Log.e(TAG, "doFinal failed to encrypt the password", e);
             return false;

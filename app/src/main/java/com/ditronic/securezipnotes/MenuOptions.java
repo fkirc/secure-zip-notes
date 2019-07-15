@@ -26,6 +26,7 @@ public class MenuOptions {
         return dateString + "_securezipnotes.aeszip";
     }
 
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     private static void exportZipFile(final Activity ac) {
 
         final File zipNotes = CryptoZip.getMainFilePath(ac);

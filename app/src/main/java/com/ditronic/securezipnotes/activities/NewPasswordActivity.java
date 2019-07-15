@@ -48,12 +48,7 @@ public class NewPasswordActivity extends AppCompatActivity {
 
         passwordText.setText(generatePassword());
 
-        findViewById(R.id.btn_generate_master_password).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                passwordText.setText(generatePassword());
-            }
-        });
+        findViewById(R.id.btn_generate_master_password).setOnClickListener(v -> passwordText.setText(generatePassword()));
 
         findViewById(R.id.btn_next).setOnClickListener(new OnThrottleClickListener() {
             @Override
@@ -62,15 +57,12 @@ public class NewPasswordActivity extends AppCompatActivity {
             }
         });
 
-        passwordText.setOnEditorActionListener(new EditText.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                if (actionId == EditorInfo.IME_ACTION_DONE) {
-                    btnNext();
-                    return true;
-                }
-                return false;
+        passwordText.setOnEditorActionListener((v, actionId, event) -> {
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                btnNext();
+                return true;
             }
+            return false;
         });
 
         if (getSupportActionBar() != null) {
@@ -91,7 +83,7 @@ public class NewPasswordActivity extends AppCompatActivity {
         }
     }
 
-    void btnNext() {
+    private void btnNext() {
 
         final String password = passwordText.getText().toString();
 
