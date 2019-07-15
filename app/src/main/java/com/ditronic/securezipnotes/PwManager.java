@@ -28,8 +28,6 @@ import androidx.biometric.BiometricPrompt;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 
-import com.ditronic.securezipnotes.util.Boast;
-
 import net.lingala.zip4j.model.FileHeader;
 
 import java.security.InvalidAlgorithmParameterException;
@@ -61,7 +59,7 @@ public class PwManager {
 
     private String password;
 
-    private static final String SEC_ALIAS = "test_pw_enc_key_alias_v8";
+    private static final String SEC_ALIAS = "pw_enc_key_alias_v3";
 
     private static final String PREF_FILE = "pref_private_no_backup";
     private static final String PREF_ENC_PW = "pref_enc_pw" + SEC_ALIAS;
@@ -148,9 +146,11 @@ public class PwManager {
                 if (errorCode != BiometricConstants.ERROR_USER_CANCELED &&
                     errorCode != BiometricConstants.ERROR_CANCELED &&
                     errorCode != BiometricConstants.ERROR_NEGATIVE_BUTTON) {
-                    // Use password dialog fallback mode in case of too many tries
-                    Toast.makeText(ac, "Authentication failed: " + errString, Toast.LENGTH_LONG).show();
-                    authCallback.onBiometricPromptFinished(null);
+                    //Toast.makeText(ac, "Authentication failed: " + errString, Toast.LENGTH_LONG).show();
+
+                    // Try to use the original cipher in case of authentication errors.
+                    // This should work in case of devices that do not have any fingerprint registered.
+                    authCallback.onBiometricPromptFinished(cipherToUnlock);
                 }
             }
             @Override
@@ -363,10 +363,10 @@ public class PwManager {
         // Unlock the freshly created key in order to encrypt the password.
         unlockCipherWithBiometricPrompt(ac, cipherToUnlock, unlockedCipher ->  {
             final boolean success = finalizePwEncryption(ac, pw, cipherToUnlock);
-            if (!success) {
-                Toast.makeText(ac, "Failed to encrypt the password", Toast.LENGTH_LONG).show();
-            } else {
+            if (success) {
                 Toast.makeText(ac, "Password configured successfully", Toast.LENGTH_LONG).show();
+            } else {
+                Toast.makeText(ac, "Failed to encrypt the password", Toast.LENGTH_LONG).show();
             }
             cb.run(); // Callback must be executed regardless of success or failure.
         });
@@ -403,17 +403,13 @@ public class PwManager {
             Log.e(TAG, "doFinal failed to encrypt the password", e);
             return false;
         }
-        saveEncPw(cx, encPw, encPwIv);
-        return true;
-    }
 
-
-    private static void saveEncPw(final Context cx, final byte[] encPw, final byte[] encPwIv) {
+        // Save the encrypted password
         final SharedPreferences prefs = cx.getSharedPreferences(PREF_FILE, MODE_PRIVATE);
         SharedPreferences.Editor edit = prefs.edit();
         edit.putString(PREF_ENC_PW, Base64.encodeToString(encPw, Base64.NO_WRAP));
         edit.putString(PREF_ENC_PW_IV, Base64.encodeToString(encPwIv, Base64.NO_WRAP));
         edit.apply();
-        Boast.makeText(cx, "Password correct").show();
+        return true;
     }
 }
