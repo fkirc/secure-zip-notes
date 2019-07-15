@@ -343,7 +343,9 @@ public class PwManager {
                 .setUserAuthenticationRequired(true)
                 //.setUserAuthenticationValidityDurationSeconds(5) // Repeat authentication if app is force-closed
                 .build();
-        keyGenerator.init(keyGenParameterSpec);
+        keyGenerator.init(keyGenParameterSpec); // TODO: Catch IllegalStateException if the device is "not secure".
+        // TODO: Stage 1 fallback: setUserAuthenticationRequired(false) Stage 2 fallback: Do not use keystore, do not save anything
+        // TODO: Catch all cipher init exceptions since those may fail at any time
         final SecretKey secretKey = keyGenerator.generateKey();
 
         final Cipher cipherToUnlock;
