@@ -2,7 +2,6 @@ package com.ditronic.securezipnotes;
 
 import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.security.keystore.KeyGenParameterSpec;
@@ -10,14 +9,11 @@ import android.security.keystore.KeyProperties;
 import android.text.InputType;
 import android.util.Base64;
 import android.util.Log;
-import android.view.KeyEvent;
-import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;

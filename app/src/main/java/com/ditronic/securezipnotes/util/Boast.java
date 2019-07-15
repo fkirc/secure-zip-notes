@@ -16,7 +16,7 @@ import java.lang.ref.WeakReference;
  * subsequent notification. This default behaviour can be changed by calling
  * certain methods like {@link #show(boolean)}.
  */
-@SuppressWarnings("WeakerAccess")
+@SuppressWarnings({"WeakerAccess", "unused"})
 public class Boast
 {
     /**

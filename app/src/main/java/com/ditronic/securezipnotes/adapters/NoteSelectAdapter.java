@@ -27,6 +27,7 @@ public class NoteSelectAdapter extends BaseAdapter {
         cx = context;
     }
 
+    @SuppressWarnings("unused")
     private static final String TAG = NoteSelectAdapter.class.getSimpleName();
 
     @Override

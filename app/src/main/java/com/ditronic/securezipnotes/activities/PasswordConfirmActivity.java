@@ -3,14 +3,12 @@ package com.ditronic.securezipnotes.activities;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
-import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -82,9 +80,7 @@ public class PasswordConfirmActivity extends AppCompatActivity {
         }
         confirmPasswordText.setError(null);
 
-        PwManager.instance().saveUserProvidedPassword(this, confirmedPassword, () -> {
-            MainActivity.launchCleanWithNewNote(this);
-        });
+        PwManager.instance().saveUserProvidedPassword(this, confirmedPassword, () -> MainActivity.launchCleanWithNewNote(this));
     }
 
     @Override

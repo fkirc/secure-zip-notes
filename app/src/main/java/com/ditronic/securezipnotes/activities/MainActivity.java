@@ -1,7 +1,6 @@
 package com.ditronic.securezipnotes.activities;
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -225,7 +224,7 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
 
         DriveFileSync.onActivityResultOauthSignIn(this, requestCode, resultCode, data,
-                () -> initiateFileSync());
+                this::initiateFileSync);
 
         if (requestCode == REQUEST_CODE_IMPORT_FILE_RES_CODE && resultCode == RESULT_OK) {
             final Uri importUri = data.getData();
@@ -302,7 +301,7 @@ public class MainActivity extends AppCompatActivity {
             }
         } else {
             final FileHeader fileHeader = CryptoZip.instance(this).getFileHeadersFast().get(0); // We use this to ensure password consistency accross the zip file
-            PwManager.instance().retrievePasswordAsync(this, fileHeader, () -> createNewNote());
+            PwManager.instance().retrievePasswordAsync(this, fileHeader, this::createNewNote);
         }
     }
 

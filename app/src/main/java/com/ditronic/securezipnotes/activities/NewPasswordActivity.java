@@ -1,12 +1,10 @@
 package com.ditronic.securezipnotes.activities;
 
 import android.os.Bundle;
-import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
-import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -18,6 +16,7 @@ import java.security.SecureRandom;
 
 
 public class NewPasswordActivity extends AppCompatActivity {
+    @SuppressWarnings("unused")
     private static final String TAG = NewPasswordActivity.class.getName();
 
     private static final String ALPHABET = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";

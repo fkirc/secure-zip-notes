@@ -189,6 +189,7 @@ public class CryptoZip {
         Boast.makeText(cx, "Removed " + getDisplayName(fileHeader)).show();
     }
 
+    @SuppressWarnings("unused")
     private static final String TAG = CryptoZip.class.getName();
 
     public List<FileHeader> getFileHeadersFast() {
