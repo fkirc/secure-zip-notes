@@ -55,12 +55,12 @@ import net.lingala.zip4j.zip.ZipEngine;
 public class ZipFile {
 
 	/** -------------------- DiTronic changes -------------------- **/
-	public List getFileHeadersFast() {
+	public List<FileHeader> getFileHeadersFast() {
 		// Skip reading file headers
 		if (zipModel == null || zipModel.getCentralDirectory() == null) {
 			return null;
 		}
-		return zipModel.getCentralDirectory().getFileHeaders();
+		return (List<FileHeader>)zipModel.getCentralDirectory().getFileHeaders();
 	}
 	/** -------------------- End DiTronic changes -------------------- **/
 

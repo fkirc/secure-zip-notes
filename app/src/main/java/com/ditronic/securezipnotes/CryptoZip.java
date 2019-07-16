@@ -104,7 +104,7 @@ public class CryptoZip {
         parameters.setEncryptionMethod(Zip4jConstants.ENC_METHOD_AES);
         parameters.setAesKeyStrength(Zip4jConstants.AES_STRENGTH_256);
 
-        parameters.setPassword(PwManager.instance().getPasswordFast());
+        parameters.setPassword(PwManager.Companion.instance().getPasswordFast());
 
         try {
             zipFile.addStream(is, parameters);
@@ -131,7 +131,7 @@ public class CryptoZip {
 
     public void renameFile(final FileHeader fileHeader, final String newDisplayName) {
 
-        fileHeader.setPassword(PwManager.instance().getPasswordFast());
+        fileHeader.setPassword(PwManager.Companion.instance().getPasswordFast());
 
         try {
             final ZipInputStream is = zipFile.getInputStream(fileHeader);
@@ -232,7 +232,7 @@ public class CryptoZip {
 
     public @Nullable String extractFileString(final FileHeader fileHeader) {
 
-        final char[] pw = PwManager.instance().getPasswordFast();
+        final char[] pw = PwManager.Companion.instance().getPasswordFast();
         if (pw == null) {
             return null; // Prior singleton instance has been killed, we cannot recreate it synchronously
         }
