@@ -2,17 +2,15 @@ package com.ditronic.securezipnotes
 
 import android.app.AlertDialog
 import android.content.Context
-import android.content.SharedPreferences
+import android.content.Context.MODE_PRIVATE
 import android.os.Build
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
 import android.text.InputType
 import android.util.Base64
 import android.util.Log
-import android.view.Window
 import android.view.WindowManager
 import android.view.inputmethod.EditorInfo
-import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import androidx.annotation.RequiresApi
@@ -20,22 +18,16 @@ import androidx.biometric.BiometricConstants
 import androidx.biometric.BiometricPrompt
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
-
 import net.lingala.zip4j.model.FileHeader
-
 import java.nio.charset.StandardCharsets
 import java.security.InvalidAlgorithmParameterException
 import java.security.KeyStore
 import java.security.NoSuchAlgorithmException
 import java.security.NoSuchProviderException
-import java.util.concurrent.Executor
-
 import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
 import javax.crypto.spec.IvParameterSpec
-
-import android.content.Context.MODE_PRIVATE
 
 class PwManager private constructor() {
 
@@ -133,11 +125,11 @@ class PwManager private constructor() {
         input.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
         input.hint = "Master password"
         builder.setView(input)
-        builder.setPositiveButton(android.R.string.ok) { dialog, which ->
+        builder.setPositiveButton(android.R.string.ok) { _, _ ->
             // Ignored
-        }.setNeutralButton(android.R.string.cancel) { dialog, which -> dialog.cancel() }
+        }.setNeutralButton(android.R.string.cancel) { dialog, _ -> dialog.cancel() }
         val dialog = builder.create()
-        input.setOnEditorActionListener { v, actionId, event ->
+        input.setOnEditorActionListener { _, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_DONE) {
                 onPosBtnClick(ac, input, fileHeader, cb, dialog)
                 return@setOnEditorActionListener true
@@ -216,7 +208,7 @@ class PwManager private constructor() {
 
         // Unlock the freshly created key in order to encrypt the password.
         unlockCipherWithBiometricPrompt(ac, cipherToUnlock, { unlockedCipher ->
-            val success = finalizePwEncryption(ac, pw, cipherToUnlock)
+            val success = finalizePwEncryption(ac, pw, unlockedCipher)
             if (success) {
                 Toast.makeText(ac, "Password configured successfully", Toast.LENGTH_LONG).show()
             } else {

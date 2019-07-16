@@ -31,7 +31,7 @@ class NoteEditActivity : AppCompatActivity() {
     private var innerFileName: String? = null
 
     private val fileHeader: FileHeader
-        get() = CryptoZip.instance(this).getFileHeader(innerFileName)
+        get() = CryptoZip.instance(this).getFileHeader(innerFileName!!)!!
 
     private fun applyEditMode(enable: Boolean) {
         editMode = enable
@@ -137,7 +137,7 @@ class NoteEditActivity : AppCompatActivity() {
             editTextTitle!!.setText(CryptoZip.getDisplayName(fileHeader))
         }
         secretContent = newContent
-        innerFileName = CryptoZip.instance(this).updateStream(fileHeader, newFileName, secretContent)
+        innerFileName = CryptoZip.instance(this).updateStream(fileHeader, newFileName, secretContent!!)
         Boast.makeText(this, "Saved " + CryptoZip.getDisplayName(fileHeader)).show()
     }
 
@@ -166,7 +166,7 @@ class NoteEditActivity : AppCompatActivity() {
             innerFileName = Objects.requireNonNull(intent.extras).getString(INNER_FILE_NAME)
         }
 
-        val fileHeader = CryptoZip.instance(this).getFileHeader(innerFileName)
+        val fileHeader = CryptoZip.instance(this).getFileHeader(innerFileName!!)
 
         if (supportActionBar != null) { // add back arrow to toolbar
             supportActionBar!!.setDisplayHomeAsUpEnabled(true)
@@ -175,7 +175,7 @@ class NoteEditActivity : AppCompatActivity() {
             supportActionBar!!.setDisplayShowTitleEnabled(false)
         }
 
-        secretContent = CryptoZip.instance(this).extractFileString(fileHeader)
+        secretContent = CryptoZip.instance(this).extractFileString(fileHeader!!)
         if (secretContent == null) {
             finish() // Should almost never happen
             return

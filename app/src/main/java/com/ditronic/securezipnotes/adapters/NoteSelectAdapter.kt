@@ -24,7 +24,7 @@ class NoteSelectAdapter(private val cx: Context) : BaseAdapter() {
     }
 
     override fun getItem(position: Int): Any {
-        return CryptoZip.instance(cx).fileHeadersFast[count - position - 1]
+        return CryptoZip.instance(cx).fileHeadersFast!![count - position - 1]
     }
 
     override fun getItemId(position: Int): Long {

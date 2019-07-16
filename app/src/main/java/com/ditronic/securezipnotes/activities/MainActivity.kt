@@ -268,7 +268,7 @@ class MainActivity : AppCompatActivity() {
                 createNewNote()
             }
         } else {
-            val fileHeader = CryptoZip.instance(this).fileHeadersFast[0] // We use this to ensure password consistency accross the zip file
+            val fileHeader = CryptoZip.instance(this).fileHeadersFast!![0] // We use this to ensure password consistency accross the zip file
             PwManager.instance().retrievePasswordAsync(this, fileHeader) { this.createNewNote() }
         }
     }
