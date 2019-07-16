@@ -80,7 +80,7 @@ public class PasswordConfirmActivity extends AppCompatActivity {
         }
         confirmPasswordText.setError(null);
 
-        PwManager.instance().saveUserProvidedPassword(this, confirmedPassword, () -> MainActivity.launchCleanWithNewNote(this));
+        PwManager.instance().saveUserProvidedPassword(this, confirmedPassword, () -> MainActivity.Companion.launchCleanWithNewNote(this));
     }
 
     @Override
