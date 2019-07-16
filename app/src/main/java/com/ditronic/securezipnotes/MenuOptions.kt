@@ -2,21 +2,16 @@ package com.ditronic.securezipnotes
 
 import android.app.Activity
 import android.content.Intent
-import android.net.Uri
 import android.view.MenuItem
-
 import androidx.core.content.FileProvider
-
-import java.io.File
-import java.io.IOException
-import java.text.SimpleDateFormat
-import java.util.Calendar
-import java.util.Locale
-
+import com.ditronic.securezipnotes.util.Boast
 import com.ditronic.simplefilesync.DriveFileSync
 import com.ditronic.simplefilesync.DropboxFileSync
 import com.ditronic.simplefilesync.util.FilesUtil
-import com.ditronic.securezipnotes.util.Boast
+import java.io.File
+import java.io.IOException
+import java.text.SimpleDateFormat
+import java.util.*
 
 object MenuOptions {
 

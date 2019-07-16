@@ -5,19 +5,15 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
-import android.view.Window
 import android.view.WindowManager
 import android.view.inputmethod.EditorInfo
 import android.widget.EditText
-
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
-
 import com.ditronic.securezipnotes.PwManager
 import com.ditronic.securezipnotes.R
 import com.ditronic.securezipnotes.util.OnThrottleClickListener
-
-import java.util.Objects
+import java.util.*
 
 class PasswordConfirmActivity : AppCompatActivity() {
 
@@ -50,7 +46,7 @@ class PasswordConfirmActivity : AppCompatActivity() {
         if (supportActionBar != null) { // add back arrow to toolbar
             supportActionBar!!.setDisplayHomeAsUpEnabled(true)
             supportActionBar!!.setDisplayShowHomeEnabled(true)
-            supportActionBar!!.setTitle("Confirm Master Password")
+            supportActionBar!!.title = "Confirm Master Password"
         }
 
         val window = window
@@ -71,18 +67,18 @@ class PasswordConfirmActivity : AppCompatActivity() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
+        return when (item.itemId) {
             android.R.id.home -> {
                 onBackPressed()
-                return true
+                true
             }
-            else -> return super.onOptionsItemSelected(item)
+            else -> super.onOptionsItemSelected(item)
         }
     }
 
     companion object {
 
-        private val INTENT_PASSWORD = "intent_password"
+        private const val INTENT_PASSWORD = "intent_password"
 
         fun launch(cx: Context, password: String) {
             val intent = Intent(cx, PasswordConfirmActivity::class.java)

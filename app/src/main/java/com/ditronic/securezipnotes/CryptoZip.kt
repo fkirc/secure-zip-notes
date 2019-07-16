@@ -211,7 +211,7 @@ class CryptoZip private constructor(cx: Context) {
             return instance_!!
         }
 
-        private val MAIN_FILE_NAME = "securezipnotes_internal.aeszip"
+        private const val MAIN_FILE_NAME = "securezipnotes_internal.aeszip"
         private val UUID_SEPARATOR = "__"
         val MIN_INNER_FILE_NAME_LEN = UUID_SEPARATOR.length + 32 + 4
 

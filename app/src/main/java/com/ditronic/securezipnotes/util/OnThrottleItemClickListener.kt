@@ -20,6 +20,6 @@ abstract class OnThrottleItemClickListener : AdapterView.OnItemClickListener {
 
     companion object {
 
-        private val THROTTLE_TIME: Long = 500 // milliseconds
+        private const val THROTTLE_TIME: Long = 500 // milliseconds
     }
 }

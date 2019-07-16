@@ -160,10 +160,10 @@ class NoteEditActivity : AppCompatActivity() {
         editTextTitle = findViewById(R.id.edit_text_title)
         editTextMain = findViewById(R.id.edit_text_main)
 
-        if (savedInstanceState != null) {
-            innerFileName = savedInstanceState.getString(INNER_FILE_NAME)
+        innerFileName = if (savedInstanceState != null) {
+            savedInstanceState.getString(INNER_FILE_NAME)
         } else {
-            innerFileName = Objects.requireNonNull(intent.extras).getString(INNER_FILE_NAME)
+            Objects.requireNonNull(intent.extras).getString(INNER_FILE_NAME)
         }
 
         val fileHeader = CryptoZip.instance(this).getFileHeader(innerFileName!!)
@@ -210,26 +210,26 @@ class NoteEditActivity : AppCompatActivity() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
+        return when (item.itemId) {
             android.R.id.home -> {
                 onBackPressed()
-                return true
+                true
             }
             R.id.action_edit_note -> {
                 applyEditMode(true)
-                return true
+                true
             }
             R.id.action_save_note -> {
                 saveClick()
-                return true
+                true
             }
-            else -> return super.onOptionsItemSelected(item)
+            else -> super.onOptionsItemSelected(item)
         }
     }
 
     companion object {
 
-        private val INNER_FILE_NAME = "inner_file_name"
+        private const val INNER_FILE_NAME = "inner_file_name"
 
         fun launch(cx: Context, innerFileName: String) {
             val intent = Intent(cx, NoteEditActivity::class.java)
@@ -237,6 +237,6 @@ class NoteEditActivity : AppCompatActivity() {
             cx.startActivity(intent)
         }
 
-        private val MIN_API_COPY_READ_ONLY = 23
+        private const val MIN_API_COPY_READ_ONLY = 23
     }
 }

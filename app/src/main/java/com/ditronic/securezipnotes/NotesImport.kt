@@ -39,32 +39,32 @@ object NotesImport {
         val fileHeaders = tmpZipFile.fileHeadersFast
 
         for (fh in fileHeaders!!) {
-            if (fh.isDirectory()) {
+            if (fh.isDirectory) {
                 alertDialog(cx, "Import failed. Zip files with subdirectories are not supported.")
                 return false
             }
         }
         for (fh in fileHeaders) {
-            if (!fh.isEncrypted()) {
+            if (!fh.isEncrypted) {
                 alertDialog(cx, "Import failed. Zip files with non-encrypted files are not supported.")
                 return false
             }
         }
         for (fh in fileHeaders) {
-            if (fh.getEncryptionMethod() != Zip4jConstants.ENC_METHOD_AES) {
+            if (fh.encryptionMethod != Zip4jConstants.ENC_METHOD_AES) {
                 alertDialog(cx, "Import failed due to unsupported encryption algorithm. This app only supports Zip files with AES encryption.")
                 return false
             }
         }
         for (fh in fileHeaders) {
-            val aesExtraDataRecord = fh.getAesExtraDataRecord()
+            val aesExtraDataRecord = fh.aesExtraDataRecord
             if (aesExtraDataRecord == null) {
                 alertDialog(cx, "Import failed. Could not find AES data record.")
                 return false
             }
         }
         for (fh in fileHeaders) {
-            if (fh.getFileName().length < MIN_INNER_FILE_NAME_LEN) {
+            if (fh.fileName.length < MIN_INNER_FILE_NAME_LEN) {
                 alertDialog(cx, "Import failed due to short inner file names. Inner file names must be long enough to contain a unique identifier at the end of the file name.")
                 return false
             }

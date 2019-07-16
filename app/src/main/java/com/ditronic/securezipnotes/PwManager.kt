@@ -106,12 +106,12 @@ class PwManager private constructor() {
             return false
         }
 
-        unlockCipherWithBiometricPrompt(ac, cipherToUnlock, { unlockedCipher ->
+        unlockCipherWithBiometricPrompt(ac, cipherToUnlock) { unlockedCipher ->
             if (unlockedCipher != null) {
                 password = decryptPassword(ac, unlockedCipher)
             }
             onRetrievedPassword(ac, fileHeader, cb)
-        })
+        }
         return true // Asynchronous case
     }
 
@@ -207,7 +207,7 @@ class PwManager private constructor() {
         }
 
         // Unlock the freshly created key in order to encrypt the password.
-        unlockCipherWithBiometricPrompt(ac, cipherToUnlock, { unlockedCipher ->
+        unlockCipherWithBiometricPrompt(ac, cipherToUnlock) { unlockedCipher ->
             val success = finalizePwEncryption(ac, pw, unlockedCipher)
             if (success) {
                 Toast.makeText(ac, "Password configured successfully", Toast.LENGTH_LONG).show()
@@ -215,7 +215,7 @@ class PwManager private constructor() {
                 Toast.makeText(ac, "Failed to encrypt the password", Toast.LENGTH_LONG).show()
             }
             cb() // Callback must be executed regardless of success or failure.
-        })
+        }
         return true // Asynchronous case
     }
 
@@ -227,9 +227,9 @@ class PwManager private constructor() {
             return instance_
         }
 
-        private val SEC_ALIAS = "pw_enc_key_alias_v3"
+        private const val SEC_ALIAS = "pw_enc_key_alias_v3"
 
-        private val PREF_FILE = "pref_private_no_backup"
+        private const val PREF_FILE = "pref_private_no_backup"
         private val PREF_ENC_PW = "pref_enc_pw$SEC_ALIAS"
         private val PREF_ENC_PW_IV = "pref_enc_pw_iv$SEC_ALIAS"
         private val PREF_LOW_API_PW = "pref_low_api_pw$SEC_ALIAS"
@@ -241,7 +241,7 @@ class PwManager private constructor() {
         @RequiresApi(23)
         private val PW_ENCRYPT_ALGORITHM = "AES/$BLOCK_MODE/$PADDING"
 
-        private val KEY_STORE = "AndroidKeyStore"
+        private const val KEY_STORE = "AndroidKeyStore"
         private val TAG = PwManager::class.java.name
 
 
@@ -266,13 +266,13 @@ class PwManager private constructor() {
 
         private val pwEncKey: SecretKey?
             get() {
-                try {
+                return try {
                     val ks = KeyStore.getInstance(KEY_STORE)
                     ks.load(null)
-                    return ks.getKey(SEC_ALIAS, null) as SecretKey
+                    ks.getKey(SEC_ALIAS, null) as SecretKey
                 } catch (e: Exception) {
                     Log.e(TAG, "Failed to retrieve KeyStore key", e)
-                    return null
+                    null
                 }
 
             }

@@ -19,6 +19,6 @@ abstract class OnThrottleClickListener : View.OnClickListener {
 
     companion object {
 
-        private val THROTTLE_TIME: Long = 500 // milliseconds
+        private const val THROTTLE_TIME: Long = 500 // milliseconds
     }
 }

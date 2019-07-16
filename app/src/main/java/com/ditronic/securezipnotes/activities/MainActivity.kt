@@ -3,44 +3,25 @@ package com.ditronic.securezipnotes.activities
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.text.InputType
-import android.view.ContextMenu
-import android.view.Menu
-import android.view.MenuInflater
-import android.view.MenuItem
-import android.view.View
-import android.view.Window
-import android.view.WindowManager
+import android.view.*
 import android.widget.AdapterView
 import android.widget.EditText
 import android.widget.ListView
 import android.widget.Toast
-
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
-
-import com.ditronic.securezipnotes.CryptoZip
-import com.ditronic.securezipnotes.MenuOptions
-import com.ditronic.securezipnotes.NotesImport
-import com.ditronic.securezipnotes.PwManager
-import com.ditronic.securezipnotes.R
+import com.ditronic.securezipnotes.*
 import com.ditronic.securezipnotes.adapters.NoteSelectAdapter
-import com.ditronic.securezipnotes.util.BannerAds
-import com.ditronic.securezipnotes.util.Boast
-import com.ditronic.securezipnotes.util.DeleteDialog
-import com.ditronic.securezipnotes.util.OnThrottleClickListener
-import com.ditronic.securezipnotes.util.OnThrottleItemClickListener
+import com.ditronic.securezipnotes.util.*
 import com.ditronic.simplefilesync.AbstractFileSync
 import com.ditronic.simplefilesync.DriveFileSync
 import com.ditronic.simplefilesync.DropboxFileSync
 import com.ditronic.simplefilesync.util.ResultCode
 import com.ditronic.simplefilesync.util.SSyncResult
-
 import net.lingala.zip4j.model.FileHeader
-
 import java.io.ByteArrayInputStream
 
 class MainActivity : AppCompatActivity() {
@@ -160,16 +141,16 @@ class MainActivity : AppCompatActivity() {
     override fun onContextItemSelected(item: MenuItem): Boolean {
         val info = item.menuInfo as AdapterView.AdapterContextMenuInfo
         val fileHeader = noteSelectAdapter!!.getItem(info.position) as FileHeader
-        when (item.itemId) {
+        return when (item.itemId) {
             R.id.long_click_delete -> {
                 askNoteDelete(fileHeader)
-                return true
+                true
             }
             R.id.long_click_rename -> {
                 renameFileDialog(fileHeader)
-                return true
+                true
             }
-            else -> return false
+            else -> false
         }
     }
 
@@ -186,9 +167,9 @@ class MainActivity : AppCompatActivity() {
         menuSyncDrive.isCheckable = false
 
         val syncBackend = AbstractFileSync.getCurrentSyncBackend(this)
-        if (syncBackend != null && syncBackend == DropboxFileSync::class.java.getSimpleName()) {
+        if (syncBackend != null && syncBackend == DropboxFileSync::class.java.simpleName) {
             menuSyncDropbox.setCheckable(true).isChecked = true
-        } else if (syncBackend != null && syncBackend == DriveFileSync::class.java.getSimpleName()) {
+        } else if (syncBackend != null && syncBackend == DriveFileSync::class.java.simpleName) {
             menuSyncDrive.setCheckable(true).isChecked = true
         }
         return true
@@ -224,10 +205,10 @@ class MainActivity : AppCompatActivity() {
 
         val syncBackend = AbstractFileSync.getCurrentSyncBackend(this) ?: return
 
-        if (syncBackend == DropboxFileSync::class.java.getSimpleName()) {
+        if (syncBackend == DropboxFileSync::class.java.simpleName) {
             DropboxFileSync(this, localFile, REMOTE_BACKUP_FILE_NAME
             ) { res -> this@MainActivity.onSyncCompleted(res, "Dropbox") }.execute()
-        } else if (syncBackend == DriveFileSync::class.java.getSimpleName()) {
+        } else if (syncBackend == DriveFileSync::class.java.simpleName) {
             DriveFileSync(this, localFile, REMOTE_BACKUP_FILE_NAME
             ) { res -> this@MainActivity.onSyncCompleted(res, "Google Drive") }.execute()
         }
@@ -278,18 +259,18 @@ class MainActivity : AppCompatActivity() {
         if (MenuOptions.onOptionsSharedItemSelected(item, this)) {
             return true
         }
-        when (item.itemId) {
+        return when (item.itemId) {
             R.id.action_add_note -> {
                 btnNewNote()
-                return true
+                true
             }
-            else -> return super.onOptionsItemSelected(item)
+            else -> super.onOptionsItemSelected(item)
         }
     }
 
     companion object {
 
-        private val INTENT_NEW_NOTE = "intent_new_note"
+        private const val INTENT_NEW_NOTE = "intent_new_note"
 
         fun launchCleanWithNewNote(cx: Context) {
             val intent = Intent(cx, MainActivity::class.java)
@@ -299,6 +280,6 @@ class MainActivity : AppCompatActivity() {
         }
 
 
-        private val REQUEST_CODE_IMPORT_FILE_RES_CODE = 1
+        private const val REQUEST_CODE_IMPORT_FILE_RES_CODE = 1
     }
 }

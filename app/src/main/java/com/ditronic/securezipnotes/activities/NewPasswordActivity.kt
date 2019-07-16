@@ -48,17 +48,17 @@ class NewPasswordActivity : AppCompatActivity() {
         if (supportActionBar != null) {
             supportActionBar!!.setDisplayHomeAsUpEnabled(true)
             supportActionBar!!.setDisplayShowHomeEnabled(true)
-            supportActionBar!!.setTitle("New Master Password")
+            supportActionBar!!.title = "New Master Password"
         }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
+        return when (item.itemId) {
             android.R.id.home -> {
                 onBackPressed()
-                return true
+                true
             }
-            else -> return super.onOptionsItemSelected(item)
+            else -> super.onOptionsItemSelected(item)
         }
     }
 
@@ -78,10 +78,10 @@ class NewPasswordActivity : AppCompatActivity() {
     companion object {
         private val TAG = NewPasswordActivity::class.java.name
 
-        private val ALPHABET = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+        private const val ALPHABET = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
 
-        private val DEFAULT_PW_LEN = 20 // This is sufficient against offline attacks
-        private val MIN_PW_LEN = 8 // This is too short, but we won't hinder the user from shooting themselves
+        private const val DEFAULT_PW_LEN = 20 // This is sufficient against offline attacks
+        private const val MIN_PW_LEN = 8 // This is too short, but we won't hinder the user from shooting themselves
 
         private fun generatePassword(): String {
             val length = DEFAULT_PW_LEN
