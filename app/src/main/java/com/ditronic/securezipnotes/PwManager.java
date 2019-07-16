@@ -140,11 +140,10 @@ public class PwManager {
             public void onAuthenticationError(int errorCode, @NonNull CharSequence errString) {
                 super.onAuthenticationError(errorCode, errString);
                 Log.d(TAG, "onAuthenticationError " + errorCode + ": " + errString);
+                // Check whether the user deliberately aborted the operation.
                 if (errorCode != BiometricConstants.ERROR_USER_CANCELED &&
                     errorCode != BiometricConstants.ERROR_CANCELED &&
                     errorCode != BiometricConstants.ERROR_NEGATIVE_BUTTON) {
-                    //Toast.makeText(ac, "Authentication failed: " + errString, Toast.LENGTH_LONG).show();
-
                     // Try to use the original cipher in case of authentication errors.
                     // This should work in case of devices that do not have any fingerprint registered.
                     authCallback.onBiometricPromptFinished(cipherToUnlock);
