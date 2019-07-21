@@ -2,7 +2,7 @@ This file contains a list of potential tasks and features for the continous deve
 
 - Translations for other languages, including the upper part of the README (which is the play store text).
 
-- Tests: UI tests with Espresso, reaching a reasonable code coverage.
+- Tests: Reach a reasonable code coverage.
 
 - Simple search functionality for open notes.
 
