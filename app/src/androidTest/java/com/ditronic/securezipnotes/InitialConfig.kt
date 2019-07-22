@@ -5,19 +5,14 @@ import androidx.test.espresso.action.ViewActions.*
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
-import androidx.test.ext.junit.rules.activityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import com.ditronic.securezipnotes.activities.MainActivity
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import android.app.Activity
 import androidx.test.rule.ActivityTestRule
-import android.content.Context.MODE_PRIVATE
-import android.R.id.edit
 import android.content.Context
-import android.text.method.TextKeyListener.clear
 import androidx.test.platform.app.InstrumentationRegistry
 import java.io.File
 
@@ -42,13 +37,15 @@ class ChangeTextBehaviorKtTest {
     //@get:Rule var activityScenarioRule = activityScenarioRule<MainActivity>()
 
     //@Rule
-    @get:Rule var activityTestRule: ActivityTestRule<Activity> = ActivityTestRule(Activity::class.java, false, false)
+    @get:Rule var activityTestRule: ActivityTestRule<MainActivity> = ActivityTestRule(MainActivity::class.java, false, false)
 
 
     @Test
     fun createNewPassword() {
 
-        removeAllPrefs()
+        resetAppData()
+
+        activityTestRule.launchActivity(null)
 
         // MainActivity
         onView(withId(R.id.btn_create_new_note)).perform(click())
@@ -72,14 +69,31 @@ class ChangeTextBehaviorKtTest {
         //onView(withId(R.id.show_text_view)).check(matches(withText(STRING_TO_BE_TYPED)))
     }
 
+    private fun resetAppData() {
+        clearLocalFilesDir()
+        removeAllPrefs()
+    }
+
+    private fun clearLocalFilesDir() {
+        val appContext = InstrumentationRegistry.getInstrumentation().targetContext
+        val root = appContext.filesDir
+        val files = root.listFiles()
+        if (files != null) {
+            var i = 0
+            while (i < files.size) {
+                println("Remove file prior to UI test: " + files[i].absolutePath)
+                println(files[i].delete())
+                i++
+            }
+        }
+    }
 
     private fun removeAllPrefs() {
         val appContext = InstrumentationRegistry.getInstrumentation().targetContext
         val root = appContext.filesDir.parentFile
         val sharedPreferencesFileNames = File(root, "shared_prefs").list()
         for (fileName in sharedPreferencesFileNames) {
-            fileName.replace(".xml", "")
-            //appContext.getSharedPreferences(fileName.replace(".xml", ""), Context.MODE_PRIVATE).edit().clear().commit()
+            appContext.getSharedPreferences(fileName.replace(".xml", ""), Context.MODE_PRIVATE).edit().clear().commit()
         }
     }
 }
