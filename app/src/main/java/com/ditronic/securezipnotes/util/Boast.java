@@ -258,7 +258,7 @@ public class Boast
         }
 
         // save an instance of this current notification
-        globalBoast = new WeakReference<>(this);
+        globalBoast = new WeakReference<Boast>(this);
 
         internalToast.show();
     }
