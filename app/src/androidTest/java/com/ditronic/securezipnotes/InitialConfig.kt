@@ -20,16 +20,18 @@ import com.ditronic.securezipnotes.util.TestUtil
 import junit.framework.Assert.assertEquals
 import junit.framework.Assert.assertTrue
 import org.hamcrest.CoreMatchers.anything
-import org.junit.Before
+import org.junit.FixMethodOrder
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.junit.runners.MethodSorters
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
 
 
 @RunWith(AndroidJUnit4::class)
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @LargeTest
 class ChangeTextBehaviorKtTest {
 
@@ -39,6 +41,7 @@ class ChangeTextBehaviorKtTest {
         const val PASSWORD_TOO_SHORT = "";
 
         const val FIRST_NOTE_NAME = "Note 1";
+        const val RENAMED_NOTE_NAME = "Note 1";
 
         const val SECRET_NOTE = "My secret note"
     }
@@ -53,15 +56,16 @@ class ChangeTextBehaviorKtTest {
     //@Rule
     @get:Rule var activityTestRule: ActivityTestRule<MainActivity> = ActivityTestRule(MainActivity::class.java, false, false)
 
-    @Before
+    /*@BeforeClass
     fun setup() {
-        resetAppData()
-        TestUtil.isInstrumentationTest = true
-        activityTestRule.launchActivity(null)
-    }
+    }*/
 
     @Test
     fun createNewPassword() {
+
+        resetAppData()
+        TestUtil.isInstrumentationTest = true
+        activityTestRule.launchActivity(null)
 
         // MainActivity
         onView(withId(R.id.btn_create_new_note)).perform(click())
@@ -115,6 +119,12 @@ class ChangeTextBehaviorKtTest {
         assertEquals(noteDate, newItem.findViewById<TextView>(R.id.txt_cardview_2).text.toString())
         assertEquals(noteSize, newItem.findViewById<TextView>(R.id.txt_cardview_3).text.toString())
     }
+
+    // TODO: Dropbox sync test
+    // TODO: Rename test
+    // TODO: Remove test
+    // TODO: Import test
+    // TODO: Export test
 
     private fun resetAppData() {
         clearLocalFilesDir()
