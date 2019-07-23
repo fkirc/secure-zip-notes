@@ -9,6 +9,10 @@ abstract class OnThrottleClickListener : View.OnClickListener {
     protected abstract fun onThrottleClick(v: View)
 
     override fun onClick(v: View) {
+        if (TestUtil.isInstrumentationTest) {
+            onThrottleClick(v)
+            return
+        }
         val clickTime = SystemClock.elapsedRealtime()
         if (clickTime - lastClickTime < THROTTLE_TIME) {
             return

@@ -10,6 +10,10 @@ abstract class OnThrottleItemClickListener : AdapterView.OnItemClickListener {
     protected abstract fun onThrottleItemClick(parent: AdapterView<*>, view: View, position: Int, id: Long)
 
     override fun onItemClick(parent: AdapterView<*>, view: View, position: Int, id: Long) {
+        if (TestUtil.isInstrumentationTest) {
+            onThrottleItemClick(parent, view, position, id)
+            return
+        }
         val clickTime = SystemClock.elapsedRealtime()
         if (clickTime - lastClickTime < THROTTLE_TIME) {
             return
