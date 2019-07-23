@@ -10,7 +10,7 @@ android {
         targetSdkVersion 28
         versionCode 1
         versionName "1.0.0"
-        multiDexEnabled false
+        multiDexEnabled true
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -28,7 +28,7 @@ android {
             // R8 shrinks at least as good as ProGuard and it works with Instant Run (unlike ProGuard).
             // Therefore, R8 + Instant Run enables us to use the same shrinking configuration for debug + release.
             // Note that R8 still uses ProGuard rule files for some configuration options.
-            minifyEnabled true
+            minifyEnabled false
             useProguard false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
