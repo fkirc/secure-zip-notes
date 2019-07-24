@@ -14,6 +14,7 @@ import java.io.File;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+import com.ditronic.simplefilesync.util.ResultCode;
 import com.ditronic.simplefilesync.util.SSyncResult;
 
 public abstract class AbstractFileSync extends AsyncTask<Object, String, SSyncResult> {
@@ -44,6 +45,15 @@ public abstract class AbstractFileSync extends AsyncTask<Object, String, SSyncRe
     private static final String PREF_CURRENT_SYNC_BACKEND = "pref_current_sync_backend";
 
     private static boolean syncTriggeredByUser = false;
+    private static SSyncResult lastSyncResult = null;
+
+    public static @javax.annotation.Nullable SSyncResult getLastSyncResult() {
+        return lastSyncResult;
+    }
+
+    public static void clearLastSyncResult() {
+        lastSyncResult = null;
+    }
 
     @Override
     protected void onProgressUpdate(final String... userMessage) {
@@ -58,7 +68,7 @@ public abstract class AbstractFileSync extends AsyncTask<Object, String, SSyncRe
 
     @Override
     protected void onPostExecute(final @NonNull SSyncResult res) {
-
+        lastSyncResult = res;
         if (progressDialog != null) {
             progressDialog.dismiss();
         }
