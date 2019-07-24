@@ -154,20 +154,25 @@ public class DropboxFileSync extends AbstractFileSync {
     }
 
 
+    public static void storeNewOauthToken(@NonNull final String oauthToken, Context cx) {
+        // This can potentially overwrite an old oauthtoken, which is fine.
+        Log.d(TAG, "Retrieved a new oauthtoken");
+        SharedPreferences prefs = cx.getSharedPreferences(DROPBOX_PREF_FILE, Context.MODE_PRIVATE);
+        prefs.edit().putString(PREF_DROPBOX_ACCESS_TOKEN, oauthToken).apply();
+
+        // This ensures that we run this code only once for each new oauth token
+        AuthActivity.result = null;
+        setCurrentSyncBackend(cx, DropboxFileSync.class);
+    }
+
+
     public static void onResumeFetchOAuthToken(final Context cx) {
 
         // Try to fetch a newly retrieved oauthtoken.
         final String oauthToken = Auth.getOAuth2Token();
 
         if (oauthToken != null) {
-            // This can potentially overwrite an old oauthtoken, which is fine.
-            Log.d(TAG, "Retrieved a new oauthtoken");
-            SharedPreferences prefs = cx.getSharedPreferences(DROPBOX_PREF_FILE, Context.MODE_PRIVATE);
-            prefs.edit().putString(PREF_DROPBOX_ACCESS_TOKEN, oauthToken).apply();
-
-            // This ensures that we run this code only once for each new oauth token
-            AuthActivity.result = null;
-            setCurrentSyncBackend(cx, DropboxFileSync.class);
+            storeNewOauthToken(oauthToken, cx);
         }
     }
 

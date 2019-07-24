@@ -21,6 +21,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.ActivityTestRule
 import com.ditronic.securezipnotes.activities.MainActivity
 import com.ditronic.securezipnotes.util.TestUtil
+import com.ditronic.simplefilesync.DropboxFileSync
 import junit.framework.Assert.assertEquals
 import junit.framework.Assert.assertTrue
 import org.hamcrest.CoreMatchers.anything
@@ -50,6 +51,8 @@ class ChangeTextBehaviorKtTest {
         const val RENAMED_NOTE_NAME = "Note renamed";
 
         const val SECRET_NOTE = "My secret note"
+
+        const val DROPBOX_OAUTH_TOKEN = "invalidtoken"
     }
 
     /**
@@ -146,6 +149,18 @@ class ChangeTextBehaviorKtTest {
         // Second intent
         intended(hasAction(Intent.ACTION_VIEW))
         intended(hasDataString(StringContains("https://www.dropbox.com/")))
+
+    }
+
+    @Test
+    fun t3_dropBoxSync() {
+
+        val targetContext = InstrumentationRegistry.getInstrumentation().targetContext
+        DropboxFileSync.storeNewOauthToken(DROPBOX_OAUTH_TOKEN, targetContext)
+
+        activityTestRule.launchActivity(null)
+        Espresso.onIdle()
+
 
     }
 
