@@ -1,15 +1,19 @@
 package com.ditronic.securezipnotes
 
 import android.content.Context
+import android.content.Intent
 import android.widget.ListView
 import android.widget.TextView
 import androidx.core.view.get
 import androidx.core.view.size
 import androidx.test.espresso.Espresso
-import androidx.test.espresso.Espresso.onData
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.*
 import androidx.test.espresso.assertion.ViewAssertions.matches
+import androidx.test.espresso.intent.Intents
+import androidx.test.espresso.intent.Intents.intended
+import androidx.test.espresso.intent.matcher.ComponentNameMatchers.hasClassName
+import androidx.test.espresso.intent.matcher.IntentMatchers.*
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -20,6 +24,8 @@ import com.ditronic.securezipnotes.util.TestUtil
 import junit.framework.Assert.assertEquals
 import junit.framework.Assert.assertTrue
 import org.hamcrest.CoreMatchers.anything
+import org.hamcrest.core.StringContains
+import org.junit.Before
 import org.junit.FixMethodOrder
 import org.junit.Rule
 import org.junit.Test
@@ -41,7 +47,7 @@ class ChangeTextBehaviorKtTest {
         const val PASSWORD_TOO_SHORT = "";
 
         const val FIRST_NOTE_NAME = "Note 1";
-        const val RENAMED_NOTE_NAME = "Note 1";
+        const val RENAMED_NOTE_NAME = "Note renamed";
 
         const val SECRET_NOTE = "My secret note"
     }
@@ -59,12 +65,15 @@ class ChangeTextBehaviorKtTest {
     /*@BeforeClass
     fun setup() {
     }*/
+    @Before
+    fun beforeEachTest() {
+        TestUtil.isInstrumentationTest = true
+    }
 
     @Test
-    fun createNewPassword() {
+    fun t1_createNewPassword() {
 
         resetAppData()
-        TestUtil.isInstrumentationTest = true
         activityTestRule.launchActivity(null)
 
         // MainActivity
@@ -102,7 +111,7 @@ class ChangeTextBehaviorKtTest {
         assertEquals("Size: " + SECRET_NOTE.length, noteSize)
         assertEquals(1, listView.size)
 
-        onData(anything())
+        Espresso.onData(anything())
                 .inAdapterView(withId(R.id.list_view_notes)).atPosition(0)
                 .perform(click())
 
@@ -111,13 +120,33 @@ class ChangeTextBehaviorKtTest {
         onView(isRoot()).perform(pressBack())
 
         // MainActivity
-        onData(anything()).inAdapterView(withId(R.id.list_view_notes)).atPosition(0)
+        Espresso.onData(anything()).inAdapterView(withId(R.id.list_view_notes)).atPosition(0)
                 .onChildView(withId(R.id.txt_cardview)).check(matches(withText(FIRST_NOTE_NAME)))
         // Assert that nothing changed
         val newItem = activityTestRule.activity.findViewById<ListView>(R.id.list_view_notes).get(index = 0)
         assertEquals(noteName, newItem.findViewById<TextView>(R.id.txt_cardview).text.toString())
         assertEquals(noteDate, newItem.findViewById<TextView>(R.id.txt_cardview_2).text.toString())
         assertEquals(noteSize, newItem.findViewById<TextView>(R.id.txt_cardview_3).text.toString())
+    }
+
+
+    @Test
+    fun t2_dropBoxInitOauth() {
+        activityTestRule.launchActivity(null)
+        Intents.init()
+
+        val targetContext = InstrumentationRegistry.getInstrumentation().targetContext
+        Espresso.openActionBarOverflowOrOptionsMenu(targetContext)
+        Espresso.onIdle()
+        onView(withText(R.string.sync_with_dropbox)).perform(click())
+
+        // First intent
+        intended(hasComponent(hasClassName("com.dropbox.core.android.AuthActivity")))
+
+        // Second intent
+        intended(hasAction(Intent.ACTION_VIEW))
+        intended(hasDataString(StringContains("https://www.dropbox.com/")))
+
     }
 
     // TODO: Dropbox sync test
