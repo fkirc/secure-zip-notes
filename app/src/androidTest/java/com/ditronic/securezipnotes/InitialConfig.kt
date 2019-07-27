@@ -14,6 +14,7 @@ import androidx.test.espresso.intent.Intents
 import androidx.test.espresso.intent.Intents.intended
 import androidx.test.espresso.intent.matcher.ComponentNameMatchers.hasClassName
 import androidx.test.espresso.intent.matcher.IntentMatchers.*
+import androidx.test.espresso.matcher.RootMatchers.isDialog
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -149,8 +150,8 @@ class ChangeTextBehaviorKtTest {
         // Second intent
         intended(hasAction(Intent.ACTION_VIEW))
         intended(hasDataString(StringContains("https://www.dropbox.com/")))
-
     }
+
 
     @Test
     fun t3_dropBoxUpload() {
@@ -179,8 +180,53 @@ class ChangeTextBehaviorKtTest {
         assertThat(listView.size, greaterThan(0))
     }
 
-    // TODO: Rename test
-    // TODO: Remove test
+    @Test
+    fun t5_renameSingleNote() {
+
+        activityTestRule.launchActivity(null)
+
+        // Rename
+        Espresso.onData(anything())
+                .inAdapterView(withId(R.id.list_view_notes)).onChildView(withText(FIRST_NOTE_NAME))
+                .perform(longClick())
+        onView(withText("Rename")).perform(click())
+        onView(withText(FIRST_NOTE_NAME)).inRoot(isDialog()).perform(replaceText(RENAMED_NOTE_NAME))
+        onView(withText("OK")).inRoot(isDialog()).perform(click())
+
+        // Check whether rename worked
+        val listView = activityTestRule.activity.findViewById<ListView>(R.id.list_view_notes)
+        val item = listView[0]
+        val noteName = item.findViewById<TextView>(R.id.txt_cardview).text.toString()
+        assertEquals(RENAMED_NOTE_NAME, noteName)
+        assertEquals(1, listView.size)
+
+        // Open renamed note to verify that its content is not corrupted
+        Espresso.onData(anything())
+                .inAdapterView(withId(R.id.list_view_notes)).atPosition(0)
+                .perform(click())
+        onView(withId(R.id.edit_text_title)).check(matches(withText(RENAMED_NOTE_NAME)))
+        onView(withId(R.id.edit_text_main)).check(matches(withText(SECRET_NOTE)))
+    }
+
+    @Test
+    fun t6_deleteSingleNote() {
+
+        activityTestRule.launchActivity(null)
+        val listView = activityTestRule.activity.findViewById<ListView>(R.id.list_view_notes)
+        assertEquals(1, listView.size)
+
+        // Rename
+        Espresso.onData(anything())
+                .inAdapterView(withId(R.id.list_view_notes)).atPosition(0)
+                .perform(longClick())
+        onView(withText("Delete")).perform(click())
+        onView(withText("OK")).inRoot(isDialog()).perform(click())
+
+        // Check whether the startup screen re-appears after deleting all notes
+        onView(withId(R.id.btn_create_new_note)).check(matches(isDisplayed()))
+        assertEquals(0, listView.size)
+    }
+
     // TODO: Import test
     // TODO: Export test
 
