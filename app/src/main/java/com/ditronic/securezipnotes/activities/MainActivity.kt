@@ -26,7 +26,7 @@ import java.io.ByteArrayInputStream
 
 class MainActivity : AppCompatActivity() {
 
-    private var noteSelectAdapter: NoteSelectAdapter? = null
+    private lateinit var noteSelectAdapter: NoteSelectAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,8 +37,8 @@ class MainActivity : AppCompatActivity() {
         if (supportActionBar != null) {
             supportActionBar!!.setTitle(R.string.app_name_main_activity)
         }
-
         noteSelectAdapter = NoteSelectAdapter(this)
+
         val notesListView = findViewById<ListView>(R.id.list_view_notes)
         notesListView.adapter = noteSelectAdapter
 
@@ -46,7 +46,7 @@ class MainActivity : AppCompatActivity() {
 
         notesListView.onItemClickListener = object : OnThrottleItemClickListener() {
             public override fun onThrottleItemClick(parent: AdapterView<*>, view: View, position: Int, id: Long) {
-                val fileHeader = noteSelectAdapter!!.getItem(position) as FileHeader
+                val fileHeader = noteSelectAdapter.getItem(position) as FileHeader
                 PwManager.instance().retrievePasswordAsync(this@MainActivity, fileHeader) { NoteEditActivity.launch(this@MainActivity, fileHeader.fileName) }
             }
         }
@@ -98,7 +98,7 @@ class MainActivity : AppCompatActivity() {
         DeleteDialog.showDeleteQuestion("Delete " + CryptoZip.getDisplayName(fileHeader) + "?", this, object : DeleteDialog.DialogActions {
             override fun onPositiveClick() {
                 CryptoZip.instance(this@MainActivity).removeFile(this@MainActivity, fileHeader)
-                this@MainActivity.noteSelectAdapter!!.notifyDataSetChanged()
+                this@MainActivity.noteSelectAdapter.notifyDataSetChanged()
             }
 
             override fun onNegativeClick() {}
@@ -124,7 +124,7 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 CryptoZip.instance(this@MainActivity).renameFile(fileHeader, newName)
-                this@MainActivity.noteSelectAdapter!!.notifyDataSetChanged()
+                this@MainActivity.noteSelectAdapter.notifyDataSetChanged()
             }
 
             builder.setNegativeButton(android.R.string.cancel) { dialog, _ -> dialog.cancel() }
@@ -140,7 +140,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onContextItemSelected(item: MenuItem): Boolean {
         val info = item.menuInfo as AdapterView.AdapterContextMenuInfo
-        val fileHeader = noteSelectAdapter!!.getItem(info.position) as FileHeader
+        val fileHeader = noteSelectAdapter.getItem(info.position) as FileHeader
         return when (item.itemId) {
             R.id.long_click_delete -> {
                 askNoteDelete(fileHeader)
@@ -184,14 +184,14 @@ class MainActivity : AppCompatActivity() {
         if (requestCode == REQUEST_CODE_IMPORT_FILE_RES_CODE && resultCode == Activity.RESULT_OK) {
             val importUri = data!!.data
             NotesImport.importFromUri(this, importUri)
-            noteSelectAdapter!!.notifyDataSetChanged()
+            noteSelectAdapter.notifyDataSetChanged()
         }
     }
 
 
     public override fun onResume() {
         super.onResume()
-        noteSelectAdapter!!.notifyDataSetChanged()
+        noteSelectAdapter.notifyDataSetChanged()
 
         // This has to be called before the actual Dropbox sync
         DropboxFileSync.onResumeFetchOAuthToken(this)
@@ -220,7 +220,7 @@ class MainActivity : AppCompatActivity() {
             Boast.makeText(this@MainActivity, "Failed to connect to $cloudBackend", Toast.LENGTH_LONG).show()
         } else if (res.resultCode == ResultCode.DOWNLOAD_SUCCESS) {
             NotesImport.importFromFile(this@MainActivity, res.tmpDownloadFile, "Downloaded Zip notes from $cloudBackend")
-            noteSelectAdapter!!.notifyDataSetChanged()
+            noteSelectAdapter.notifyDataSetChanged()
         } else if (res.resultCode == ResultCode.FILES_NOT_EXIST_OR_EMPTY && res.isSyncTriggeredByUser) {
             // Special case for new users that click "Dropbox sync" without having any data.
             Boast.makeText(this@MainActivity, "Could not find a $cloudBackend backup - Creating new Zip file...", Toast.LENGTH_LONG).show()
@@ -235,7 +235,7 @@ class MainActivity : AppCompatActivity() {
     private fun createNewNote() {
         val displayName = "Note " + (1 + CryptoZip.instance(this).numFileHeaders)
         val innerFileName = CryptoZip.instance(this@MainActivity).addStream(displayName, ByteArrayInputStream(ByteArray(0)))
-        noteSelectAdapter!!.notifyDataSetChanged()
+        noteSelectAdapter.notifyDataSetChanged()
         NoteEditActivity.launch(this@MainActivity, innerFileName)
     }
 

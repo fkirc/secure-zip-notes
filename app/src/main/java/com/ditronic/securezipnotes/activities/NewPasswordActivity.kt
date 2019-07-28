@@ -17,17 +17,17 @@ import java.security.SecureRandom
 
 class NewPasswordActivity : AppCompatActivity() {
 
-    private var passwordText: EditText? = null
+    private lateinit var passwordText: EditText
 
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_new_password)
         val toolbar = findViewById<Toolbar>(R.id.tool_bar)
         setSupportActionBar(toolbar)
-
         passwordText = findViewById(R.id.input_password)
 
-        passwordText!!.setText(generatePassword())
+
+        passwordText.setText(generatePassword())
 
         findViewById<View>(R.id.btn_generate_master_password).setOnClickListener { v -> passwordText!!.setText(generatePassword()) }
 
@@ -37,12 +37,13 @@ class NewPasswordActivity : AppCompatActivity() {
             }
         })
 
-        passwordText!!.setOnEditorActionListener { v, actionId, event ->
+        passwordText.setOnEditorActionListener { v, actionId, event ->
             if (actionId == EditorInfo.IME_ACTION_DONE) {
                 btnNext()
-                return@setOnEditorActionListener true
+                true
+            } else {
+                false
             }
-            false
         }
 
         if (supportActionBar != null) {
@@ -64,13 +65,13 @@ class NewPasswordActivity : AppCompatActivity() {
 
     private fun btnNext() {
 
-        val password = passwordText!!.text.toString()
+        val password = passwordText.text.toString()
 
         if (password.isEmpty() || password.length < MIN_PW_LEN) {
-            passwordText!!.error = "Minimum length: $MIN_PW_LEN characters"
+            passwordText.error = "Minimum length: $MIN_PW_LEN characters"
             return
         }
-        passwordText!!.error = null
+        passwordText.error = null
 
         PasswordConfirmActivity.launch(this, password)
     }

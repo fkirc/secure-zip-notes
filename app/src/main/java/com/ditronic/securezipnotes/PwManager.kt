@@ -141,7 +141,7 @@ class PwManager private constructor() {
         dialog.show()
         input.requestFocus()
         val posBtn = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
-        posBtn.setOnClickListener { view -> onPosBtnClick(ac, input, fileHeader, cb, dialog) }
+        posBtn.setOnClickListener { onPosBtnClick(ac, input, fileHeader, cb, dialog) }
     }
 
 

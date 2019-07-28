@@ -25,8 +25,8 @@ import java.util.Objects
 class NoteEditActivity : AppCompatActivity() {
 
     private var editMode: Boolean = false
-    private var editTextMain: EditText? = null
-    private var editTextTitle: EditText? = null
+    private lateinit var editTextMain: EditText
+    private lateinit var editTextTitle: EditText
     private var secretContent: String? = null
     private var innerFileName: String? = null
 
@@ -37,43 +37,43 @@ class NoteEditActivity : AppCompatActivity() {
         editMode = enable
 
         // Rather simple procedure for title edit text
-        editTextTitle!!.isCursorVisible = editMode
-        editTextTitle!!.isClickable = editMode
-        editTextTitle!!.isFocusable = editMode
-        editTextTitle!!.isLongClickable = editMode
-        editTextTitle!!.setTextIsSelectable(editMode)
-        editTextTitle!!.isLongClickable = editMode
+        editTextTitle.isCursorVisible = editMode
+        editTextTitle.isClickable = editMode
+        editTextTitle.isFocusable = editMode
+        editTextTitle.isLongClickable = editMode
+        editTextTitle.setTextIsSelectable(editMode)
+        editTextTitle.isLongClickable = editMode
 
 
         // Complicated procedure for the main edit text
         if (Build.VERSION.SDK_INT >= MIN_API_COPY_READ_ONLY) { // 21
-            editTextMain!!.showSoftInputOnFocus = editMode
-            editTextMain!!.isCursorVisible = editMode
+            editTextMain.showSoftInputOnFocus = editMode
+            editTextMain.isCursorVisible = editMode
         } else {
-            editTextMain!!.isCursorVisible = editMode
-            editTextMain!!.isClickable = editMode
-            editTextMain!!.isFocusable = editMode
-            editTextMain!!.isLongClickable = editMode
-            editTextMain!!.setTextIsSelectable(editMode)
-            editTextMain!!.isLongClickable = editMode
+            editTextMain.isCursorVisible = editMode
+            editTextMain.isClickable = editMode
+            editTextMain.isFocusable = editMode
+            editTextMain.isLongClickable = editMode
+            editTextMain.setTextIsSelectable(editMode)
+            editTextMain.isLongClickable = editMode
         }
 
         if (!editMode) {
-            editTextMain!!.customSelectionActionModeCallback = CustomSelectionActionModeCallback()
+            editTextMain.customSelectionActionModeCallback = CustomSelectionActionModeCallback()
             if (Build.VERSION.SDK_INT >= MIN_API_COPY_READ_ONLY) { // 23
-                editTextMain!!.customInsertionActionModeCallback = CustomInsertionActionModeCallback()
+                editTextMain.customInsertionActionModeCallback = CustomInsertionActionModeCallback()
             }
             // Close keyboard
             window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN)
             val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-            imm.hideSoftInputFromWindow(editTextMain!!.windowToken, 0)
+            imm.hideSoftInputFromWindow(editTextMain.windowToken, 0)
         } else {
-            editTextMain!!.customSelectionActionModeCallback = null
+            editTextMain.customSelectionActionModeCallback = null
             if (Build.VERSION.SDK_INT >= MIN_API_COPY_READ_ONLY) { // 23
-                editTextMain!!.customInsertionActionModeCallback = null
+                editTextMain.customInsertionActionModeCallback = null
             }
             // Open keyboard
-            editTextMain!!.requestFocus()
+            editTextMain.requestFocus()
             window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE)
             val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
             imm.showSoftInput(editTextMain, InputMethodManager.SHOW_IMPLICIT)
@@ -126,15 +126,15 @@ class NoteEditActivity : AppCompatActivity() {
         if (!editMode) {
             return
         }
-        val newContent = editTextMain!!.text.toString()
-        var newFileName = editTextTitle!!.text.toString()
+        val newContent = editTextMain.text.toString()
+        var newFileName = editTextTitle.text.toString()
         if (newContent == secretContent && newFileName == CryptoZip.getDisplayName(fileHeader)) {
             return  // Nothing to save, text unchanged
         }
         if (newFileName.isEmpty()) {
             // Silently keep old file name if this is empty
             newFileName = CryptoZip.getDisplayName(fileHeader)
-            editTextTitle!!.setText(CryptoZip.getDisplayName(fileHeader))
+            editTextTitle.setText(CryptoZip.getDisplayName(fileHeader))
         }
         secretContent = newContent
         innerFileName = CryptoZip.instance(this).updateStream(fileHeader, newFileName, secretContent!!)
@@ -156,7 +156,6 @@ class NoteEditActivity : AppCompatActivity() {
         setContentView(R.layout.activity_note_edit)
         val toolbar = findViewById<Toolbar>(R.id.tool_bar_edit)
         setSupportActionBar(toolbar)
-
         editTextTitle = findViewById(R.id.edit_text_title)
         editTextMain = findViewById(R.id.edit_text_main)
 
@@ -181,8 +180,8 @@ class NoteEditActivity : AppCompatActivity() {
             return
         }
         applyEditMode(secretContent!!.isEmpty())
-        editTextTitle!!.setText(CryptoZip.getDisplayName(fileHeader))
-        editTextMain!!.setText(secretContent)
+        editTextTitle.setText(CryptoZip.getDisplayName(fileHeader))
+        editTextMain.setText(secretContent)
 
         // Required to make links clickable
         //editTextMain.setMovementMethod(LinkMovementMethod.getInstance());
