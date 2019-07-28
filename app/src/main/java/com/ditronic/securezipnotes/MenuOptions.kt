@@ -26,7 +26,7 @@ object MenuOptions {
 
         val zipNotes = CryptoZip.getMainFilePath(ac)
         if (!zipNotes.exists()) {
-            Boast.makeText(ac, "Notes empty, nothing to export").show()
+            Boast.makeText(ac, R.string.toast_notes_empty_export).show()
             return
         }
 

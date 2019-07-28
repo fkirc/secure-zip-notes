@@ -1,6 +1,5 @@
 package com.ditronic.securezipnotes
 
-import android.content.Context
 import android.content.Intent
 import android.widget.ListView
 import android.widget.TextView
@@ -35,7 +34,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.MethodSorters
-import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -150,11 +148,13 @@ class ChangeTextBehaviorKtTest {
         // Second intent
         intended(hasAction(Intent.ACTION_VIEW))
         intended(hasDataString(StringContains("https://www.dropbox.com/")))
+
+        Intents.release()
     }
 
 
     @Test
-    fun t3_dropBoxUpload() {
+    fun t31_dropBoxUpload() {
 
         val targetContext = InstrumentationRegistry.getInstrumentation().targetContext
         DropboxFileSync.storeNewOauthToken(DROPBOX_OAUTH_TOKEN, targetContext)
@@ -163,7 +163,15 @@ class ChangeTextBehaviorKtTest {
         activityTestRule.launchActivity(null)
         Espresso.onIdle()
 
-        assertTrue(DropboxFileSync.getLastSyncResult()!!.resultCode == ResultCode.UPLOAD_SUCCESS)
+        assertEquals(ResultCode.UPLOAD_SUCCESS, DropboxFileSync.getLastSyncResult()!!.resultCode)
+    }
+
+    @Test
+    fun t32_dropBoxRemoteEqualsLocal() {
+        DropboxFileSync.clearLastSyncResult()
+        activityTestRule.launchActivity(null)
+        Espresso.onIdle()
+        assertEquals(ResultCode.REMOTE_EQUALS_LOCAL, DropboxFileSync.getLastSyncResult()!!.resultCode)
     }
 
     @Test
@@ -175,7 +183,7 @@ class ChangeTextBehaviorKtTest {
         activityTestRule.launchActivity(null)
         Espresso.onIdle()
 
-        assertTrue(DropboxFileSync.getLastSyncResult()!!.resultCode == ResultCode.DOWNLOAD_SUCCESS)
+        assertEquals(ResultCode.DOWNLOAD_SUCCESS, DropboxFileSync.getLastSyncResult()!!.resultCode)
         val listView = activityTestRule.activity.findViewById<ListView>(R.id.list_view_notes)
         assertThat(listView.size, greaterThan(0))
     }
@@ -208,8 +216,24 @@ class ChangeTextBehaviorKtTest {
         onView(withId(R.id.edit_text_main)).check(matches(withText(SECRET_NOTE)))
     }
 
+    // TODO: Fix this test
+    /*@Test
+    fun t6_exportNote() {
+        activityTestRule.launchActivity(null)
+        Intents.init()
+
+        val targetContext = InstrumentationRegistry.getInstrumentation().targetContext
+        Espresso.openActionBarOverflowOrOptionsMenu(targetContext)
+        onView(withText(R.string.export_zip_file)).perform(click())
+
+        intended(hasAction(Intent.ACTION_CHOOSER))
+        intended(hasExtras(BundleMatchers.hasEntry("key", "value")))
+
+        Intents.release()
+    }*/
+
     @Test
-    fun t6_deleteSingleNote() {
+    fun t7_deleteSingleNote() {
 
         activityTestRule.launchActivity(null)
         val listView = activityTestRule.activity.findViewById<ListView>(R.id.list_view_notes)
@@ -223,38 +247,26 @@ class ChangeTextBehaviorKtTest {
         onView(withText("OK")).inRoot(isDialog()).perform(click())
 
         // Check whether the startup screen re-appears after deleting all notes
-        onView(withId(R.id.btn_create_new_note)).check(matches(isDisplayed()))
-        assertEquals(0, listView.size)
+        assertEmptyStartupScreen(activityTestRule.activity)
     }
 
-    // TODO: Import test
-    // TODO: Export test
 
-    private fun resetAppData() {
-        clearLocalFilesDir()
-        removeAllPrefs()
-    }
+    @Test
+    fun t8_exportEmptyNote() {
 
-    private fun clearLocalFilesDir() {
-        val appContext = InstrumentationRegistry.getInstrumentation().targetContext
-        val root = appContext.filesDir
-        val files = root.listFiles()
-        if (files != null) {
-            var i = 0
-            while (i < files.size) {
-                println("Remove file prior to UI test: " + files[i].absolutePath)
-                println(files[i].delete())
-                i++
-            }
-        }
-    }
+        removeAllPrefs() // This also removes the Dropbox sync
 
-    private fun removeAllPrefs() {
+        activityTestRule.launchActivity(null)
+        val ac = activityTestRule.activity
+
+        assertEmptyStartupScreen(ac)
+
         val targetContext = InstrumentationRegistry.getInstrumentation().targetContext
-        val root = targetContext.filesDir.parentFile
-        val sharedPreferencesFileNames = File(root, "shared_prefs").list()
-        for (fileName in sharedPreferencesFileNames) {
-            targetContext.getSharedPreferences(fileName.replace(".xml", ""), Context.MODE_PRIVATE).edit().clear().commit()
-        }
+        Espresso.openActionBarOverflowOrOptionsMenu(targetContext)
+        onView(withText(R.string.export_zip_file)).perform(click())
+
+        assertToastDisplayed(ac.getString(R.string.toast_notes_empty_export), ac)
     }
+
+    // TODO: Import tests with Zip files from different source programs
 }
