@@ -230,9 +230,9 @@ class PwManager private constructor() {
         private const val SEC_ALIAS = "pw_enc_key_alias_v3"
 
         private const val PREF_FILE = "pref_private_no_backup"
-        private val PREF_ENC_PW = "pref_enc_pw$SEC_ALIAS"
-        private val PREF_ENC_PW_IV = "pref_enc_pw_iv$SEC_ALIAS"
-        private val PREF_LOW_API_PW = "pref_low_api_pw$SEC_ALIAS"
+        private const val PREF_ENC_PW = "pref_enc_pw$SEC_ALIAS"
+        private const val PREF_ENC_PW_IV = "pref_enc_pw_iv$SEC_ALIAS"
+        private const val PREF_LOW_API_PW = "pref_low_api_pw$SEC_ALIAS"
 
         @RequiresApi(23)
         private val BLOCK_MODE = KeyProperties.BLOCK_MODE_CBC

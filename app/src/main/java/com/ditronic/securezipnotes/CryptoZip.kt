@@ -212,7 +212,7 @@ class CryptoZip private constructor(cx: Context) {
         }
 
         private const val MAIN_FILE_NAME = "securezipnotes_internal.aeszip"
-        private val UUID_SEPARATOR = "__"
+        private const val UUID_SEPARATOR = "__"
         val MIN_INNER_FILE_NAME_LEN = UUID_SEPARATOR.length + 32 + 4
 
         private fun constructUIDName(displayName: String): String {
@@ -234,7 +234,7 @@ class CryptoZip private constructor(cx: Context) {
 
         fun resetCryptoZip(cx: Context) {
             instance_ = null // This is an expensive operation that should be only done after a fresh import.
-            CryptoZip.instance(cx)
+            instance(cx)
         }
 
         private val TAG = CryptoZip::class.java.name

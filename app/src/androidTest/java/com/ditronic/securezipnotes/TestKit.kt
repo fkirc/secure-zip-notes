@@ -9,7 +9,7 @@ import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.matcher.RootMatchers
 import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.platform.app.InstrumentationRegistry
-import junit.framework.Assert
+import org.junit.Assert
 import org.hamcrest.CoreMatchers
 import java.io.File
 
@@ -22,7 +22,7 @@ fun assertEmptyStartupScreen(ac : Activity) {
 
 
 fun assertToastDisplayed(toastMessage : String, ac : Activity) {
-    Espresso.onView(ViewMatchers.withText(toastMessage)).inRoot(RootMatchers.withDecorView(CoreMatchers.not(CoreMatchers.`is`(ac.getWindow().getDecorView())))).check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
+    Espresso.onView(ViewMatchers.withText(toastMessage)).inRoot(RootMatchers.withDecorView(CoreMatchers.not(CoreMatchers.`is`(ac.window.getDecorView())))).check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
 }
 
 

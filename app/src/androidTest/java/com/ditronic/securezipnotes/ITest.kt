@@ -23,8 +23,8 @@ import com.ditronic.securezipnotes.activities.MainActivity
 import com.ditronic.securezipnotes.util.TestUtil
 import com.ditronic.simplefilesync.DropboxFileSync
 import com.ditronic.simplefilesync.util.ResultCode
-import junit.framework.Assert.assertEquals
-import junit.framework.Assert.assertTrue
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.hamcrest.CoreMatchers.anything
 import org.hamcrest.Matchers.greaterThan
 import org.hamcrest.core.StringContains
@@ -35,7 +35,8 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.MethodSorters
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Calendar
+import java.util.Locale
 
 
 @RunWith(AndroidJUnit4::class)
@@ -45,24 +46,19 @@ class ChangeTextBehaviorKtTest {
 
     companion object {
 
-        const val PASSWORD_TO_BE_TYPED = "testpassword";
-        const val PASSWORD_TOO_SHORT = "";
+        const val PASSWORD_TO_BE_TYPED = "testpassword"
+        const val PASSWORD_TOO_SHORT = ""
 
-        const val FIRST_NOTE_NAME = "Note 1";
-        const val RENAMED_NOTE_NAME = "Note renamed";
+        const val FIRST_NOTE_NAME = "Note 1"
+        const val RENAMED_NOTE_NAME = "Note renamed"
 
         const val SECRET_NOTE = "My secret note"
 
         const val DROPBOX_OAUTH_TOKEN = "T6OO59Oo9FoAAAAAAAANTySOeCziL-1_agAU2sr2mU8ArSZqr3RKb6ICU5a_JJVt"
     }
 
-    /**
-     * Use [ActivityScenarioRule] to create and launch the activity under test before each test,
-     * and close it after each test. This is a replacement for
-     * [androidx.test.rule.ActivityTestRule].
-     */
-    //@get:Rule var activityScenarioRule = activityScenarioRule<MainActivity>()
 
+    //@get:Rule var activityScenarioRule = activityScenarioRule<MainActivity>()
     @get:Rule var activityTestRule: ActivityTestRule<MainActivity> = ActivityTestRule(MainActivity::class.java, false, false)
 
     /*@BeforeClass

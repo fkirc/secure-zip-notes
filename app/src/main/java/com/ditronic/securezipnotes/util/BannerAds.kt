@@ -9,9 +9,10 @@ import com.google.android.gms.ads.MobileAds;*/
 
 object BannerAds {
 
+    const val TEST_AD_UNIT_ID = "ca-app-pub-3940256099942544/6300978111"
+    const val PRODUCTION_AD_UNIT_ID = "ca-app-pub-3394747202744753/2613883108"
+
     fun loadBottomAdsBanner(ac: Activity) {
-        val TEST_AD_UNIT_ID = "ca-app-pub-3940256099942544/6300978111"
-        val PRODUCTION_AD_UNIT_ID = "ca-app-pub-3394747202744753/2613883108"
 
         /*MobileAds.initialize(ac, ac.getResources().getString(R.string.admob_app_id));
         final AdView mAdView = new AdView(ac);
