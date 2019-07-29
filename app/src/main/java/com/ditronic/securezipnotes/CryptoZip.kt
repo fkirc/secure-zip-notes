@@ -11,14 +11,9 @@ import net.lingala.zip4j.io.ZipInputStream
 import net.lingala.zip4j.model.FileHeader
 import net.lingala.zip4j.model.ZipParameters
 import net.lingala.zip4j.util.Zip4jConstants
+import java.io.*
 
-import java.io.ByteArrayInputStream
-import java.io.File
-import java.io.IOException
-import java.io.InputStream
-import java.io.InputStreamReader
 import java.nio.charset.StandardCharsets
-import java.util.UUID
 
 
 /**
@@ -26,12 +21,12 @@ import java.util.UUID
  */
 class CryptoZip private constructor(cx: Context) {
 
-    private var zipFile: ZipFile? = null
+    private var zipFile: ZipFile
 
     val fileHeadersFast: List<FileHeader>?
         get() {
             try {
-                return zipFile!!.fileHeadersFast
+                return zipFile.fileHeadersFast
             } catch (e: Exception) {
                 throw RuntimeException(e)
             }
@@ -50,7 +45,7 @@ class CryptoZip private constructor(cx: Context) {
             return
         }
         try {
-            zipFile!!.readZipInfo()
+            zipFile.readZipInfo()
         } catch (e: ZipException) {
             throw RuntimeException(e)
         }
@@ -69,10 +64,9 @@ class CryptoZip private constructor(cx: Context) {
         refreshZipInfo(cx)
     }
 
-    fun addStream(displayName: String, `is`: InputStream): String {
+    fun addStream(displayName: String, `is`: InputStream) {
         val parameters = ZipParameters()
-        val innerFileName = constructUIDName(displayName)
-        parameters.fileNameInZip = innerFileName
+        parameters.fileNameInZip = displayName
         // For security reasons, it is best to NOT compress data before encrypting it.
         // Compressing data after encryption is useless since the entropy of encrypted data is expected to be maximal.
         parameters.compressionMethod = Zip4jConstants.COMP_STORE
@@ -85,29 +79,29 @@ class CryptoZip private constructor(cx: Context) {
 
         parameters.password = PwManager.instance().passwordFast
 
+        // TODO: Check if name already exists
+
         try {
-            zipFile!!.addStream(`is`, parameters)
+            zipFile.addStream(`is`, parameters)
             `is`.close()
         } catch (e: Exception) {
             throw RuntimeException(e)
         }
-
-        return parameters.fileNameInZip
     }
 
-    fun updateStream(fileHeader: FileHeader, newFileName: String, newContent: String): String {
+    fun updateStream(fileHeader: FileHeader, newFileName: String, newContent: String) {
 
-        val newInnerFileName: String
 
-        val `is` = ByteArrayInputStream(newContent.toByteArray())
+        val inStream = ByteArrayInputStream(newContent.toByteArray())
         try {
-            newInnerFileName = addStream(newFileName, `is`)
-            zipFile!!.removeFile(fileHeader)
+            // This might lead to a potential data loss in the unlikely case of an early exception.
+            // However, there must not exist two simultaneous entries with the same name.
+            // Moreover, this seems like the solution with less memory overhead.
+            zipFile.removeFile(fileHeader)
+            addStream(newFileName, inStream)
         } catch (e: Exception) {
             throw RuntimeException(e)
         }
-
-        return newInnerFileName
     }
 
     fun renameFile(fileHeader: FileHeader, newDisplayName: String) {
@@ -115,9 +109,10 @@ class CryptoZip private constructor(cx: Context) {
         fileHeader.password = PwManager.instance().passwordFast
 
         try {
-            val `is` = zipFile!!.getInputStream(fileHeader)
+            // TODO: Check if name already exists
+            val `is` = zipFile.getInputStream(fileHeader)
             addStream(newDisplayName, `is`) // closes input stream
-            zipFile!!.removeFile(fileHeader)
+            zipFile.removeFile(fileHeader)
         } catch (e: Exception) {
             throw RuntimeException(e)
         }
@@ -135,7 +130,7 @@ class CryptoZip private constructor(cx: Context) {
         fileHeader.password = password.toCharArray()
 
         try {
-            val `is` = zipFile!!.getInputStream(fileHeader)
+            val `is` = zipFile.getInputStream(fileHeader)
             //is.close();
             `is`.close(true)
         } catch (e: ZipException) {
@@ -164,7 +159,7 @@ class CryptoZip private constructor(cx: Context) {
             instance_ = null
         } else {
             try {
-                zipFile!!.removeFile(fileHeader)
+                zipFile.removeFile(fileHeader)
             } catch (e: ZipException) {
                 throw RuntimeException(e)
             }
@@ -175,7 +170,7 @@ class CryptoZip private constructor(cx: Context) {
 
     fun getFileHeader(innerFileName: String): FileHeader? {
         try {
-            return zipFile!!.getFileHeader(innerFileName)
+            return zipFile.getFileHeader(innerFileName)
         } catch (e: Exception) {
             throw RuntimeException(e)
         }
@@ -190,7 +185,7 @@ class CryptoZip private constructor(cx: Context) {
         fileHeader.password = pw
 
         try {
-            val `is` = zipFile!!.getInputStream(fileHeader)
+            val `is` = zipFile.getInputStream(fileHeader)
             val content = inputStreamToString(`is`)
             `is`.close()
             return content
@@ -212,19 +207,9 @@ class CryptoZip private constructor(cx: Context) {
         }
 
         private const val MAIN_FILE_NAME = "securezipnotes_internal.aeszip"
-        private const val UUID_SEPARATOR = "__"
-        val MIN_INNER_FILE_NAME_LEN = UUID_SEPARATOR.length + 32 + 4
-
-        private fun constructUIDName(displayName: String): String {
-            return displayName + UUID_SEPARATOR + UUID.randomUUID().toString()
-        }
 
         fun getDisplayName(fileHeader: FileHeader): String {
-            val len = fileHeader.fileName.length
-            if (len < MIN_INNER_FILE_NAME_LEN) {
-                throw RuntimeException("file header name too short")
-            }
-            return fileHeader.fileName.substring(0, len - MIN_INNER_FILE_NAME_LEN)
+            return fileHeader.fileName
         }
 
 

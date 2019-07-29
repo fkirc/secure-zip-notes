@@ -234,9 +234,9 @@ class MainActivity : AppCompatActivity() {
 
     private fun createNewNote() {
         val displayName = "Note " + (1 + CryptoZip.instance(this).numFileHeaders)
-        val innerFileName = CryptoZip.instance(this@MainActivity).addStream(displayName, ByteArrayInputStream(ByteArray(0)))
+        CryptoZip.instance(this@MainActivity).addStream(displayName, ByteArrayInputStream(ByteArray(0)))
         noteSelectAdapter.notifyDataSetChanged()
-        NoteEditActivity.launch(this@MainActivity, innerFileName)
+        NoteEditActivity.launch(this@MainActivity, displayName)
     }
 
     private fun btnNewNote() {

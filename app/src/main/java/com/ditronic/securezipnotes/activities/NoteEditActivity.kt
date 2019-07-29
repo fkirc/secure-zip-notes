@@ -27,11 +27,11 @@ class NoteEditActivity : AppCompatActivity() {
     private var editMode: Boolean = false
     private lateinit var editTextMain: EditText
     private lateinit var editTextTitle: EditText
+    private lateinit var innerFileName: String
     private var secretContent: String? = null
-    private var innerFileName: String? = null
 
     private val fileHeader: FileHeader
-        get() = CryptoZip.instance(this).getFileHeader(innerFileName!!)!!
+        get() = CryptoZip.instance(this).getFileHeader(innerFileName)!!
 
     private fun applyEditMode(enable: Boolean) {
         editMode = enable
@@ -137,18 +137,13 @@ class NoteEditActivity : AppCompatActivity() {
             editTextTitle.setText(CryptoZip.getDisplayName(fileHeader))
         }
         secretContent = newContent
-        innerFileName = CryptoZip.instance(this).updateStream(fileHeader, newFileName, secretContent!!)
+        CryptoZip.instance(this).updateStream(fileHeader, newFileName, secretContent!!)
         Boast.makeText(this, "Saved " + CryptoZip.getDisplayName(fileHeader)).show()
     }
 
     private fun saveClick() {
         saveContent()
         applyEditMode(false)
-    }
-
-    override fun onSaveInstanceState(bundle: Bundle) {
-        super.onSaveInstanceState(bundle)
-        bundle.putString(INNER_FILE_NAME, innerFileName)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -159,13 +154,9 @@ class NoteEditActivity : AppCompatActivity() {
         editTextTitle = findViewById(R.id.edit_text_title)
         editTextMain = findViewById(R.id.edit_text_main)
 
-        innerFileName = if (savedInstanceState != null) {
-            savedInstanceState.getString(INNER_FILE_NAME)
-        } else {
-            Objects.requireNonNull(intent.extras).getString(INNER_FILE_NAME)
-        }
+        innerFileName = intent.extras!!.getString(INNER_FILE_NAME)!!
 
-        val fileHeader = CryptoZip.instance(this).getFileHeader(innerFileName!!)
+        val fileHeader = CryptoZip.instance(this).getFileHeader(innerFileName)
 
         if (supportActionBar != null) { // add back arrow to toolbar
             supportActionBar!!.setDisplayHomeAsUpEnabled(true)

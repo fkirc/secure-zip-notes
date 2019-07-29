@@ -4,7 +4,6 @@ import android.content.Context
 import android.net.Uri
 import android.util.Log
 import androidx.appcompat.app.AlertDialog
-import com.ditronic.securezipnotes.CryptoZip.Companion.MIN_INNER_FILE_NAME_LEN
 import com.ditronic.simplefilesync.util.FilesUtil
 import net.lingala.zip4j.core.ZipFile
 import net.lingala.zip4j.util.Zip4jConstants
@@ -21,7 +20,7 @@ object NotesImport {
     private fun alertDialog(cx: Context, message: String) {
         AlertDialog.Builder(cx)
                 .setMessage(message)
-                .setPositiveButton(android.R.string.ok) { _, which -> }.show()
+                .setPositiveButton(android.R.string.ok) { _, _ -> }.show()
     }
 
 
@@ -64,8 +63,8 @@ object NotesImport {
             }
         }
         for (fh in fileHeaders) {
-            if (fh.fileName.length < MIN_INNER_FILE_NAME_LEN) {
-                alertDialog(cx, "Import failed due to short inner file names. Inner file names must be long enough to contain a unique identifier at the end of the file name.")
+            if (fh.fileName.isEmpty()) {
+                alertDialog(cx, "File names must not have zero lengths.")
                 return false
             }
         }
