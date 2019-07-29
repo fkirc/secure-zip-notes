@@ -10,6 +10,7 @@ import android.view.MenuItem
 import android.view.WindowManager
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 
@@ -128,22 +129,36 @@ class NoteEditActivity : AppCompatActivity() {
         }
         val newContent = editTextMain.text.toString()
         var newFileName = editTextTitle.text.toString()
+
+        if (newFileName != fileHeader.fileName && CryptoZip.instance(this).isDuplicateEntryName(newFileName)) {
+            // Use old entry name as a fallback mode if there is a name conflict.
+            Toast.makeText(this, newFileName + " already exists, keeping old name", Toast.LENGTH_SHORT).show()
+            newFileName = CryptoZip.getDisplayName(fileHeader)
+        }
+        if (newFileName.isEmpty()) {
+            Toast.makeText(this, "Empty file names are not allowed", Toast.LENGTH_SHORT).show()
+            newFileName = CryptoZip.getDisplayName(fileHeader)
+        }
+
         if (newContent == secretContent && newFileName == CryptoZip.getDisplayName(fileHeader)) {
             return  // Nothing to save, text unchanged
         }
-        if (newFileName.isEmpty()) {
-            // Silently keep old file name if this is empty
-            newFileName = CryptoZip.getDisplayName(fileHeader)
-            editTextTitle.setText(CryptoZip.getDisplayName(fileHeader))
-        }
+
         secretContent = newContent
         CryptoZip.instance(this).updateStream(fileHeader, newFileName, secretContent!!)
-        Boast.makeText(this, "Saved " + CryptoZip.getDisplayName(fileHeader)).show()
+        innerFileName = newFileName // This must be set after the updateStream!
+        editTextTitle.setText(CryptoZip.getDisplayName(fileHeader))
+        Toast.makeText(this, "Saved " + CryptoZip.getDisplayName(fileHeader), Toast.LENGTH_SHORT).show()
     }
 
     private fun saveClick() {
         saveContent()
         applyEditMode(false)
+    }
+
+    override fun onSaveInstanceState(bundle: Bundle) {
+        super.onSaveInstanceState(bundle)
+        bundle.putString(INNER_FILE_NAME, innerFileName)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -153,10 +168,11 @@ class NoteEditActivity : AppCompatActivity() {
         setSupportActionBar(toolbar)
         editTextTitle = findViewById(R.id.edit_text_title)
         editTextMain = findViewById(R.id.edit_text_main)
-
-        innerFileName = intent.extras!!.getString(INNER_FILE_NAME)!!
-
-        val fileHeader = CryptoZip.instance(this).getFileHeader(innerFileName)
+        if (savedInstanceState != null) {
+            innerFileName = savedInstanceState.getString(INNER_FILE_NAME)!!
+        } else {
+            innerFileName = intent.extras!!.getString(INNER_FILE_NAME)!!
+        }
 
         if (supportActionBar != null) { // add back arrow to toolbar
             supportActionBar!!.setDisplayHomeAsUpEnabled(true)
@@ -165,7 +181,7 @@ class NoteEditActivity : AppCompatActivity() {
             supportActionBar!!.setDisplayShowTitleEnabled(false)
         }
 
-        secretContent = CryptoZip.instance(this).extractFileString(fileHeader!!)
+        secretContent = CryptoZip.instance(this).extractFileString(fileHeader)
         if (secretContent == null) {
             finish() // Should almost never happen
             return

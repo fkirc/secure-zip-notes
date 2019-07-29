@@ -123,7 +123,7 @@ class MainActivity : AppCompatActivity() {
                     return@setPositiveButton
                 }
 
-                CryptoZip.instance(this@MainActivity).renameFile(fileHeader, newName)
+                CryptoZip.instance(this@MainActivity).renameFile(fileHeader, newName, this@MainActivity)
                 this@MainActivity.noteSelectAdapter.notifyDataSetChanged()
             }
 
@@ -233,7 +233,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun createNewNote() {
-        val displayName = "Note " + (1 + CryptoZip.instance(this).numFileHeaders)
+        val displayName = CryptoZip.instance(this).generateUnusedFileName()
         CryptoZip.instance(this@MainActivity).addStream(displayName, ByteArrayInputStream(ByteArray(0)))
         noteSelectAdapter.notifyDataSetChanged()
         NoteEditActivity.launch(this@MainActivity, displayName)

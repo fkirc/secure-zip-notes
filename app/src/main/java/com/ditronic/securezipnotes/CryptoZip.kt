@@ -1,9 +1,7 @@
 package com.ditronic.securezipnotes
 
 import android.content.Context
-
 import com.ditronic.securezipnotes.util.Boast
-
 import net.lingala.zip4j.core.ZipFile
 import net.lingala.zip4j.exception.ZipException
 import net.lingala.zip4j.exception.ZipExceptionConstants
@@ -12,7 +10,6 @@ import net.lingala.zip4j.model.FileHeader
 import net.lingala.zip4j.model.ZipParameters
 import net.lingala.zip4j.util.Zip4jConstants
 import java.io.*
-
 import java.nio.charset.StandardCharsets
 
 
@@ -64,7 +61,22 @@ class CryptoZip private constructor(cx: Context) {
         refreshZipInfo(cx)
     }
 
-    fun addStream(displayName: String, `is`: InputStream) {
+    fun isDuplicateEntryName(entryName: String) : Boolean {
+        val fileHeaders = zipFile.fileHeadersFast ?: return false
+        for (f in fileHeaders) {
+            if (f.fileName == entryName) {
+                return true
+            }
+        }
+        return false
+    }
+
+    fun addStream(displayName: String, inputStream: InputStream) {
+
+        if (isDuplicateEntryName(displayName)) {
+            throw java.lang.RuntimeException("Must not add a duplicate entry name")
+        }
+
         val parameters = ZipParameters()
         parameters.fileNameInZip = displayName
         // For security reasons, it is best to NOT compress data before encrypting it.
@@ -79,18 +91,16 @@ class CryptoZip private constructor(cx: Context) {
 
         parameters.password = PwManager.instance().passwordFast
 
-        // TODO: Check if name already exists
-
         try {
-            zipFile.addStream(`is`, parameters)
-            `is`.close()
+            zipFile.addStream(inputStream, parameters)
+            inputStream.close()
         } catch (e: Exception) {
             throw RuntimeException(e)
         }
     }
 
-    fun updateStream(fileHeader: FileHeader, newFileName: String, newContent: String) {
 
+    fun updateStream(fileHeader: FileHeader, newEntryName: String, newContent: String) {
 
         val inStream = ByteArrayInputStream(newContent.toByteArray())
         try {
@@ -98,20 +108,25 @@ class CryptoZip private constructor(cx: Context) {
             // However, there must not exist two simultaneous entries with the same name.
             // Moreover, this seems like the solution with less memory overhead.
             zipFile.removeFile(fileHeader)
-            addStream(newFileName, inStream)
+            addStream(newEntryName, inStream)
         } catch (e: Exception) {
             throw RuntimeException(e)
         }
+
     }
 
-    fun renameFile(fileHeader: FileHeader, newDisplayName: String) {
+    fun renameFile(fileHeader: FileHeader, newEntryName: String, cx : Context) {
+
+        if (isDuplicateEntryName(newEntryName)) {
+            Boast.makeText(cx, newEntryName + " already exists!").show()
+            return
+        }
 
         fileHeader.password = PwManager.instance().passwordFast
 
         try {
-            // TODO: Check if name already exists
-            val `is` = zipFile.getInputStream(fileHeader)
-            addStream(newDisplayName, `is`) // closes input stream
+            val inputStream = zipFile.getInputStream(fileHeader)
+            addStream(newEntryName, inputStream) // closes input stream
             zipFile.removeFile(fileHeader)
         } catch (e: Exception) {
             throw RuntimeException(e)
@@ -242,4 +257,13 @@ class CryptoZip private constructor(cx: Context) {
         }
     }
 
+
+    fun generateUnusedFileName() : String {
+        lateinit var displayName : String
+        var upCount = 1 // This stays at 1 in almost all cases.
+        do {
+            displayName = "Note " + (upCount++ + numFileHeaders)
+        } while(isDuplicateEntryName(displayName))
+        return displayName
+    }
 }

@@ -51,9 +51,6 @@ public abstract class AbstractFileSync extends AsyncTask<Object, String, SSyncRe
         return lastSyncResult;
     }
 
-    public static void clearLastSyncResult() {
-        lastSyncResult = null;
-    }
 
     @Override
     protected void onProgressUpdate(final String... userMessage) {
@@ -139,7 +136,13 @@ public abstract class AbstractFileSync extends AsyncTask<Object, String, SSyncRe
 
     protected static void setCurrentSyncBackend(final Context cx, Class<?> cls) {
         syncTriggeredByUser = true;
+        lastSyncResult = null;
         SharedPreferences prefs = cx.getSharedPreferences(BASE_SYNC_PREF_FILE, Context.MODE_PRIVATE);
         prefs.edit().putString(PREF_CURRENT_SYNC_BACKEND, cls.getSimpleName()).apply();
+    }
+
+    public static void clearCurrentSyncBackend(final Context cx) {
+        SharedPreferences prefs = cx.getSharedPreferences(BASE_SYNC_PREF_FILE, Context.MODE_PRIVATE);
+        prefs.edit().clear().apply();
     }
 }

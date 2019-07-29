@@ -34,7 +34,7 @@ class PwManager private constructor() {
     private var password: String? = null
 
 
-    val passwordFast: CharArray?
+    val passwordFast
         get() = if (password == null) {
             null
         } else {
