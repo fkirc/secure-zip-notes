@@ -6,27 +6,23 @@ import com.ditronic.securezipnotes.activities.MainActivity
 import java.io.FileOutputStream
 
 
-fun precondition_cleanStart(rule: ActivityTestRule<MainActivity>, preLaunchHook: (() -> Unit)? = null) {
-    preLaunchHook?.invoke()
+fun precondition_cleanStart(rule: ActivityTestRule<MainActivity>) {
     rule.launchActivity(null)
 }
 
-fun precondition_singleNote(rule: ActivityTestRule<MainActivity>, preLaunchHook: (() -> Unit)? = null) {
-    resetAndLoadAsset("singlenote.aeszip")
-    preLaunchHook?.invoke()
+fun precondition_singleNote(rule: ActivityTestRule<MainActivity>) {
+    loadAsset("singlenote.aeszip")
     rule.launchActivity(null)
     main_assertListState(listOf("Note 1"), rule.activity)
 }
 
 fun precondition_fourNotes(rule: ActivityTestRule<MainActivity>) {
-    resetAndLoadAsset("4notes.aeszip")
+    loadAsset("4notes.aeszip")
     rule.launchActivity(null)
     main_assertListState(listOf("Note 1", "Note 2", "Note 3", "Note 4"), rule.activity)
 }
 
-private fun resetAndLoadAsset(assetPath: String) {
-    //resetAppData()
-
+private fun loadAsset(assetPath: String) {
     val appContext = InstrumentationRegistry.getInstrumentation().targetContext
     val testContext = InstrumentationRegistry.getInstrumentation().context
 

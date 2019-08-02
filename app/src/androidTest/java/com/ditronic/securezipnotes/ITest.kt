@@ -1,7 +1,6 @@
 package com.ditronic.securezipnotes
 
 import android.content.Intent
-import androidx.test.espresso.Espresso
 import androidx.test.espresso.intent.Intents
 import androidx.test.espresso.intent.Intents.intended
 import androidx.test.espresso.intent.matcher.ComponentNameMatchers.hasClassName
@@ -13,32 +12,23 @@ import androidx.test.rule.ActivityTestRule
 import assertToast
 import com.ditronic.securezipnotes.activities.MainActivity
 import com.ditronic.securezipnotes.util.TestUtil
-import com.ditronic.simplefilesync.AbstractFileSync
-import com.ditronic.simplefilesync.DropboxFileSync
-import com.ditronic.simplefilesync.util.ResultCode
 import org.hamcrest.Matchers.containsString
 import org.hamcrest.core.StringContains
 import org.junit.Assert.assertEquals
 import org.junit.Before
-import org.junit.FixMethodOrder
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.junit.runners.MethodSorters
 import pressBack
-import targetContext
 import java.text.SimpleDateFormat
 
 
 @RunWith(AndroidJUnit4::class)
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @LargeTest
-class ChangeTextBehaviorKtTest {
+class ITest {
 
     companion object {
         private const val SECRET_NOTE = "My secret note"
-
-        private const val DROPBOX_OAUTH_TOKEN = "T6OO59Oo9FoAAAAAAAANTySOeCziL-1_agAU2sr2mU8ArSZqr3RKb6ICU5a_JJVt"
     }
 
     //@get:Rule var activityScenarioRule = activityScenarioRule<MainActivity>()
@@ -68,7 +58,7 @@ class ChangeTextBehaviorKtTest {
 
         main_assertListState(listOf("Note 1"), acRule.activity)
         val noteEntry = main_extractEntryList(acRule.activity)[0]
-        assertEquals("Size: " + ChangeTextBehaviorKtTest.SECRET_NOTE.length, noteEntry.size)
+        assertEquals("Size: " + SECRET_NOTE.length, noteEntry.size)
         assertThat(noteEntry.modDate, containsString(SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault()).format(java.util.Calendar.getInstance().timeInMillis)))
 
         main_clickNote("Note 1")
@@ -97,36 +87,6 @@ class ChangeTextBehaviorKtTest {
         intended(IntentMatchers.hasDataString(StringContains("https://www.dropbox.com/")))
 
         Intents.release()
-    }
-
-    // TODO: Maybe move dbx tests to other class?
-    @Test
-    fun dbx1_dropBoxUpload() {
-        precondition_singleNote(acRule, preLaunchHook = {
-            DropboxFileSync.storeNewOauthToken(DROPBOX_OAUTH_TOKEN, targetContext())
-        })
-        Espresso.onIdle()
-        assertEquals(ResultCode.UPLOAD_SUCCESS, AbstractFileSync.getLastSyncResult()!!.resultCode)
-    }
-
-    @Test
-    fun dbx2_dropBoxRemoteEqualsLocal() {
-        precondition_singleNote(acRule, preLaunchHook = {
-            DropboxFileSync.storeNewOauthToken(DROPBOX_OAUTH_TOKEN, targetContext())
-        })
-        acRule.launchActivity(null)
-        Espresso.onIdle()
-        assertEquals(ResultCode.REMOTE_EQUALS_LOCAL, DropboxFileSync.getLastSyncResult()!!.resultCode)
-    }
-
-    @Test
-    fun dbx3_dropBoxDownload() {
-        precondition_cleanStart(acRule, preLaunchHook = {
-            DropboxFileSync.storeNewOauthToken(DROPBOX_OAUTH_TOKEN, targetContext())
-        })
-        Espresso.onIdle()
-        assertEquals(ResultCode.DOWNLOAD_SUCCESS, DropboxFileSync.getLastSyncResult()!!.resultCode)
-        main_assertNonEmpty(acRule.activity)
     }
 
     @Test
@@ -237,9 +197,6 @@ class ChangeTextBehaviorKtTest {
         assertToast(acRule.activity.getString(R.string.toast_notes_empty_export), acRule.activity)
     }
 
-    // TODO: Establish preconditions more reliably, split into different preconditions group
     // TODO: Measure code coverage
-
     // TODO: Import tests with Zip files from different source programs
-    // TODO: Maybe decouple tests and split into "empty precondition" and "nonempty precondition"
 }

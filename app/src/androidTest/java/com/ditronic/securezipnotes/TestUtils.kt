@@ -13,8 +13,6 @@ fun targetContext() : Context {
     return InstrumentationRegistry.getInstrumentation().targetContext
 }
 
-
-
 fun assertToast(toastMessage : String, ac : Activity) {
     //Espresso.onView(ViewMatchers.withText(toastMessage)).inRoot(RootMatchers.withDecorView(CoreMatchers.not(CoreMatchers.`is`(ac.window.getDecorView())))).check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
     Espresso.onView(ViewMatchers.withText(toastMessage)).inRoot(RootMatchers.withDecorView(CoreMatchers.not(ac.window.getDecorView()))).check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
@@ -23,6 +21,7 @@ fun assertToast(toastMessage : String, ac : Activity) {
 fun pressBack() {
     Espresso.onView(ViewMatchers.isRoot()).perform(ViewActions.pressBack())
 }
+
 
 fun clearLocalFilesDir() {
     val appContext = InstrumentationRegistry.getInstrumentation().targetContext
