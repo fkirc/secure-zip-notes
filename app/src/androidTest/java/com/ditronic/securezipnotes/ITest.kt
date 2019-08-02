@@ -5,22 +5,18 @@ import androidx.test.espresso.intent.Intents
 import androidx.test.espresso.intent.Intents.intended
 import androidx.test.espresso.intent.matcher.ComponentNameMatchers.hasClassName
 import androidx.test.espresso.intent.matcher.IntentMatchers
-import androidx.test.espresso.matcher.ViewMatchers.assertThat
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.rule.ActivityTestRule
 import assertToast
 import com.ditronic.securezipnotes.activities.MainActivity
 import com.ditronic.securezipnotes.util.TestUtil
-import org.hamcrest.Matchers.containsString
 import org.hamcrest.core.StringContains
-import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import pressBack
-import java.text.SimpleDateFormat
 
 
 @RunWith(AndroidJUnit4::class)
@@ -38,39 +34,6 @@ class ITest {
     fun beforeEachTest() {
         TestUtil.isInstrumentationTest = true
     }
-
-    @Test
-    fun createNewPassword() {
-        precondition_cleanStart(acRule)
-
-        init_createNewZipFile()
-
-        // TODO: Confirm that random master password gets generated within separate test
-        init_genRandomPassword()
-        init_chooseNewPassword("")
-        init_chooseNewPassword(MASTER_PASSWORD)
-        // TODO: Confirm wrong password tests
-        init_confirmNewPassword(MASTER_PASSWORD)
-
-        noteEdit_typeText(SECRET_NOTE)
-        noteEdit_assertState("Note 1", SECRET_NOTE, editMode = true)
-        pressBack()
-
-        main_assertListState(listOf("Note 1"), acRule.activity)
-        val noteEntry = main_extractEntryList(acRule.activity)[0]
-        assertEquals("Size: " + SECRET_NOTE.length, noteEntry.size)
-        assertThat(noteEntry.modDate, containsString(SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault()).format(java.util.Calendar.getInstance().timeInMillis)))
-
-        main_clickNote("Note 1")
-        noteEdit_assertState("Note 1", SECRET_NOTE, editMode = false)
-        pressBack()
-
-        // Back to MainActivity, assert that nothing changed
-        main_assertListState(listOf("Note 1"), acRule.activity)
-        val newNoteEntry = main_extractEntryList(acRule.activity)[0]
-        assertEquals(noteEntry, newNoteEntry)
-    }
-
 
     @Test
     fun dropBoxInitOauth() {

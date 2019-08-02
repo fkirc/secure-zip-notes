@@ -5,6 +5,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.rule.ActivityTestRule
 import com.ditronic.securezipnotes.activities.MainActivity
+import com.ditronic.securezipnotes.util.TestUtil
 import com.ditronic.simplefilesync.AbstractFileSync
 import com.ditronic.simplefilesync.DropboxFileSync
 import com.ditronic.simplefilesync.util.ResultCode
@@ -27,6 +28,7 @@ class SyncTests {
 
     @Before
     fun beforeEachTest() {
+        TestUtil.isInstrumentationTest = true
         DropboxFileSync.storeNewOauthToken(DROPBOX_OAUTH_TOKEN, targetContext())
     }
 
