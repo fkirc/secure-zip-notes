@@ -83,9 +83,16 @@ class SetupTests {
         init_confirmNewPassword(MASTER_PASSWORD + "mismatch")
         pressBack()
         pressBack()
-        // TODO: Fix this test
+        // TODO: Fix this test.
+        // TODO: Click happens on "Passwords do not match" overlay message.
+        // TODO: Therefore, the click gets ignored and the message does not disappear.
         init_chooseNewPassword("lalalalalala")
         init_confirmNewPassword("lalalalalala mismatch")
+        init_confirmNewPassword("lalalalalala")
+        init_confirmNewPassword("lalalalalala")
+        init_confirmNewPassword("lalalalalala")
+        init_confirmNewPassword("lalalalalala")
+        init_confirmNewPassword("lalalalalala")
         init_confirmNewPassword("lalalalalala")
         noteEdit_assertState("Note 1", "", editMode = true)
     }
