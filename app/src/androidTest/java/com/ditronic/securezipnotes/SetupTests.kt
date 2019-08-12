@@ -65,11 +65,13 @@ class SetupTests {
         precondition_cleanStart(acRule)
 
         init_createNewZipFile()
-        // TODO: Assert EditText error messages
         init_chooseNewPassword("")
+        init_newPassword_assertErrorText("Minimum length: 8 characters")
         init_chooseNewPassword("sfse")
+        init_newPassword_assertErrorText("Minimum length: 8 characters")
         init_chooseNewPassword(MASTER_PASSWORD)
         init_confirmNewPassword(MASTER_PASSWORD)
+        noteEdit_assertState("Note 1", "", editMode = true)
     }
 
     @Test
@@ -78,21 +80,16 @@ class SetupTests {
         TestUtil.isInstrumentationTest = true
 
         init_createNewZipFile()
-        // TODO: Assert EditText error messages
         init_chooseNewPassword(MASTER_PASSWORD)
         init_confirmNewPassword(MASTER_PASSWORD + "mismatch")
+        init_confirmPassword_assertErrorText("Passwords do not match")
         pressBack()
         pressBack()
-        // TODO: Fix this test.
-        // TODO: Click happens on "Passwords do not match" overlay message.
+        // TODO: Fix this test: Click happens on "Passwords do not match" overlay message.
         // TODO: Therefore, the click gets ignored and the message does not disappear.
         init_chooseNewPassword("lalalalalala")
         init_confirmNewPassword("lalalalalala mismatch")
-        init_confirmNewPassword("lalalalalala")
-        init_confirmNewPassword("lalalalalala")
-        init_confirmNewPassword("lalalalalala")
-        init_confirmNewPassword("lalalalalala")
-        init_confirmNewPassword("lalalalalala")
+        init_confirmPassword_assertErrorText("Passwords do not match")
         init_confirmNewPassword("lalalalalala")
         noteEdit_assertState("Note 1", "", editMode = true)
     }

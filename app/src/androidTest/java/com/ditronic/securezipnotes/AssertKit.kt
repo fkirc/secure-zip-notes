@@ -20,6 +20,13 @@ data class NoteEntry(var name: String,
                      var modDate: String,
                      var size: String)
 
+fun init_newPassword_assertErrorText(errorText: String) {
+    Espresso.onView(ViewMatchers.withId(R.id.input_password)).check(ViewAssertions.matches(ViewMatchers.hasErrorText(errorText)))
+}
+
+fun init_confirmPassword_assertErrorText(errorText: String) {
+    Espresso.onView(ViewMatchers.withId(R.id.input_password_confirm)).check(ViewAssertions.matches(ViewMatchers.hasErrorText(errorText)))
+}
 
 fun main_extractEntryList(ac: Activity) : List<NoteEntry> {
     val noteEntries = mutableListOf<NoteEntry>()
