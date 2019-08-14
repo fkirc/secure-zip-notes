@@ -71,6 +71,10 @@ fun init_createNewZipFile() {
     Espresso.onView(ViewMatchers.withId(R.id.btn_create_new_note)).perform(ViewActions.click())
 }
 
+fun init_importExistingNotes() {
+    Espresso.onView(ViewMatchers.withId(R.id.btn_import_existing_notes)).perform(ViewActions.click())
+}
+
 fun init_chooseNewPassword(newPw: String) {
     Espresso.onView(ViewMatchers.withId(R.id.input_password)).perform(ViewActions.replaceText(newPw))
     Espresso.onView(ViewMatchers.withId(R.id.btn_next)).perform(ViewActions.click())
