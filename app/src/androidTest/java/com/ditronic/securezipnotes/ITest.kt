@@ -67,26 +67,32 @@ class ITest {
     }
 
     @Test
-    fun renameNotesEdgeCases() {
+    fun invalidRenameMainMenu() {
         precondition_fourNotes(acRule)
-        //TODO: Fix toast asserts
 
         // Verify that duplicate rename from main menu fails gracefully
         main_renameNote("Note 1", "Note 2", typePassword = true)
-        //assertToast("Note 2 already exists!", acRule.activity)
+        assertToast("Note 2 already exists!", acRule.activity)
 
         // Verify that empty rename from main menu does not change anything
         main_renameNote("Note 2", "")
-        //assertToast("Name must not be empty", acRule.activity)
+        assertToast("Name must not be empty", acRule.activity)
+
+        main_assertListState(listOf("Note 1", "Note 2", "Note 3", "Note 4"), acRule.activity)
+    }
+
+    @Test
+    fun invalidRenameOpenedNote() {
+        precondition_fourNotes(acRule)
 
         // Verify that duplicate rename of opened note fails gracefully
-        main_clickNote("Note 1")
+        main_clickNote("Note 1", typePassword = true)
         noteEdit_rename("Note 1", "Note 2")
-        //assertToast("Note 2 already exists, keeping old name", acRule.activity)
+        assertToast("Note 2 already exists, keeping old name", acRule.activity)
 
         // Verify that empty rename of opened note does not touch the name
         noteEdit_rename("Note 2", "")
-        //assertToast("Empty file names are not allowed", acRule.activity)
+        assertToast("Empty file names are not allowed", acRule.activity)
 
         pressBack()
         main_assertListState(listOf("Note 1", "Note 2", "Note 3", "Note 4"), acRule.activity)

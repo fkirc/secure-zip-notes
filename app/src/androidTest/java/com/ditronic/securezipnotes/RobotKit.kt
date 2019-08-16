@@ -15,18 +15,20 @@ const val MASTER_PASSWORD = "testpassword"
 // Main menu actions ----------------------------------------------------------------------
 
 private fun main_typeMasterPassword() {
-    // TODO: Tests with wrong passwords
     // TODO: Tests with multiple different passwords in single file
     Espresso.onView(ViewMatchers.withInputType(InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD))
             .inRoot(RootMatchers.isDialog()).perform(ViewActions.replaceText(MASTER_PASSWORD))
     Espresso.onView(ViewMatchers.withText("OK")).inRoot(RootMatchers.isDialog()).perform(ViewActions.click())
 }
 
-fun main_clickNote(noteName: String) {
+fun main_clickNote(noteName: String, typePassword: Boolean = false) {
     Espresso.onData(matchesFileHeader(noteName))
             .inAdapterView(ViewMatchers.withId(R.id.list_view_notes))
             //.onChildView(ViewMatchers.withText(noteName))
             .perform(ViewActions.click())
+    if (typePassword) {
+        main_typeMasterPassword()
+    }
 }
 
 private fun main_longClickNote(entryName: String) {
