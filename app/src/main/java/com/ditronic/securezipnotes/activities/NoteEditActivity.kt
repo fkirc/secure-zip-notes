@@ -132,15 +132,20 @@ class NoteEditActivity : AppCompatActivity() {
 
         if (newFileName != fileHeader.fileName && CryptoZip.instance(this).isDuplicateEntryName(newFileName)) {
             // Use old entry name as a fallback mode if there is a name conflict.
-            Toast.makeText(this, newFileName + " already exists, keeping old name", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, newFileName + " already exists", Toast.LENGTH_SHORT).show()
             newFileName = CryptoZip.getDisplayName(fileHeader)
         }
         if (newFileName.isEmpty()) {
             Toast.makeText(this, "Empty file names are not allowed", Toast.LENGTH_SHORT).show()
             newFileName = CryptoZip.getDisplayName(fileHeader)
         }
+        if (CryptoZip.isIllegalEntryName(newFileName)) {
+            Toast.makeText(this, newFileName + " is an invalid entry name", Toast.LENGTH_SHORT).show()
+            newFileName = CryptoZip.getDisplayName(fileHeader)
+        }
 
         if (newContent == secretContent && newFileName == CryptoZip.getDisplayName(fileHeader)) {
+            editTextTitle.setText(CryptoZip.getDisplayName(fileHeader))
             return  // Nothing to save, text unchanged
         }
 

@@ -116,9 +116,16 @@ class CryptoZip private constructor(cx: Context) {
     }
 
     fun renameFile(fileHeader: FileHeader, newEntryName: String, cx : Context) {
-
+        if (newEntryName.isEmpty()) {
+            Boast.makeText(cx, "Empty file names are not allowed").show()
+            return
+        }
         if (isDuplicateEntryName(newEntryName)) {
-            Boast.makeText(cx, newEntryName + " already exists!").show()
+            Boast.makeText(cx, newEntryName + " already exists").show()
+            return
+        }
+        if (isIllegalEntryName(newEntryName)) {
+            Boast.makeText(cx, newEntryName + " is an invalid entry name").show()
             return
         }
 
@@ -254,6 +261,18 @@ class CryptoZip private constructor(cx: Context) {
                 }
             }
             return sb.toString()
+        }
+
+        fun isIllegalEntryName(entryName: String) : Boolean {
+            if (entryName.startsWith("/"))
+                return true
+            if (entryName.startsWith("\\"))
+                return true
+            if (entryName.endsWith("/"))
+                return true
+            if (entryName.endsWith("\\"))
+                return true
+            return false
         }
     }
 

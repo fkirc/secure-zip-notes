@@ -70,13 +70,14 @@ class ITest {
     fun invalidRenameMainMenu() {
         precondition_fourNotes(acRule)
 
-        // Verify that duplicate rename from main menu fails gracefully
         main_renameNote("Note 1", "Note 2", typePassword = true)
-        assertToast("Note 2 already exists!", acRule.activity)
+        assertToast("Note 2 already exists", acRule.activity)
 
-        // Verify that empty rename from main menu does not change anything
         main_renameNote("Note 2", "")
-        assertToast("Name must not be empty", acRule.activity)
+        assertToast("Empty file names are not allowed", acRule.activity)
+
+        main_renameNote("Note 2", "directory/")
+        assertToast("directory/ is an invalid entry name", acRule.activity)
 
         main_assertListState(listOf("Note 1", "Note 2", "Note 3", "Note 4"), acRule.activity)
     }
@@ -84,15 +85,16 @@ class ITest {
     @Test
     fun invalidRenameOpenedNote() {
         precondition_fourNotes(acRule)
-
-        // Verify that duplicate rename of opened note fails gracefully
         main_clickNote("Note 1", typePassword = true)
-        noteEdit_rename("Note 1", "Note 2")
-        assertToast("Note 2 already exists, keeping old name", acRule.activity)
 
-        // Verify that empty rename of opened note does not touch the name
-        noteEdit_rename("Note 2", "")
+        noteEdit_rename("Note 1", "Note 2")
+        assertToast("Note 2 already exists", acRule.activity)
+
+        noteEdit_rename("Note 1", "")
         assertToast("Empty file names are not allowed", acRule.activity)
+
+        noteEdit_rename("Note 1", "\\")
+        assertToast("\\ is an invalid entry name", acRule.activity)
 
         pressBack()
         main_assertListState(listOf("Note 1", "Note 2", "Note 3", "Note 4"), acRule.activity)

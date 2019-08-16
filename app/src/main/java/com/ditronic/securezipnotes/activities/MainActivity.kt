@@ -118,11 +118,6 @@ class MainActivity : AppCompatActivity() {
             builder.setView(input)
             builder.setPositiveButton(android.R.string.ok) { _, _ ->
                 val newName = input.text.toString()
-                if (newName.isEmpty()) {
-                    Boast.makeText(this@MainActivity, "Name must not be empty").show()
-                    return@setPositiveButton
-                }
-
                 CryptoZip.instance(this@MainActivity).renameFile(fileHeader, newName, this@MainActivity)
                 this@MainActivity.noteSelectAdapter.notifyDataSetChanged()
             }
