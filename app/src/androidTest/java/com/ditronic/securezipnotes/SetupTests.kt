@@ -20,6 +20,8 @@ import java.text.SimpleDateFormat
 @LargeTest
 class SetupTests {
 
+    // TODO: Measure code coverage
+
     companion object {
         private const val SECRET_NOTE = "My secret note"
     }
@@ -95,17 +97,14 @@ class SetupTests {
     }
 
 
-    // TODO: Confirm that random master password gets generated
 
     @Test
     fun generateRandomPassword() {
+        // TODO: Implement this test
         precondition_cleanStart(acRule)
 
         init_createNewZipFile()
         init_genRandomPassword()
         init_confirmNewPassword("Randomly wrong")
     }
-
-
-    // TODO: Measure code coverage
 }

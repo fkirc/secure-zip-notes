@@ -19,6 +19,8 @@ import targetContext
 @LargeTest
 class SyncTests {
 
+    // TODO: Assert popup messages instead of internal state
+
     companion object {
         private const val DROPBOX_OAUTH_TOKEN = "T6OO59Oo9FoAAAAAAAANTySOeCziL-1_agAU2sr2mU8ArSZqr3RKb6ICU5a_JJVt"
     }

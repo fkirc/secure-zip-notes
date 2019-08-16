@@ -40,6 +40,7 @@ class ImportTests {
        Intents.intended(IntentMatchers.hasAction(Intent.ACTION_GET_CONTENT))
        //Intents.intended(IntentMatchers.hasExtras(BundleMatchers.hasEntry("key", "value")))
        val resIntent = Intent()
+       // TODO: This does not work, finish import test.
        resIntent.data = Uri.fromFile(File("file:///android_asset/subdirs.aeszip"))
        val res = Instrumentation.ActivityResult(Activity.RESULT_OK, resIntent)
        Intents.intending(IntentMatchers.hasAction(Intent.ACTION_GET_CONTENT)).respondWith(res)
