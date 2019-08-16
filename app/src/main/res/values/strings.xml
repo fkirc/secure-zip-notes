@@ -10,4 +10,6 @@
     <string name="master_password">Master Password</string>
     <string name="sync_with_dropbox">Sync with Dropbox</string>
     <string name="sync_with_google_drive">Sync with Google Drive</string>
+
+    <string name="toast_notes_empty_export">Notes empty, nothing to export</string>
 </resources>

@@ -16,6 +16,7 @@ import java.lang.ref.WeakReference;
  * subsequent notification. This default behaviour can be changed by calling
  * certain methods like {@link #show(boolean)}.
  */
+@SuppressWarnings({"WeakerAccess", "unused"})
 public class Boast
 {
     /**
@@ -257,7 +258,7 @@ public class Boast
         }
 
         // save an instance of this current notification
-        globalBoast = new WeakReference<>(this);
+        globalBoast = new WeakReference<Boast>(this);
 
         internalToast.show();
     }

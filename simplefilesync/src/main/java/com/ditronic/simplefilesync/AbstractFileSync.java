@@ -14,6 +14,7 @@ import java.io.File;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+import com.ditronic.simplefilesync.util.ResultCode;
 import com.ditronic.simplefilesync.util.SSyncResult;
 
 public abstract class AbstractFileSync extends AsyncTask<Object, String, SSyncResult> {
@@ -44,6 +45,12 @@ public abstract class AbstractFileSync extends AsyncTask<Object, String, SSyncRe
     private static final String PREF_CURRENT_SYNC_BACKEND = "pref_current_sync_backend";
 
     private static boolean syncTriggeredByUser = false;
+    private static SSyncResult lastSyncResult = null;
+
+    public static @javax.annotation.Nullable SSyncResult getLastSyncResult() {
+        return lastSyncResult;
+    }
+
 
     @Override
     protected void onProgressUpdate(final String... userMessage) {
@@ -58,7 +65,7 @@ public abstract class AbstractFileSync extends AsyncTask<Object, String, SSyncRe
 
     @Override
     protected void onPostExecute(final @NonNull SSyncResult res) {
-
+        lastSyncResult = res;
         if (progressDialog != null) {
             progressDialog.dismiss();
         }
@@ -129,7 +136,13 @@ public abstract class AbstractFileSync extends AsyncTask<Object, String, SSyncRe
 
     protected static void setCurrentSyncBackend(final Context cx, Class<?> cls) {
         syncTriggeredByUser = true;
+        lastSyncResult = null;
         SharedPreferences prefs = cx.getSharedPreferences(BASE_SYNC_PREF_FILE, Context.MODE_PRIVATE);
         prefs.edit().putString(PREF_CURRENT_SYNC_BACKEND, cls.getSimpleName()).apply();
+    }
+
+    public static void clearCurrentSyncBackend(final Context cx) {
+        SharedPreferences prefs = cx.getSharedPreferences(BASE_SYNC_PREF_FILE, Context.MODE_PRIVATE);
+        prefs.edit().clear().apply();
     }
 }
