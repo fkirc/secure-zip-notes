@@ -149,10 +149,10 @@ fun initDecryptCipher(ac: FragmentActivity) : Cipher? {
     }
 }
 
-fun decryptPassword(cx: Context, cipher: Cipher?): String? {
+fun decryptPassword(cx: Context, cipher: Cipher): String? {
     try {
         val encPw = getEncPw(cx) ?: return null
-        return String(cipher!!.doFinal(encPw), StandardCharsets.UTF_8)
+        return String(cipher.doFinal(encPw), StandardCharsets.UTF_8)
     } catch (e: Exception) {
         Log.e(TAG, "doFinal failed to decrypt the password", e)
         return null

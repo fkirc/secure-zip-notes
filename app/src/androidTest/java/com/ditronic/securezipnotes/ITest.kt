@@ -164,5 +164,4 @@ class ITest {
     }
 
     // TODO: Measure code coverage
-    // TODO: Import tests with Zip files from different source programs
 }

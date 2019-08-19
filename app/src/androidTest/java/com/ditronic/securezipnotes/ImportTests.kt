@@ -22,21 +22,23 @@ class ImportTests {
 
     @get:Rule var acRule: ActivityTestRule<MainActivity> = ActivityTestRule(MainActivity::class.java, false, false)
 
+    // TODO: Import tests with Zip files from different source programs
 
    @Test
     fun importWithSubDirs() {
        precondition_cleanStart(acRule)
        Intents.init()
 
-       init_importExistingNotes()
 
-       Intents.intended(IntentMatchers.hasAction(Intent.ACTION_GET_CONTENT))
+       //Intents.intended(IntentMatchers.hasAction(Intent.ACTION_GET_CONTENT))
        //Intents.intended(IntentMatchers.hasExtras(BundleMatchers.hasEntry("key", "value")))
        val resIntent = Intent()
        // TODO: This does not work, finish import test.
        resIntent.data = Uri.fromFile(File("file:///android_asset/subdirs.aeszip"))
        val res = Instrumentation.ActivityResult(Activity.RESULT_OK, resIntent)
        Intents.intending(IntentMatchers.hasAction(Intent.ACTION_GET_CONTENT)).respondWith(res)
+
+       init_importExistingNotes()
 
        main_assertListState(entries = listOf("whatever"), ac = acRule.activity)
        Intents.release()
