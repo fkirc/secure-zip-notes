@@ -12,6 +12,7 @@ import com.ditronic.simplefilesync.util.ResultCode
 import org.junit.*
 import org.junit.runner.RunWith
 import org.junit.runners.MethodSorters
+import pressBack
 import targetContext
 
 @RunWith(AndroidJUnit4::class)
@@ -35,22 +36,31 @@ class SyncTests {
     }
 
     @Test
-    fun dbx1_dropBoxUpload() {
-        // TODO: Fix this upload test by uploading something new each time
-        precondition_cleanStart(acRule)
+    fun dbx1_dropBoxFreshRandomUpload() {
+        precondition_singleNote(acRule)
+        main_clickNote("Note 1", typePassword = true)
+        noteEdit_typeText(java.util.UUID.randomUUID().toString())
+        pressBack()
         Espresso.onIdle()
         Assert.assertEquals(ResultCode.UPLOAD_SUCCESS, AbstractFileSync.getLastSyncResult()!!.resultCode)
     }
 
     @Test
-    fun dbx2_dropBoxRemoteEqualsLocal() {
+    fun dbx2_dropBoxSingleNoteUpload() {
+        precondition_singleNote(acRule)
+        Espresso.onIdle()
+        Assert.assertEquals(ResultCode.UPLOAD_SUCCESS, AbstractFileSync.getLastSyncResult()!!.resultCode)
+    }
+
+    @Test
+    fun dbx3_dropBoxRemoteEqualsLocal() {
         precondition_singleNote(acRule)
         Espresso.onIdle()
         Assert.assertEquals(ResultCode.REMOTE_EQUALS_LOCAL, DropboxFileSync.getLastSyncResult()!!.resultCode)
     }
 
     @Test
-    fun dbx3_dropBoxDownload() {
+    fun dbx4_dropBoxDownload() {
         precondition_cleanStart(acRule)
         Espresso.onIdle()
         Assert.assertEquals(ResultCode.DOWNLOAD_SUCCESS, DropboxFileSync.getLastSyncResult()!!.resultCode)
