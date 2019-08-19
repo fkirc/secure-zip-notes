@@ -7,6 +7,7 @@ import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.matcher.RootMatchers
 import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.platform.app.InstrumentationRegistry
+import clickBottomCenter
 
 // We follow Jake Wharton's "robot pattern", which is an excellent pattern for testing Android apps.
 
@@ -79,7 +80,7 @@ fun init_importExistingNotes() {
 
 fun init_chooseNewPassword(newPw: String) {
     Espresso.onView(ViewMatchers.withId(R.id.input_password)).perform(ViewActions.replaceText(newPw))
-    Espresso.onView(ViewMatchers.withId(R.id.btn_next)).perform(ViewActions.click())
+    Espresso.onView(ViewMatchers.withId(R.id.btn_next)).perform(clickBottomCenter())
 }
 
 fun init_genRandomPassword() {
@@ -89,7 +90,7 @@ fun init_genRandomPassword() {
 fun init_confirmNewPassword(newPw: String) {
     // PasswordConfirmActivity
     Espresso.onView(ViewMatchers.withId(R.id.input_password_confirm)).perform(ViewActions.replaceText(newPw))
-    Espresso.onView(ViewMatchers.withId(R.id.btn_confirm_master_password)).perform(ViewActions.click())
+    Espresso.onView(ViewMatchers.withId(R.id.btn_confirm_master_password)).perform(clickBottomCenter())
 }
 
 

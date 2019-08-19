@@ -87,8 +87,6 @@ class SetupTests {
         init_confirmPassword_assertErrorText("Passwords do not match")
         pressBack()
         pressBack()
-        // TODO: Fix this test: Click happens on "Passwords do not match" overlay message.
-        // TODO: Therefore, the click gets ignored and the message does not disappear.
         init_chooseNewPassword("lalalalalala")
         init_confirmNewPassword("lalalalalala mismatch")
         init_confirmPassword_assertErrorText("Passwords do not match")
