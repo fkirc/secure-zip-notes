@@ -2,6 +2,7 @@ package com.ditronic.securezipnotes
 
 import android.text.InputType
 import androidx.test.espresso.Espresso
+import androidx.test.espresso.ViewInteraction
 import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.matcher.RootMatchers
@@ -70,6 +71,10 @@ fun main_deleteNote(entryName: String) {
 
 // Initial setup actions ----------------------------------------------------------------------
 
+fun init_onViewPassword() : ViewInteraction {
+    return Espresso.onView(ViewMatchers.withId(R.id.input_password))
+}
+
 fun init_createNewZipFile() {
     Espresso.onView(ViewMatchers.withId(R.id.btn_create_new_note)).perform(ViewActions.click())
 }
@@ -78,8 +83,12 @@ fun init_importExistingNotes() {
     Espresso.onView(ViewMatchers.withId(R.id.btn_import_existing_notes)).perform(ViewActions.click())
 }
 
-fun init_chooseNewPassword(newPw: String) {
-    Espresso.onView(ViewMatchers.withId(R.id.input_password)).perform(ViewActions.replaceText(newPw))
+fun init_typeNewPassword(newPw: String) {
+    init_onViewPassword().perform(ViewActions.replaceText(newPw))
+    init_chooseNewPassword()
+}
+
+fun init_chooseNewPassword() {
     Espresso.onView(ViewMatchers.withId(R.id.btn_next)).perform(clickBottomCenter())
 }
 

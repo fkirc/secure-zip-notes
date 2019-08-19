@@ -1,12 +1,18 @@
 package com.ditronic.securezipnotes
 
+import androidx.test.espresso.assertion.ViewAssertions
+import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.espresso.matcher.ViewMatchers.assertThat
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.rule.ActivityTestRule
 import com.ditronic.securezipnotes.activities.MainActivity
 import com.ditronic.securezipnotes.util.TestUtil
+import org.hamcrest.Description
+import org.hamcrest.Matcher
+import org.hamcrest.Matchers
 import org.hamcrest.Matchers.containsString
+import org.hamcrest.TypeSafeMatcher
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule
@@ -24,6 +30,16 @@ class SetupTests {
 
     companion object {
         private const val SECRET_NOTE = "My secret note"
+
+        private fun matchesRandomPassword(): Matcher<String> = object : TypeSafeMatcher<String>() {
+            override fun describeTo(description: Description?) = Unit
+            override fun matchesSafely(password: String): Boolean {
+                if (password.length != 20) {
+                    return false
+                }
+                return true
+            }
+        }
     }
 
     @get:Rule var acRule: ActivityTestRule<MainActivity> = ActivityTestRule(MainActivity::class.java, false, false)
@@ -40,7 +56,7 @@ class SetupTests {
         init_createNewZipFile()
 
         init_genRandomPassword()
-        init_chooseNewPassword(MASTER_PASSWORD)
+        init_typeNewPassword(MASTER_PASSWORD)
         init_confirmNewPassword(MASTER_PASSWORD)
 
         noteEdit_typeText(SECRET_NOTE)
@@ -67,11 +83,11 @@ class SetupTests {
         precondition_cleanStart(acRule)
 
         init_createNewZipFile()
-        init_chooseNewPassword("")
+        init_typeNewPassword("")
         init_newPassword_assertErrorText("Minimum length: 8 characters")
-        init_chooseNewPassword("sfse")
+        init_typeNewPassword("sfse")
         init_newPassword_assertErrorText("Minimum length: 8 characters")
-        init_chooseNewPassword(MASTER_PASSWORD)
+        init_typeNewPassword(MASTER_PASSWORD)
         init_confirmNewPassword(MASTER_PASSWORD)
         noteEdit_assertState("Note 1", "", editMode = true)
     }
@@ -82,12 +98,12 @@ class SetupTests {
         TestUtil.isInstrumentationTest = true
 
         init_createNewZipFile()
-        init_chooseNewPassword(MASTER_PASSWORD)
+        init_typeNewPassword(MASTER_PASSWORD)
         init_confirmNewPassword(MASTER_PASSWORD + "mismatch")
         init_confirmPassword_assertErrorText("Passwords do not match")
         pressBack()
         pressBack()
-        init_chooseNewPassword("lalalalalala")
+        init_typeNewPassword("lalalalalala")
         init_confirmNewPassword("lalalalalala mismatch")
         init_confirmPassword_assertErrorText("Passwords do not match")
         init_confirmNewPassword("lalalalalala")
@@ -98,11 +114,15 @@ class SetupTests {
 
     @Test
     fun generateRandomPassword() {
-        // TODO: Implement this test
         precondition_cleanStart(acRule)
 
         init_createNewZipFile()
+        init_onViewPassword().check(ViewAssertions.matches(ViewMatchers.withText(Companion.matchesRandomPassword())))
+        init_typeNewPassword("")
+        init_onViewPassword().check(ViewAssertions.matches(ViewMatchers.withText(Matchers.isEmptyString())))
         init_genRandomPassword()
-        init_confirmNewPassword("Randomly wrong")
+        init_onViewPassword().check(ViewAssertions.matches(ViewMatchers.withText(Companion.matchesRandomPassword())))
+        init_chooseNewPassword()
+        init_confirmNewPassword("")
     }
 }
