@@ -95,20 +95,21 @@ class ITest {
     }
 
     @Test
-    fun renameSingleNote() {
+    fun renameSingleNoteMainMenu() {
         precondition_singleNote(acRule)
-        val noteRenamed = "Note renamed"
+        main_renameNote("Note 1", "Note renamed", typePassword = true)
+        main_assertListState(listOf("Note renamed"), acRule.activity)
+    }
 
-        main_renameNote("Note 1", noteRenamed, typePassword = true)
-        main_assertListState(listOf(noteRenamed), acRule.activity)
-        main_clickNote(noteRenamed)
-        noteEdit_assertState(noteRenamed, SECRET_NOTE)
-
-        // Rename back to old name
-        noteEdit_rename(noteRenamed, "Note 1")
+    @Test
+    fun renameSingleOpen() {
+        precondition_singleNote(acRule)
+        main_clickNote("Note 1", typePassword = true)
         noteEdit_assertState("Note 1", SECRET_NOTE)
+        noteEdit_rename("Note 1", "Note renamed")
+        noteEdit_assertState("Note renamed", SECRET_NOTE)
         pressBack()
-        main_assertListState(listOf("Note 1"), acRule.activity)
+        main_assertListState(listOf("Note renamed"), acRule.activity)
     }
 
     @Test
