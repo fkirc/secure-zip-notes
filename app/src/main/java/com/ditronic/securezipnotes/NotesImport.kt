@@ -39,7 +39,7 @@ object NotesImport {
 
         for (fh in fileHeaders!!) {
             if (fh.isDirectory) {
-                alertDialog(cx, "Import failed. Zip files with subdirectories are not supported.")
+                alertDialog(cx, "Import failed. Zip files with pure directory entries are not supported.")
                 return false
             }
         }
