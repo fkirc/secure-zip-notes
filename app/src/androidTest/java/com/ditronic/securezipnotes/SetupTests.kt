@@ -7,14 +7,12 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.rule.ActivityTestRule
 import com.ditronic.securezipnotes.activities.MainActivity
-import com.ditronic.securezipnotes.util.TestUtil
 import org.hamcrest.Description
 import org.hamcrest.Matcher
 import org.hamcrest.Matchers
 import org.hamcrest.Matchers.containsString
 import org.hamcrest.TypeSafeMatcher
 import org.junit.Assert.assertEquals
-import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -44,10 +42,6 @@ class SetupTests {
 
     @get:Rule var acRule: ActivityTestRule<MainActivity> = ActivityTestRule(MainActivity::class.java, false, false)
 
-    @Before
-    fun beforeEachTest() {
-        TestUtil.isInstrumentationTest = true
-    }
 
     @Test
     fun createNewPassword() {
@@ -95,7 +89,6 @@ class SetupTests {
     @Test
     fun passwordMismatch() {
         precondition_cleanStart(acRule)
-        TestUtil.isInstrumentationTest = true
 
         init_createNewZipFile()
         init_typeNewPassword(MASTER_PASSWORD)

@@ -10,8 +10,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.rule.ActivityTestRule
 import com.ditronic.securezipnotes.activities.MainActivity
-import com.ditronic.securezipnotes.util.TestUtil
-import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -23,11 +21,6 @@ import java.io.File
 class ImportTests {
 
     @get:Rule var acRule: ActivityTestRule<MainActivity> = ActivityTestRule(MainActivity::class.java, false, false)
-
-    @Before
-    fun beforeEachTest() {
-        TestUtil.isInstrumentationTest = true
-    }
 
 
    @Test

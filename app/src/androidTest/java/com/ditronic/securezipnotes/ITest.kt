@@ -10,9 +10,7 @@ import androidx.test.filters.LargeTest
 import androidx.test.rule.ActivityTestRule
 import assertToast
 import com.ditronic.securezipnotes.activities.MainActivity
-import com.ditronic.securezipnotes.util.TestUtil
 import org.hamcrest.core.StringContains
-import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -30,10 +28,6 @@ class ITest {
     //@get:Rule var activityScenarioRule = activityScenarioRule<MainActivity>()
     @get:Rule var acRule: ActivityTestRule<MainActivity> = ActivityTestRule(MainActivity::class.java, false, false)
 
-    @Before
-    fun beforeEachTest() {
-        TestUtil.isInstrumentationTest = true
-    }
 
     @Test
     fun dropBoxInitOauth() {
