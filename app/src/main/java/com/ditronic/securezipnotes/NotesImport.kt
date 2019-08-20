@@ -31,7 +31,7 @@ object NotesImport {
             tmpZipFile.readZipInfo()
         } catch (e: Exception) {
             Log.d(TAG, "Failed to import zip notes", e)
-            alertDialog(cx, "Import failed. Probably this is not a valid *.aeszip file.")
+            alertDialog(cx, "Import failed. Probably this is not a valid Zip file.")
             return false
         }
 
@@ -45,13 +45,13 @@ object NotesImport {
         }
         for (fh in fileHeaders) {
             if (!fh.isEncrypted) {
-                alertDialog(cx, "Import failed. Zip files with non-encrypted files are not supported.")
+                alertDialog(cx, "Import failed. Zip files with non-encrypted entries are not supported.")
                 return false
             }
         }
         for (fh in fileHeaders) {
             if (fh.encryptionMethod != Zip4jConstants.ENC_METHOD_AES) {
-                alertDialog(cx, "Import failed due to unsupported encryption algorithm. This app only supports Zip files with AES encryption.")
+                alertDialog(cx, "Unsupported encryption algorithm. This app only supports Zip files with AES encryption.")
                 return false
             }
         }

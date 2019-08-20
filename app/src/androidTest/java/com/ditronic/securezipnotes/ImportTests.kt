@@ -46,6 +46,52 @@ class ImportTests {
         main_assertAlertDialog("Import failed. Zip files with pure directory entries are not supported.")
     }
 
+    @Test
+    fun import7z() {
+        precondition_cleanStart(acRule)
+        importExistingNotes("invalid/emptynote.7z")
+        main_assertAlertDialog("Import failed. Probably this is not a valid Zip file.")
+    }
+
+    @Test
+    fun importEmptyZip() {
+        precondition_cleanStart(acRule)
+        importExistingNotes("invalid/emptyzip.zip")
+        main_assertAlertDialog("Import failed. Probably this is not a valid Zip file.")
+    }
+
+    @Test
+    fun importUnencryptedNote() {
+        precondition_cleanStart(acRule)
+        importExistingNotes("invalid/unencrypted_note.zip")
+        main_assertAlertDialog("Import failed. Zip files with non-encrypted entries are not supported.")
+    }
+
+    @Test
+    fun importBrokenZipCrypto() {
+        precondition_cleanStart(acRule)
+        importExistingNotes("invalid/broken_zipcrypto.zip")
+        main_assertAlertDialog("Unsupported encryption algorithm. This app only supports Zip files with AES encryption.")
+    }
+
+    @Test
+    fun importSubDirs() {
+        precondition_cleanStart(acRule)
+        importExistingNotes("4passwords_subdirs.aeszip")
+        main_assertAlertDialog("Successfully imported zip notes.")
+        main_assertListState(entries = listOf("pw4_entry", "pw3_entry/dir/dir/pw2", "pw2_entry", "pw1_entry/dir/pw1"),
+                ac = acRule.activity)
+    }
+
+    @Test
+    fun importTwoPasswords() {
+        precondition_cleanStart(acRule)
+        importExistingNotes("twopasswords.ZIP")
+        main_assertAlertDialog("Successfully imported zip notes.")
+        main_assertListState(entries = listOf("pw2_entry", "testpassword_entry"),
+                ac = acRule.activity)
+    }
+
     private fun importExistingNotes(assetToImport: String) {
         prepareImportResponseIntent(assetToImport)
         init_importExistingNotes()
@@ -68,7 +114,7 @@ class ImportTests {
         val testContext = InstrumentationRegistry.getInstrumentation().context
 
         val sourceStream = testContext.assets.open(assetPath)
-        val targetFile = File(appContext.cacheDir, assetPath)
+        val targetFile = File(appContext.cacheDir, File(assetPath).name)
         targetFile.delete()
         targetFile.deleteOnExit()
         val targetStream = FileOutputStream(targetFile)
