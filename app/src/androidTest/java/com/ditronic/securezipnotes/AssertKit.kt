@@ -1,12 +1,16 @@
 package com.ditronic.securezipnotes
 
 import android.app.Activity
+import android.text.InputType
 import android.widget.ListView
 import android.widget.TextView
 import androidx.core.view.get
 import androidx.core.view.size
 import androidx.test.espresso.Espresso
+import androidx.test.espresso.ViewAssertion
+import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.assertion.ViewAssertions
+import androidx.test.espresso.matcher.RootMatchers
 import androidx.test.espresso.matcher.ViewMatchers
 import net.lingala.zip4j.model.FileHeader
 import org.hamcrest.Description
@@ -26,6 +30,11 @@ fun init_newPassword_assertErrorText(errorText: String) {
 
 fun init_confirmPassword_assertErrorText(errorText: String) {
     Espresso.onView(ViewMatchers.withId(R.id.input_password_confirm)).check(ViewAssertions.matches(ViewMatchers.hasErrorText(errorText)))
+}
+
+fun main_assertAlertDialog(expectedText: String) {
+    Espresso.onView(ViewMatchers.withText(expectedText)).inRoot(RootMatchers.isDialog())
+            .check(ViewAssertions.matches(ViewMatchers.isDisplayed()));
 }
 
 fun main_extractEntryList(ac: Activity) : List<NoteEntry> {

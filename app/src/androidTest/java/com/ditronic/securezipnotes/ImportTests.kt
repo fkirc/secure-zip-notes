@@ -32,21 +32,18 @@ class ImportTests {
     }
 
     @Test
-    fun singleNoteImport() {
+    fun importSingleNote() {
         precondition_cleanStart(acRule)
         importExistingNotes("singlenote.aeszip")
-        // TODO: Assert alert dialog
         main_assertListState(entries = listOf("Note 1"), ac = acRule.activity)
+        main_assertAlertDialog("Successfully imported zip notes.")
     }
 
     @Test
-    fun importWithInvalidSub() {
-       precondition_cleanStart(acRule)
-
+    fun importInvalidSub() {
+        precondition_cleanStart(acRule)
         importExistingNotes("subdirs.aeszip")
-
-       // TODO: Assert alert dialog
-       main_assertListState(entries = listOf("whatever"), ac = acRule.activity)
+        main_assertAlertDialog("Import failed. Zip files with pure directory entries are not supported.")
     }
 
     private fun importExistingNotes(assetToImport: String) {
