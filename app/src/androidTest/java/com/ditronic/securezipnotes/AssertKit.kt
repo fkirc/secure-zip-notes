@@ -1,14 +1,11 @@
 package com.ditronic.securezipnotes
 
 import android.app.Activity
-import android.text.InputType
 import android.widget.ListView
 import android.widget.TextView
 import androidx.core.view.get
 import androidx.core.view.size
 import androidx.test.espresso.Espresso
-import androidx.test.espresso.ViewAssertion
-import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.matcher.RootMatchers
 import androidx.test.espresso.matcher.ViewMatchers
