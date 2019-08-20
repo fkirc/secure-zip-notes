@@ -3,16 +3,14 @@ package com.ditronic.securezipnotes
 import android.content.Context
 import com.ditronic.securezipnotes.util.Boast
 import com.ditronic.securezipnotes.util.inputStreamToString
-import com.ditronic.securezipnotes.util.isIllegalEntryName
+import com.ditronic.securezipnotes.util.validateEntryNameToast
 import net.lingala.zip4j.core.ZipFile
 import net.lingala.zip4j.exception.ZipException
 import net.lingala.zip4j.exception.ZipExceptionConstants
-import net.lingala.zip4j.io.ZipInputStream
 import net.lingala.zip4j.model.FileHeader
 import net.lingala.zip4j.model.ZipParameters
 import net.lingala.zip4j.util.Zip4jConstants
 import java.io.*
-import java.nio.charset.StandardCharsets
 
 
 /**
@@ -116,19 +114,13 @@ class CryptoZip private constructor(cx: Context) {
     }
 
     fun renameFile(fileHeader: FileHeader, newEntryName: String, cx : Context) {
-        if (newEntryName.isEmpty()) {
-            Boast.makeText(cx, "Empty file names are not allowed").show()
-            return
-        }
         if (isDuplicateEntryName(newEntryName)) {
             Boast.makeText(cx, newEntryName + " already exists").show()
             return
         }
-        if (isIllegalEntryName(newEntryName)) {
-            Boast.makeText(cx, newEntryName + " is an invalid entry name").show()
+        if (!validateEntryNameToast(newEntryName, cx)) {
             return
         }
-
         fileHeader.password = PwManager.instance().passwordFast
         try {
             val inputStream = zipFile.getInputStream(fileHeader)
@@ -137,7 +129,6 @@ class CryptoZip private constructor(cx: Context) {
         } catch (e: Exception) {
             throw RuntimeException(e)
         }
-
     }
 
     fun isPasswordValid(fileHeader: FileHeader, password: String): Boolean {

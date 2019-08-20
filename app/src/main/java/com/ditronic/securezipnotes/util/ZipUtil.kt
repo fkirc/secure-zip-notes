@@ -1,5 +1,6 @@
 package com.ditronic.securezipnotes.util
 
+import android.content.Context
 import net.lingala.zip4j.io.ZipInputStream
 import java.io.IOException
 import java.io.InputStreamReader
@@ -22,7 +23,21 @@ fun inputStreamToString(`is`: ZipInputStream): String {
     return sb.toString()
 }
 
-fun isIllegalEntryName(entryName: String) : Boolean {
+
+fun validateEntryNameToast(newEntryName: String, cx : Context) : Boolean {
+    if (newEntryName.isEmpty()) {
+        Boast.makeText(cx, "Empty file names are not allowed").show()
+        return false
+    }
+    if (isIllegalEntryName(newEntryName)) {
+        Boast.makeText(cx, newEntryName + " is an invalid entry name").show()
+        return false
+    }
+    return true
+}
+
+
+private fun isIllegalEntryName(entryName: String) : Boolean {
     if (entryName.startsWith("/"))
         return true
     if (entryName.startsWith("\\"))
