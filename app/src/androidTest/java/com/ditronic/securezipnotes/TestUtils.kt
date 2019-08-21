@@ -25,6 +25,9 @@ fun pressBack() {
     Espresso.onView(ViewMatchers.isRoot()).perform(ViewActions.pressBack())
 }
 
+fun click_dialogOK() {
+    Espresso.onView(ViewMatchers.withText("OK")).inRoot(RootMatchers.isDialog()).perform(ViewActions.click())
+}
 
 fun clickBottomCenter(): ViewAction {
     return ViewActions.actionWithAssertions(

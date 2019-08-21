@@ -8,7 +8,8 @@ import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.matcher.RootMatchers
 import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.platform.app.InstrumentationRegistry
-import clickBottomCenter
+import clickBottomCenter // TODO: Move this to class or module (instead of individual imports)
+import click_dialogOK
 
 // We follow Jake Wharton's "robot pattern", which is an excellent pattern for testing Android apps.
 
@@ -20,7 +21,7 @@ private fun main_typeMasterPassword() {
     // TODO: Tests with multiple different passwords in single file
     Espresso.onView(ViewMatchers.withInputType(InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD))
             .inRoot(RootMatchers.isDialog()).perform(ViewActions.replaceText(MASTER_PASSWORD))
-    Espresso.onView(ViewMatchers.withText("OK")).inRoot(RootMatchers.isDialog()).perform(ViewActions.click())
+    click_dialogOK()
 }
 
 fun main_clickNote(noteName: String, typePassword: Boolean = false) {

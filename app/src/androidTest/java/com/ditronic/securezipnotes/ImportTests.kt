@@ -10,6 +10,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.ActivityTestRule
+import click_dialogOK
 import com.ditronic.securezipnotes.activities.MainActivity
 import org.junit.After
 import org.junit.Rule
@@ -25,7 +26,6 @@ class ImportTests {
 
     @get:Rule var acRule: ActivityTestRule<MainActivity> = ActivityTestRule(MainActivity::class.java, false, false)
 
-    // TODO: Import tests with Zip files from different source programs
     @After
     fun afterEachTest() {
         Intents.release()
@@ -33,10 +33,8 @@ class ImportTests {
 
     @Test
     fun importSingleNote() {
-        precondition_cleanStart(acRule)
-        importExistingNotes("singlenote.aeszip")
+        importWithSuccess("singlenote.aeszip")
         main_assertListState(entries = listOf("Note 1"), ac = acRule.activity)
-        main_assertAlertDialog("Successfully imported zip notes.")
     }
 
     @Test
@@ -76,20 +74,80 @@ class ImportTests {
 
     @Test
     fun importSubDirs() {
-        precondition_cleanStart(acRule)
-        importExistingNotes("4passwords_subdirs.aeszip")
-        main_assertAlertDialog("Successfully imported zip notes.")
+        importWithSuccess("4passwords_subdirs.aeszip")
         main_assertListState(entries = listOf("pw4_entry", "pw3_entry/dir/dir/pw2", "pw2_entry", "pw1_entry/dir/pw1"),
                 ac = acRule.activity)
     }
 
     @Test
     fun importTwoPasswords() {
-        precondition_cleanStart(acRule)
-        importExistingNotes("twopasswords.ZIP")
-        main_assertAlertDialog("Successfully imported zip notes.")
+        importWithSuccess("twopasswords.ZIP")
         main_assertListState(entries = listOf("pw2_entry", "testpassword_entry"),
                 ac = acRule.activity)
+    }
+
+
+    @Test
+    fun importCompressionDeflate() {
+        importCompressionWithSuccess("compression/100a_deflate.aeszip")
+    }
+
+    @Test
+    fun importCompressionDeflate64() {
+        importCompressionWithSuccess("compression/100a_deflate64.aeszip")
+    }
+
+    @Test
+    fun importCompressionDeflateFast() {
+        importCompressionWithSuccess("compression/100a_deflate_fast.aeszip")
+    }
+
+    @Test
+    fun importCompressionDeflateUltra() {
+        importCompressionWithSuccess("compression/100a_deflate_ultra.aeszip")
+    }
+
+    @Test
+    fun importCompressionBZIP2() {
+        importExpectFailureTest("compression/100a_bzip2.aeszip",
+                errorMessage = "Import failed. This app does not support BZIP2 compression.")
+    }
+
+    @Test
+    fun importCompressionFlat() {
+        importCompressionWithSuccess("compression/100a_flat.aeszip")
+    }
+
+    @Test
+    fun importCompressionLZMA() {
+        importCompressionWithSuccess("compression/100a_lzma.aeszip")
+    }
+
+    @Test
+    fun importCompressionPPMD() {
+        importCompressionWithSuccess("compression/100a_ppmd.aeszip")
+    }
+
+
+    private fun importExpectFailureTest(assetToImport: String, errorMessage: String) {
+        precondition_cleanStart(acRule)
+        importExistingNotes(assetToImport)
+        main_assertAlertDialog(errorMessage)
+        main_assertEmtpy(acRule.activity)
+    }
+
+    private fun importCompressionWithSuccess(assetToImport: String) {
+        importWithSuccess(assetToImport)
+        click_dialogOK()
+        main_assertListState(entries = listOf("100a.txt"), ac = acRule.activity)
+        main_clickNote("100a.txt", typePassword = true)
+        noteEdit_assertState(noteTitle = "100a.txt", secretContent = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+    }
+
+    private fun importWithSuccess(assetToImport: String) {
+        precondition_cleanStart(acRule)
+        importExistingNotes(assetToImport)
+        main_assertAlertDialog("Successfully imported zip notes.")
     }
 
     private fun importExistingNotes(assetToImport: String) {
