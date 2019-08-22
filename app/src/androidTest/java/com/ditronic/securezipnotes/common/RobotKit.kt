@@ -14,24 +14,24 @@ import com.ditronic.securezipnotes.R
 
 // We follow Jake Wharton's "robot pattern", which is an excellent pattern for testing Android apps.
 
-const val MASTER_PASSWORD = "testpassword"
+const val TESTPASSWORD = "testpassword"
 
 // Main menu actions ----------------------------------------------------------------------
 
-private fun main_typeMasterPassword() {
+private fun main_typeMasterPassword(password: String = TESTPASSWORD) {
     // TODO: Tests with multiple different passwords in single file
     Espresso.onView(ViewMatchers.withInputType(InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD))
-            .inRoot(RootMatchers.isDialog()).perform(ViewActions.replaceText(MASTER_PASSWORD))
+            .inRoot(RootMatchers.isDialog()).perform(ViewActions.replaceText(password))
     click_dialogOK()
 }
 
-fun main_clickNote(noteName: String, typePassword: Boolean = false) {
+fun main_clickNote(noteName: String, typePassword: Boolean = false, password: String = TESTPASSWORD) {
     Espresso.onData(matchesFileHeader(noteName))
             .inAdapterView(ViewMatchers.withId(R.id.list_view_notes))
             //.onChildView(ViewMatchers.withText(noteName))
             .perform(ViewActions.click())
     if (typePassword) {
-        main_typeMasterPassword()
+        main_typeMasterPassword(password)
     }
 }
 

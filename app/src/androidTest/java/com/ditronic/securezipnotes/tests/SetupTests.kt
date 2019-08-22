@@ -51,8 +51,8 @@ class SetupTests {
         init_createNewZipFile()
 
         init_genRandomPassword()
-        init_typeNewPassword(MASTER_PASSWORD)
-        init_confirmNewPassword(MASTER_PASSWORD)
+        init_typeNewPassword(TESTPASSWORD)
+        init_confirmNewPassword(TESTPASSWORD)
 
         noteEdit_typeText(SECRET_NOTE)
         noteEdit_assertState("Note 1", SECRET_NOTE, editMode = true)
@@ -82,8 +82,8 @@ class SetupTests {
         init_newPassword_assertErrorText("Minimum length: 8 characters")
         init_typeNewPassword("sfse")
         init_newPassword_assertErrorText("Minimum length: 8 characters")
-        init_typeNewPassword(MASTER_PASSWORD)
-        init_confirmNewPassword(MASTER_PASSWORD)
+        init_typeNewPassword(TESTPASSWORD)
+        init_confirmNewPassword(TESTPASSWORD)
         noteEdit_assertState("Note 1", "", editMode = true)
     }
 
@@ -92,8 +92,8 @@ class SetupTests {
         precondition_cleanStart(acRule)
 
         init_createNewZipFile()
-        init_typeNewPassword(MASTER_PASSWORD)
-        init_confirmNewPassword(MASTER_PASSWORD + "mismatch")
+        init_typeNewPassword(TESTPASSWORD)
+        init_confirmNewPassword(TESTPASSWORD + "mismatch")
         init_confirmPassword_assertErrorText("Passwords do not match")
         pressBack()
         pressBack()
