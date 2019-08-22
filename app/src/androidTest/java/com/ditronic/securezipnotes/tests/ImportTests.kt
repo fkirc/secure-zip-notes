@@ -27,7 +27,6 @@ class ImportTests {
 
     @get:Rule var acRule: ActivityTestRule<MainActivity> = ActivityTestRule(MainActivity::class.java, false, false)
 
-    // TODO: The compression checks do not work at import time since we would need to decrypt it first! Check later on...
 
     @After
     fun afterEachTest() {

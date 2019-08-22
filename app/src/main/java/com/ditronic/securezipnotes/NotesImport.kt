@@ -25,14 +25,21 @@ object NotesImport {
     }
 
     private fun validateCompressionMethod(cx: Context, fileHeader: FileHeader) : Boolean {
-        // TODO: Fix this, this does not work with encryption
-        val compMethod = fileHeader.compressionMethod
+        val aesExtraDataRecord = fileHeader.aesExtraDataRecord
+        if (aesExtraDataRecord == null) {
+            alertDialog(cx, "Import failed. Could not find AES data record.")
+            return false
+        }
+        val compMethod = aesExtraDataRecord.compressionMethod
         if (compMethod == Zip4jConstants.COMP_STORE) {
             return true
         } else if (compMethod == Zip4jConstants.COMP_DEFLATE) {
             return true
         } else if (compMethod == 12) {
             alertDialog(cx, "Import failed: This app does not support BZIP2 compression.")
+            return false
+        } else if (compMethod == 9) {
+            alertDialog(cx, "Import failed: This app does not support DEFLATE64 compression.")
             return false
         } else if (compMethod == 14) {
             alertDialog(cx, "Import failed: This app does not support LZMA compression.")
@@ -78,11 +85,7 @@ object NotesImport {
             }
         }
         for (fh in fileHeaders) {
-            val aesExtraDataRecord = fh.aesExtraDataRecord
-            if (aesExtraDataRecord == null) {
-                alertDialog(cx, "Import failed. Could not find AES data record.")
-                return false
-            }
+
         }
         for (fh in fileHeaders) {
             if (fh.fileName.isEmpty()) {
@@ -90,7 +93,11 @@ object NotesImport {
                 return false
             }
         }
-
+        for (fh in fileHeaders) {
+            if (!validateCompressionMethod(cx, fh)) {
+                return false
+            }
+        }
         return true
     }
 
