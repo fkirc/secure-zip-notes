@@ -36,6 +36,7 @@ class MultiPasswordTests {
         main_clickAssertCloseNote(noteName = "pw4_entry", secretContent = "pw4_secret", password = "pw4")
         main_clickAssertCloseNote(noteName = "pw3_entry/dir/dir/pw2", secretContent = "pw3_secret", password = "pw3")
         main_clickAssertCloseNote(noteName = "pw2_entry", secretContent = "pw2_secret", password = "pw2")
+        main_clickAssertCloseNote(noteName = "pw2_entry", secretContent = "pw2_secret")
         main_clickAssertCloseNote(noteName = "pw1_entry/dir/pw1", secretContent = "pw1_secret", password = "pw1")
     }
 }

@@ -78,7 +78,7 @@ fun main_assertListState(entries: Collection<String>, ac: Activity) {
 
 fun main_assertEmtpy(ac : Activity) {
     val listView = ac.findViewById<ListView>(R.id.list_view_notes)
-    Espresso.onView(ViewMatchers.withId(R.id.btn_create_new_note)).check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
+    //Espresso.onView(ViewMatchers.withId(R.id.btn_create_new_note)).check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
     Assert.assertEquals(0, listView.size)
 }
 

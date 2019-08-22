@@ -27,6 +27,8 @@ class ImportTests {
 
     @get:Rule var acRule: ActivityTestRule<MainActivity> = ActivityTestRule(MainActivity::class.java, false, false)
 
+    // TODO: The compression checks do not work at import time since we would need to decrypt it first! Check later on...
+
     @After
     fun afterEachTest() {
         Intents.release()
@@ -95,7 +97,8 @@ class ImportTests {
 
     @Test
     fun importCompressionDeflate64() {
-        importCompressionWithSuccess("compression/100a_deflate64.aeszip")
+        importExpectFailureTest("compression/100a_deflate64.aeszip",
+                errorMessage = "Import failed: This app does not support DEFLATE64 compression.")
     }
 
     @Test
@@ -111,7 +114,7 @@ class ImportTests {
     @Test
     fun importCompressionBZIP2() {
         importExpectFailureTest("compression/100a_bzip2.aeszip",
-                errorMessage = "Import failed. This app does not support BZIP2 compression.")
+                errorMessage = "Import failed: This app does not support BZIP2 compression.")
     }
 
     @Test
@@ -121,12 +124,14 @@ class ImportTests {
 
     @Test
     fun importCompressionLZMA() {
-        importCompressionWithSuccess("compression/100a_lzma.aeszip")
+        importExpectFailureTest("compression/100a_lzma.aeszip",
+                errorMessage = "Import failed: This app does not support LZMA compression.")
     }
 
     @Test
     fun importCompressionPPMD() {
-        importCompressionWithSuccess("compression/100a_ppmd.aeszip")
+        importExpectFailureTest("compression/100a_ppmd.aeszip",
+                errorMessage = "Import failed: This app does not support PPMD compression.")
     }
 
 

@@ -6,6 +6,7 @@ import android.util.Log
 import androidx.appcompat.app.AlertDialog
 import com.ditronic.simplefilesync.util.FilesUtil
 import net.lingala.zip4j.core.ZipFile
+import net.lingala.zip4j.model.FileHeader
 import net.lingala.zip4j.util.Zip4jConstants
 import java.io.File
 import java.io.FileNotFoundException
@@ -23,6 +24,27 @@ object NotesImport {
                 .setPositiveButton(android.R.string.ok) { _, _ -> }.show()
     }
 
+    private fun validateCompressionMethod(cx: Context, fileHeader: FileHeader) : Boolean {
+        // TODO: Fix this, this does not work with encryption
+        val compMethod = fileHeader.compressionMethod
+        if (compMethod == Zip4jConstants.COMP_STORE) {
+            return true
+        } else if (compMethod == Zip4jConstants.COMP_DEFLATE) {
+            return true
+        } else if (compMethod == 12) {
+            alertDialog(cx, "Import failed: This app does not support BZIP2 compression.")
+            return false
+        } else if (compMethod == 14) {
+            alertDialog(cx, "Import failed: This app does not support LZMA compression.")
+            return false
+        } else if (compMethod == 98) {
+            alertDialog(cx, "Import failed: This app does not support PPMD compression.")
+            return false
+        } else {
+            alertDialog(cx, "Import failed: Unsupported compression method (" + compMethod + ").")
+            return false
+        }
+    }
 
     private fun isValidAesZipFile(cx: Context, tmpFile: File): Boolean {
         val tmpZipFile: ZipFile
