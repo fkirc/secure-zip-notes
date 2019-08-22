@@ -1,4 +1,4 @@
-package com.ditronic.securezipnotes.common
+package com.ditronic.securezipnotes.robotpattern
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.ActivityTestRule

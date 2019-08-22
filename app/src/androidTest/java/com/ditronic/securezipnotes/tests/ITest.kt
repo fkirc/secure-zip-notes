@@ -11,7 +11,7 @@ import androidx.test.rule.ActivityTestRule
 import com.ditronic.securezipnotes.testutils.assertToast
 import com.ditronic.securezipnotes.R
 import com.ditronic.securezipnotes.activities.MainActivity
-import com.ditronic.securezipnotes.common.*
+import com.ditronic.securezipnotes.robotpattern.*
 import org.hamcrest.core.StringContains
 import org.junit.Rule
 import org.junit.Test

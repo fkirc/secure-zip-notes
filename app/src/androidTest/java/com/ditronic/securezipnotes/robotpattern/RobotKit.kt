@@ -1,4 +1,4 @@
-package com.ditronic.securezipnotes.common
+package com.ditronic.securezipnotes.robotpattern
 
 import android.text.InputType
 import androidx.test.espresso.Espresso

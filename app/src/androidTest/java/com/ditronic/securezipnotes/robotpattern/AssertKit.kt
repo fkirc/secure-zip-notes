@@ -1,4 +1,4 @@
-package com.ditronic.securezipnotes.common
+package com.ditronic.securezipnotes.robotpattern
 
 import android.app.Activity
 import android.widget.ListView

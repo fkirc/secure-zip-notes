@@ -12,7 +12,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.ActivityTestRule
 import com.ditronic.securezipnotes.testutils.click_dialogOK
 import com.ditronic.securezipnotes.activities.MainActivity
-import com.ditronic.securezipnotes.common.*
+import com.ditronic.securezipnotes.robotpattern.*
 import org.junit.After
 import org.junit.Rule
 import org.junit.Test
