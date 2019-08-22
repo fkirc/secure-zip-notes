@@ -1,3 +1,5 @@
+package com.ditronic.securezipnotes.testutils
+
 import android.app.Activity
 import android.content.Context
 import android.view.InputDevice

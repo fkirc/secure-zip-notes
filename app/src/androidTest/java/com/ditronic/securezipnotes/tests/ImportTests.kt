@@ -1,4 +1,4 @@
-package com.ditronic.securezipnotes
+package com.ditronic.securezipnotes.tests
 
 import android.app.Activity
 import android.app.Instrumentation
@@ -10,8 +10,9 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.ActivityTestRule
-import click_dialogOK
+import com.ditronic.securezipnotes.testutils.click_dialogOK
 import com.ditronic.securezipnotes.activities.MainActivity
+import com.ditronic.securezipnotes.common.*
 import org.junit.After
 import org.junit.Rule
 import org.junit.Test

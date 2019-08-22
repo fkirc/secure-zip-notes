@@ -1,4 +1,4 @@
-package com.ditronic.securezipnotes
+package com.ditronic.securezipnotes.tests
 
 import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.matcher.ViewMatchers
@@ -7,6 +7,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.rule.ActivityTestRule
 import com.ditronic.securezipnotes.activities.MainActivity
+import com.ditronic.securezipnotes.common.*
 import org.hamcrest.Description
 import org.hamcrest.Matcher
 import org.hamcrest.Matchers
@@ -16,7 +17,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import pressBack
+import com.ditronic.securezipnotes.testutils.pressBack
 import java.text.SimpleDateFormat
 
 
@@ -110,11 +111,11 @@ class SetupTests {
         precondition_cleanStart(acRule)
 
         init_createNewZipFile()
-        init_onViewPassword().check(ViewAssertions.matches(ViewMatchers.withText(Companion.matchesRandomPassword())))
+        init_onViewPassword().check(ViewAssertions.matches(ViewMatchers.withText(matchesRandomPassword())))
         init_typeNewPassword("")
         init_onViewPassword().check(ViewAssertions.matches(ViewMatchers.withText(Matchers.isEmptyString())))
         init_genRandomPassword()
-        init_onViewPassword().check(ViewAssertions.matches(ViewMatchers.withText(Companion.matchesRandomPassword())))
+        init_onViewPassword().check(ViewAssertions.matches(ViewMatchers.withText(matchesRandomPassword())))
         init_chooseNewPassword()
         init_confirmNewPassword("")
     }

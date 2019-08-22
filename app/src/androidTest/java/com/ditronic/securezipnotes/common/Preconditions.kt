@@ -1,7 +1,8 @@
-package com.ditronic.securezipnotes
+package com.ditronic.securezipnotes.common
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.ActivityTestRule
+import com.ditronic.securezipnotes.CryptoZip
 import com.ditronic.securezipnotes.activities.MainActivity
 import java.io.FileOutputStream
 

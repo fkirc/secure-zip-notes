@@ -1,4 +1,4 @@
-package com.ditronic.securezipnotes
+package com.ditronic.securezipnotes.tests
 
 import android.content.Intent
 import androidx.test.espresso.intent.Intents
@@ -8,13 +8,15 @@ import androidx.test.espresso.intent.matcher.IntentMatchers
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.rule.ActivityTestRule
-import assertToast
+import com.ditronic.securezipnotes.testutils.assertToast
+import com.ditronic.securezipnotes.R
 import com.ditronic.securezipnotes.activities.MainActivity
+import com.ditronic.securezipnotes.common.*
 import org.hamcrest.core.StringContains
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import pressBack
+import com.ditronic.securezipnotes.testutils.pressBack
 
 
 @RunWith(AndroidJUnit4::class)
@@ -53,7 +55,7 @@ class ITest {
         val noteEntries = listOf("Note 1", "Note 2", "Note 3", "Note 4")
         for (noteCnt in 2..noteEntries.size) {
             main_addNewNote(typePassword = (noteCnt == 2))
-            noteEdit_assertState(noteEntries[noteCnt-1], "", editMode = true)
+            noteEdit_assertState(noteEntries[noteCnt - 1], "", editMode = true)
             noteEdit_typeText(noteCnt.toString())
             pressBack()
         }

@@ -1,4 +1,4 @@
-package com.ditronic.securezipnotes
+package com.ditronic.securezipnotes.common
 
 import android.text.InputType
 import androidx.test.espresso.Espresso
@@ -8,8 +8,9 @@ import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.matcher.RootMatchers
 import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.platform.app.InstrumentationRegistry
-import clickBottomCenter // TODO: Move this to class or module (instead of individual imports)
-import click_dialogOK
+import com.ditronic.securezipnotes.testutils.clickBottomCenter // TODO: Move this to class or module (instead of individual imports)
+import com.ditronic.securezipnotes.testutils.click_dialogOK
+import com.ditronic.securezipnotes.R
 
 // We follow Jake Wharton's "robot pattern", which is an excellent pattern for testing Android apps.
 

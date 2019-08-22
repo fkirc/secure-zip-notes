@@ -1,18 +1,20 @@
-package com.ditronic.securezipnotes
+package com.ditronic.securezipnotes.tests
 
 import androidx.test.espresso.Espresso
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.rule.ActivityTestRule
 import com.ditronic.securezipnotes.activities.MainActivity
+import com.ditronic.securezipnotes.common.*
 import com.ditronic.simplefilesync.AbstractFileSync
 import com.ditronic.simplefilesync.DropboxFileSync
 import com.ditronic.simplefilesync.util.ResultCode
 import org.junit.*
 import org.junit.runner.RunWith
 import org.junit.runners.MethodSorters
-import pressBack
-import targetContext
+import com.ditronic.securezipnotes.testutils.pressBack
+import com.ditronic.securezipnotes.testutils.targetContext
+import java.util.*
 
 @RunWith(AndroidJUnit4::class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
@@ -37,7 +39,7 @@ class SyncTests {
     fun dbx1_dropBoxFreshRandomUpload() {
         precondition_singleNote(acRule)
         main_clickNote("Note 1", typePassword = true)
-        noteEdit_typeText(java.util.UUID.randomUUID().toString())
+        noteEdit_typeText(UUID.randomUUID().toString())
         pressBack()
         Espresso.onIdle()
         Assert.assertEquals(ResultCode.UPLOAD_SUCCESS, AbstractFileSync.getLastSyncResult()!!.resultCode)
