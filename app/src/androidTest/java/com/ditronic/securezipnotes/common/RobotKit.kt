@@ -20,7 +20,6 @@ const val TESTPASSWORD = "testpassword"
 // Main menu actions ----------------------------------------------------------------------
 
 private fun main_typeMasterPassword(password: String = TESTPASSWORD) {
-    // TODO: Tests with multiple different passwords in single file
     Espresso.onView(ViewMatchers.withInputType(InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD))
             .inRoot(RootMatchers.isDialog()).perform(ViewActions.replaceText(password))
     click_dialogOK()

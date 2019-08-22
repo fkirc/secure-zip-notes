@@ -27,6 +27,15 @@ class MultiPasswordTests {
         main_clickAssertCloseNote(noteName = "testpassword_entry", secretContent = "My secret note", password = TESTPASSWORD)
     }
 
-    // TODO: 4passwords test
+    @Test
+    fun test4Passwords() {
+        precondition_loadAsset(acRule, "4passwords_subdirs.aeszip")
+        main_assertListState(entries = listOf("pw4_entry", "pw3_entry/dir/dir/pw2", "pw2_entry", "pw1_entry/dir/pw1"),
+                ac = acRule.activity)
 
+        main_clickAssertCloseNote(noteName = "pw4_entry", secretContent = "pw4_secret", password = "pw4")
+        main_clickAssertCloseNote(noteName = "pw3_entry/dir/dir/pw2", secretContent = "pw3_secret", password = "pw3")
+        main_clickAssertCloseNote(noteName = "pw2_entry", secretContent = "pw2_secret", password = "pw2")
+        main_clickAssertCloseNote(noteName = "pw1_entry/dir/pw1", secretContent = "pw1_secret", password = "pw1")
+    }
 }
