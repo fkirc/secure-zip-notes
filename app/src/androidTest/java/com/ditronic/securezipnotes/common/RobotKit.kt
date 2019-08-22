@@ -11,6 +11,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import com.ditronic.securezipnotes.testutils.clickBottomCenter // TODO: Move this to class or module (instead of individual imports)
 import com.ditronic.securezipnotes.testutils.click_dialogOK
 import com.ditronic.securezipnotes.R
+import com.ditronic.securezipnotes.testutils.pressBack
 
 // We follow Jake Wharton's "robot pattern", which is an excellent pattern for testing Android apps.
 
@@ -25,14 +26,20 @@ private fun main_typeMasterPassword(password: String = TESTPASSWORD) {
     click_dialogOK()
 }
 
-fun main_clickNote(noteName: String, typePassword: Boolean = false, password: String = TESTPASSWORD) {
+fun main_clickNote(noteName: String, password: String? = null) {
     Espresso.onData(matchesFileHeader(noteName))
             .inAdapterView(ViewMatchers.withId(R.id.list_view_notes))
             //.onChildView(ViewMatchers.withText(noteName))
             .perform(ViewActions.click())
-    if (typePassword) {
+    if (password != null) {
         main_typeMasterPassword(password)
     }
+}
+
+fun main_clickAssertCloseNote(noteName: String, secretContent: String, password: String? = null) {
+    main_clickNote(noteName, password)
+    noteEdit_assertState(noteTitle = noteName, secretContent = secretContent, editMode = secretContent.isEmpty())
+    pressBack()
 }
 
 private fun main_longClickNote(entryName: String) {

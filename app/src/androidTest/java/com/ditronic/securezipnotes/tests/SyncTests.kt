@@ -38,7 +38,7 @@ class SyncTests {
     @Test
     fun dbx1_dropBoxFreshRandomUpload() {
         precondition_singleNote(acRule)
-        main_clickNote("Note 1", typePassword = true)
+        main_clickNote("Note 1", password = TESTPASSWORD)
         noteEdit_typeText(UUID.randomUUID().toString())
         pressBack()
         Espresso.onIdle()

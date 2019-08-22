@@ -81,7 +81,7 @@ class ITest {
     @Test
     fun invalidRenameOpenedNote() {
         precondition_fourNotes(acRule)
-        main_clickNote("Note 1", typePassword = true)
+        main_clickNote("Note 1", password = TESTPASSWORD)
 
         noteEdit_rename("Note 1", "Note 2")
         assertToast("Note 2 already exists", acRule.activity)
@@ -106,7 +106,7 @@ class ITest {
     @Test
     fun renameSingleOpen() {
         precondition_singleNote(acRule)
-        main_clickNote("Note 1", typePassword = true)
+        main_clickNote("Note 1", password = TESTPASSWORD)
         noteEdit_assertState("Note 1", SECRET_NOTE)
         noteEdit_rename("Note 1", "Note renamed")
         noteEdit_assertState("Note renamed", SECRET_NOTE)

@@ -141,7 +141,7 @@ class ImportTests {
         importWithSuccess(assetToImport)
         click_dialogOK()
         main_assertListState(entries = listOf("100a.txt"), ac = acRule.activity)
-        main_clickNote("100a.txt", typePassword = true)
+        main_clickNote("100a.txt", password = TESTPASSWORD)
         noteEdit_assertState(noteTitle = "100a.txt", secretContent = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
     }
 
