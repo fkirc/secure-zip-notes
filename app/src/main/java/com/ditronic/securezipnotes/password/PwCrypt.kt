@@ -1,4 +1,4 @@
-package com.ditronic.securezipnotes
+package com.ditronic.securezipnotes.password
 
 import android.content.Context
 import android.os.Build

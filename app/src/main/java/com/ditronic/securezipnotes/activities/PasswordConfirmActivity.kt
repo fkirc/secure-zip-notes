@@ -10,7 +10,7 @@ import android.view.inputmethod.EditorInfo
 import android.widget.EditText
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
-import com.ditronic.securezipnotes.PwManager
+import com.ditronic.securezipnotes.password.PwManager
 import com.ditronic.securezipnotes.R
 import com.ditronic.securezipnotes.util.OnThrottleClickListener
 import java.util.*

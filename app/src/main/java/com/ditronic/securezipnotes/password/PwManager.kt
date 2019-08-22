@@ -1,4 +1,4 @@
-package com.ditronic.securezipnotes
+package com.ditronic.securezipnotes.password
 
 import android.app.AlertDialog
 import android.os.Build
@@ -13,6 +13,7 @@ import androidx.biometric.BiometricConstants
 import androidx.biometric.BiometricPrompt
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
+import com.ditronic.securezipnotes.CryptoZip
 import net.lingala.zip4j.model.FileHeader
 import javax.crypto.Cipher
 

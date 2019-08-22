@@ -1,6 +1,7 @@
 package com.ditronic.securezipnotes
 
 import android.content.Context
+import com.ditronic.securezipnotes.password.PwManager
 import com.ditronic.securezipnotes.util.Boast
 import com.ditronic.securezipnotes.util.inputStreamToString
 import com.ditronic.securezipnotes.util.validateEntryNameToast
