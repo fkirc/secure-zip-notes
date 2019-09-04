@@ -1,18 +1,20 @@
-package com.ditronic.securezipnotes
+package com.ditronic.securezipnotes.tests
 
 import androidx.test.espresso.Espresso
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.rule.ActivityTestRule
 import com.ditronic.securezipnotes.activities.MainActivity
-import com.ditronic.securezipnotes.util.TestUtil
+import com.ditronic.securezipnotes.robotpattern.*
 import com.ditronic.simplefilesync.AbstractFileSync
 import com.ditronic.simplefilesync.DropboxFileSync
 import com.ditronic.simplefilesync.util.ResultCode
 import org.junit.*
 import org.junit.runner.RunWith
 import org.junit.runners.MethodSorters
-import targetContext
+import com.ditronic.securezipnotes.testutils.pressBack
+import com.ditronic.securezipnotes.testutils.targetContext
+import java.util.*
 
 @RunWith(AndroidJUnit4::class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
@@ -30,27 +32,35 @@ class SyncTests {
 
     @Before
     fun beforeEachTest() {
-        TestUtil.isInstrumentationTest = true
         DropboxFileSync.storeNewOauthToken(DROPBOX_OAUTH_TOKEN, targetContext())
     }
 
     @Test
-    fun dbx1_dropBoxUpload() {
-        // TODO: Fix this upload test by uploading something new each time
-        precondition_cleanStart(acRule)
+    fun dbx1_dropBoxFreshRandomUpload() {
+        precondition_singleNote(acRule)
+        main_clickNote("Note 1", password = TESTPASSWORD)
+        noteEdit_typeText(UUID.randomUUID().toString())
+        pressBack()
         Espresso.onIdle()
         Assert.assertEquals(ResultCode.UPLOAD_SUCCESS, AbstractFileSync.getLastSyncResult()!!.resultCode)
     }
 
     @Test
-    fun dbx2_dropBoxRemoteEqualsLocal() {
+    fun dbx2_dropBoxSingleNoteUpload() {
+        precondition_singleNote(acRule)
+        Espresso.onIdle()
+        Assert.assertEquals(ResultCode.UPLOAD_SUCCESS, AbstractFileSync.getLastSyncResult()!!.resultCode)
+    }
+
+    @Test
+    fun dbx3_dropBoxRemoteEqualsLocal() {
         precondition_singleNote(acRule)
         Espresso.onIdle()
         Assert.assertEquals(ResultCode.REMOTE_EQUALS_LOCAL, DropboxFileSync.getLastSyncResult()!!.resultCode)
     }
 
     @Test
-    fun dbx3_dropBoxDownload() {
+    fun dbx4_dropBoxDownload() {
         precondition_cleanStart(acRule)
         Espresso.onIdle()
         Assert.assertEquals(ResultCode.DOWNLOAD_SUCCESS, DropboxFileSync.getLastSyncResult()!!.resultCode)

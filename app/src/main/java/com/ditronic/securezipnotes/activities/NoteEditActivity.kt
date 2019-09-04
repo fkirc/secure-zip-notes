@@ -13,15 +13,11 @@ import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
-
 import com.ditronic.securezipnotes.CryptoZip
 import com.ditronic.securezipnotes.R
 import com.ditronic.securezipnotes.util.BannerAds
-import com.ditronic.securezipnotes.util.Boast
-
+import com.ditronic.securezipnotes.util.validateEntryNameToast
 import net.lingala.zip4j.model.FileHeader
-
-import java.util.Objects
 
 class NoteEditActivity : AppCompatActivity() {
 
@@ -131,21 +127,16 @@ class NoteEditActivity : AppCompatActivity() {
         var newFileName = editTextTitle.text.toString()
 
         if (newFileName != fileHeader.fileName && CryptoZip.instance(this).isDuplicateEntryName(newFileName)) {
-            // Use old entry name as a fallback mode if there is a name conflict.
             Toast.makeText(this, newFileName + " already exists", Toast.LENGTH_SHORT).show()
             newFileName = CryptoZip.getDisplayName(fileHeader)
         }
-        if (newFileName.isEmpty()) {
-            Toast.makeText(this, "Empty file names are not allowed", Toast.LENGTH_SHORT).show()
-            newFileName = CryptoZip.getDisplayName(fileHeader)
-        }
-        if (CryptoZip.isIllegalEntryName(newFileName)) {
-            Toast.makeText(this, newFileName + " is an invalid entry name", Toast.LENGTH_SHORT).show()
+        if (!validateEntryNameToast(newFileName, this)) {
+            // Use old entry name as a fallback mode if there is a problem.
             newFileName = CryptoZip.getDisplayName(fileHeader)
         }
 
         if (newContent == secretContent && newFileName == CryptoZip.getDisplayName(fileHeader)) {
-            editTextTitle.setText(CryptoZip.getDisplayName(fileHeader))
+            editTextTitle.setText(newFileName)
             return  // Nothing to save, text unchanged
         }
 

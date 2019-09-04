@@ -6,6 +6,7 @@ import android.util.Log
 import androidx.appcompat.app.AlertDialog
 import com.ditronic.simplefilesync.util.FilesUtil
 import net.lingala.zip4j.core.ZipFile
+import net.lingala.zip4j.model.FileHeader
 import net.lingala.zip4j.util.Zip4jConstants
 import java.io.File
 import java.io.FileNotFoundException
@@ -23,6 +24,34 @@ object NotesImport {
                 .setPositiveButton(android.R.string.ok) { _, _ -> }.show()
     }
 
+    private fun validateCompressionMethod(cx: Context, fileHeader: FileHeader) : Boolean {
+        val aesExtraDataRecord = fileHeader.aesExtraDataRecord
+        if (aesExtraDataRecord == null) {
+            alertDialog(cx, "Import failed. Could not find AES data record.")
+            return false
+        }
+        val compMethod = aesExtraDataRecord.compressionMethod
+        if (compMethod == Zip4jConstants.COMP_STORE) {
+            return true
+        } else if (compMethod == Zip4jConstants.COMP_DEFLATE) {
+            return true
+        } else if (compMethod == 12) {
+            alertDialog(cx, "Import failed: This app does not support BZIP2 compression.")
+            return false
+        } else if (compMethod == 9) {
+            alertDialog(cx, "Import failed: This app does not support DEFLATE64 compression.")
+            return false
+        } else if (compMethod == 14) {
+            alertDialog(cx, "Import failed: This app does not support LZMA compression.")
+            return false
+        } else if (compMethod == 98) {
+            alertDialog(cx, "Import failed: This app does not support PPMD compression.")
+            return false
+        } else {
+            alertDialog(cx, "Import failed: Unsupported compression method (" + compMethod + ").")
+            return false
+        }
+    }
 
     private fun isValidAesZipFile(cx: Context, tmpFile: File): Boolean {
         val tmpZipFile: ZipFile
@@ -31,7 +60,7 @@ object NotesImport {
             tmpZipFile.readZipInfo()
         } catch (e: Exception) {
             Log.d(TAG, "Failed to import zip notes", e)
-            alertDialog(cx, "Import failed. Probably this is not a valid *.aeszip file.")
+            alertDialog(cx, "Import failed. Probably this is not a valid Zip file.")
             return false
         }
 
@@ -39,28 +68,24 @@ object NotesImport {
 
         for (fh in fileHeaders!!) {
             if (fh.isDirectory) {
-                alertDialog(cx, "Import failed. Zip files with subdirectories are not supported.")
+                alertDialog(cx, "Import failed. Zip files with pure directory entries are not supported.")
                 return false
             }
         }
         for (fh in fileHeaders) {
             if (!fh.isEncrypted) {
-                alertDialog(cx, "Import failed. Zip files with non-encrypted files are not supported.")
+                alertDialog(cx, "Import failed. Zip files with non-encrypted entries are not supported.")
                 return false
             }
         }
         for (fh in fileHeaders) {
             if (fh.encryptionMethod != Zip4jConstants.ENC_METHOD_AES) {
-                alertDialog(cx, "Import failed due to unsupported encryption algorithm. This app only supports Zip files with AES encryption.")
+                alertDialog(cx, "Unsupported encryption algorithm. This app only supports Zip files with AES encryption.")
                 return false
             }
         }
         for (fh in fileHeaders) {
-            val aesExtraDataRecord = fh.aesExtraDataRecord
-            if (aesExtraDataRecord == null) {
-                alertDialog(cx, "Import failed. Could not find AES data record.")
-                return false
-            }
+
         }
         for (fh in fileHeaders) {
             if (fh.fileName.isEmpty()) {
@@ -68,7 +93,11 @@ object NotesImport {
                 return false
             }
         }
-
+        for (fh in fileHeaders) {
+            if (!validateCompressionMethod(cx, fh)) {
+                return false
+            }
+        }
         return true
     }
 

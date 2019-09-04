@@ -15,6 +15,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import com.ditronic.securezipnotes.*
 import com.ditronic.securezipnotes.adapters.NoteSelectAdapter
+import com.ditronic.securezipnotes.password.PwManager
 import com.ditronic.securezipnotes.util.*
 import com.ditronic.simplefilesync.AbstractFileSync
 import com.ditronic.simplefilesync.DriveFileSync

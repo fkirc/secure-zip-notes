@@ -1,7 +1,8 @@
-package com.ditronic.securezipnotes
+package com.ditronic.securezipnotes.robotpattern
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.ActivityTestRule
+import com.ditronic.securezipnotes.CryptoZip
 import com.ditronic.securezipnotes.activities.MainActivity
 import java.io.FileOutputStream
 
@@ -11,15 +12,18 @@ fun precondition_cleanStart(rule: ActivityTestRule<MainActivity>) {
 }
 
 fun precondition_singleNote(rule: ActivityTestRule<MainActivity>) {
-    loadAsset("singlenote.aeszip")
-    rule.launchActivity(null)
+    precondition_loadAsset(rule, "singlenote.aeszip")
     main_assertListState(listOf("Note 1"), rule.activity)
 }
 
 fun precondition_fourNotes(rule: ActivityTestRule<MainActivity>) {
-    loadAsset("4notes.aeszip")
-    rule.launchActivity(null)
+    precondition_loadAsset(rule, "4notes.aeszip")
     main_assertListState(listOf("Note 1", "Note 2", "Note 3", "Note 4"), rule.activity)
+}
+
+fun precondition_loadAsset(rule: ActivityTestRule<MainActivity>, assetPath: String) {
+    loadAsset(assetPath)
+    rule.launchActivity(null)
 }
 
 private fun loadAsset(assetPath: String) {

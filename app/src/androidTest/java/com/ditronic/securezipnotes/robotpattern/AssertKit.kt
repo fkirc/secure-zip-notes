@@ -1,4 +1,4 @@
-package com.ditronic.securezipnotes
+package com.ditronic.securezipnotes.robotpattern
 
 import android.app.Activity
 import android.widget.ListView
@@ -7,7 +7,9 @@ import androidx.core.view.get
 import androidx.core.view.size
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.assertion.ViewAssertions
+import androidx.test.espresso.matcher.RootMatchers
 import androidx.test.espresso.matcher.ViewMatchers
+import com.ditronic.securezipnotes.R
 import net.lingala.zip4j.model.FileHeader
 import org.hamcrest.Description
 import org.hamcrest.Matcher
@@ -26,6 +28,11 @@ fun init_newPassword_assertErrorText(errorText: String) {
 
 fun init_confirmPassword_assertErrorText(errorText: String) {
     Espresso.onView(ViewMatchers.withId(R.id.input_password_confirm)).check(ViewAssertions.matches(ViewMatchers.hasErrorText(errorText)))
+}
+
+fun main_assertAlertDialog(expectedText: String) {
+    Espresso.onView(ViewMatchers.withText(expectedText)).inRoot(RootMatchers.isDialog())
+            .check(ViewAssertions.matches(ViewMatchers.isDisplayed()));
 }
 
 fun main_extractEntryList(ac: Activity) : List<NoteEntry> {
@@ -71,7 +78,7 @@ fun main_assertListState(entries: Collection<String>, ac: Activity) {
 
 fun main_assertEmtpy(ac : Activity) {
     val listView = ac.findViewById<ListView>(R.id.list_view_notes)
-    Espresso.onView(ViewMatchers.withId(R.id.btn_create_new_note)).check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
+    //Espresso.onView(ViewMatchers.withId(R.id.btn_create_new_note)).check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
     Assert.assertEquals(0, listView.size)
 }
 

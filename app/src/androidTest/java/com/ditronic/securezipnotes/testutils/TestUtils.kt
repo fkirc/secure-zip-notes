@@ -1,7 +1,12 @@
+package com.ditronic.securezipnotes.testutils
+
 import android.app.Activity
 import android.content.Context
+import android.view.InputDevice
+import android.view.MotionEvent
 import androidx.test.espresso.Espresso
-import androidx.test.espresso.action.ViewActions
+import androidx.test.espresso.ViewAction
+import androidx.test.espresso.action.*
 import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.matcher.RootMatchers
 import androidx.test.espresso.matcher.ViewMatchers
@@ -20,6 +25,20 @@ fun assertToast(toastMessage : String, ac : Activity) {
 
 fun pressBack() {
     Espresso.onView(ViewMatchers.isRoot()).perform(ViewActions.pressBack())
+}
+
+fun click_dialogOK() {
+    Espresso.onView(ViewMatchers.withText("OK")).inRoot(RootMatchers.isDialog()).perform(ViewActions.click())
+}
+
+fun clickBottomCenter(): ViewAction {
+    return ViewActions.actionWithAssertions(
+            GeneralClickAction(
+                    Tap.SINGLE,
+                    GeneralLocation.BOTTOM_CENTER,
+                    Press.FINGER,
+                    InputDevice.SOURCE_UNKNOWN,
+                    MotionEvent.BUTTON_PRIMARY))
 }
 
 

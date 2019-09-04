@@ -1,4 +1,4 @@
-package com.ditronic.securezipnotes
+package com.ditronic.securezipnotes.tests
 
 import android.content.Intent
 import androidx.test.espresso.intent.Intents
@@ -8,15 +8,15 @@ import androidx.test.espresso.intent.matcher.IntentMatchers
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.rule.ActivityTestRule
-import assertToast
+import com.ditronic.securezipnotes.testutils.assertToast
+import com.ditronic.securezipnotes.R
 import com.ditronic.securezipnotes.activities.MainActivity
-import com.ditronic.securezipnotes.util.TestUtil
+import com.ditronic.securezipnotes.robotpattern.*
 import org.hamcrest.core.StringContains
-import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import pressBack
+import com.ditronic.securezipnotes.testutils.pressBack
 
 
 @RunWith(AndroidJUnit4::class)
@@ -30,10 +30,6 @@ class ITest {
     //@get:Rule var activityScenarioRule = activityScenarioRule<MainActivity>()
     @get:Rule var acRule: ActivityTestRule<MainActivity> = ActivityTestRule(MainActivity::class.java, false, false)
 
-    @Before
-    fun beforeEachTest() {
-        TestUtil.isInstrumentationTest = true
-    }
 
     @Test
     fun dropBoxInitOauth() {
@@ -59,7 +55,7 @@ class ITest {
         val noteEntries = listOf("Note 1", "Note 2", "Note 3", "Note 4")
         for (noteCnt in 2..noteEntries.size) {
             main_addNewNote(typePassword = (noteCnt == 2))
-            noteEdit_assertState(noteEntries[noteCnt-1], "", editMode = true)
+            noteEdit_assertState(noteEntries[noteCnt - 1], "", editMode = true)
             noteEdit_typeText(noteCnt.toString())
             pressBack()
         }
@@ -85,7 +81,7 @@ class ITest {
     @Test
     fun invalidRenameOpenedNote() {
         precondition_fourNotes(acRule)
-        main_clickNote("Note 1", typePassword = true)
+        main_clickNote("Note 1", password = TESTPASSWORD)
 
         noteEdit_rename("Note 1", "Note 2")
         assertToast("Note 2 already exists", acRule.activity)
@@ -101,20 +97,21 @@ class ITest {
     }
 
     @Test
-    fun renameSingleNote() {
+    fun renameSingleNoteMainMenu() {
         precondition_singleNote(acRule)
-        val noteRenamed = "Note renamed"
+        main_renameNote("Note 1", "Note renamed", typePassword = true)
+        main_assertListState(listOf("Note renamed"), acRule.activity)
+    }
 
-        main_renameNote("Note 1", noteRenamed, typePassword = true)
-        main_assertListState(listOf(noteRenamed), acRule.activity)
-        main_clickNote(noteRenamed)
-        noteEdit_assertState(noteRenamed, SECRET_NOTE)
-
-        // Rename back to old name
-        noteEdit_rename(noteRenamed, "Note 1")
+    @Test
+    fun renameSingleOpen() {
+        precondition_singleNote(acRule)
+        main_clickNote("Note 1", password = TESTPASSWORD)
         noteEdit_assertState("Note 1", SECRET_NOTE)
+        noteEdit_rename("Note 1", "Note renamed")
+        noteEdit_assertState("Note renamed", SECRET_NOTE)
         pressBack()
-        main_assertListState(listOf("Note 1"), acRule.activity)
+        main_assertListState(listOf("Note renamed"), acRule.activity)
     }
 
     @Test
@@ -169,5 +166,4 @@ class ITest {
     }
 
     // TODO: Measure code coverage
-    // TODO: Import tests with Zip files from different source programs
 }
