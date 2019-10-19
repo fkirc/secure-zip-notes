@@ -10,31 +10,31 @@ import android.view.inputmethod.InputMethodManager
 
 
 fun NoteEditActivity.applyEditMode(enable: Boolean) {
-    editMode = enable
+    model.editMode = enable
 
     // Rather simple procedure for title edit text
-    editTextTitle.isCursorVisible = editMode
-    editTextTitle.isClickable = editMode
-    editTextTitle.isFocusable = editMode
-    editTextTitle.isLongClickable = editMode
-    editTextTitle.setTextIsSelectable(editMode)
-    editTextTitle.isLongClickable = editMode
+    editTextTitle.isCursorVisible = model.editMode
+    editTextTitle.isClickable = model.editMode
+    editTextTitle.isFocusable = model.editMode
+    editTextTitle.isLongClickable = model.editMode
+    editTextTitle.setTextIsSelectable(model.editMode)
+    editTextTitle.isLongClickable = model.editMode
 
 
     // Complicated procedure for the main edit text
     if (Build.VERSION.SDK_INT >= NoteEditActivity.MIN_API_COPY_READ_ONLY) { // 21
-        editTextMain.showSoftInputOnFocus = editMode
-        editTextMain.isCursorVisible = editMode
+        editTextMain.showSoftInputOnFocus = model.editMode
+        editTextMain.isCursorVisible = model.editMode
     } else {
-        editTextMain.isCursorVisible = editMode
-        editTextMain.isClickable = editMode
-        editTextMain.isFocusable = editMode
-        editTextMain.isLongClickable = editMode
-        editTextMain.setTextIsSelectable(editMode)
-        editTextMain.isLongClickable = editMode
+        editTextMain.isCursorVisible = model.editMode
+        editTextMain.isClickable = model.editMode
+        editTextMain.isFocusable = model.editMode
+        editTextMain.isLongClickable = model.editMode
+        editTextMain.setTextIsSelectable(model.editMode)
+        editTextMain.isLongClickable = model.editMode
     }
 
-    if (!editMode) {
+    if (!model.editMode) {
         editTextMain.customSelectionActionModeCallback = CustomSelectionActionModeCallback()
         if (Build.VERSION.SDK_INT >= NoteEditActivity.MIN_API_COPY_READ_ONLY) { // 23
             editTextMain.customInsertionActionModeCallback = CustomInsertionActionModeCallback()

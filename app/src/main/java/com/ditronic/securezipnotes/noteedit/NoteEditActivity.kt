@@ -13,42 +13,36 @@ import com.ditronic.securezipnotes.R
 import com.ditronic.securezipnotes.util.BannerAds
 import com.ditronic.securezipnotes.zip.CryptoZip
 import com.ditronic.securezipnotes.zip.validateEntryNameToast
-import net.lingala.zip4j.model.FileHeader
 
 class NoteEditActivity : AppCompatActivity() {
 
-    internal var editMode: Boolean = false
     internal lateinit var editTextMain: EditText
     internal lateinit var editTextTitle: EditText
-    internal lateinit var innerFileName: String
-    internal var secretContent: String? = null
-
-    private val fileHeader: FileHeader
-        get() = CryptoZip.instance(this).getFileHeader(innerFileName)!!
+    internal lateinit var model: NoteEditViewModel
 
     private fun saveContent() {
         val newContent = editTextMain.text.toString()
-        var newFileName = editTextTitle.text.toString()
+        var newNoteName = editTextTitle.text.toString()
 
-        if (newFileName != fileHeader.fileName && CryptoZip.instance(this).isDuplicateEntryName(newFileName)) {
-            Toast.makeText(this, newFileName + " already exists", Toast.LENGTH_SHORT).show()
-            newFileName = CryptoZip.getDisplayName(fileHeader)
+        if (newNoteName != model.noteName && CryptoZip.instance(this).isDuplicateEntryName(newNoteName)) {
+            Toast.makeText(this, newNoteName + " already exists", Toast.LENGTH_SHORT).show()
+            newNoteName = model.noteName
         }
-        if (!validateEntryNameToast(newFileName, this)) {
+        if (!validateEntryNameToast(newNoteName, this)) {
             // Use old entry name as a fallback mode if there is a problem.
-            newFileName = CryptoZip.getDisplayName(fileHeader)
+            newNoteName = model.noteName
         }
 
-        if (newContent == secretContent && newFileName == CryptoZip.getDisplayName(fileHeader)) {
-            editTextTitle.setText(newFileName)
+        if (newContent == model.secretContent && newNoteName == model.noteName) {
+            editTextTitle.setText(newNoteName)
             return  // Nothing to save, text unchanged
         }
 
-        secretContent = newContent
-        CryptoZip.instance(this).updateStream(fileHeader, newFileName, secretContent!!)
-        innerFileName = newFileName // This must be set after the updateStream!
-        editTextTitle.setText(CryptoZip.getDisplayName(fileHeader))
-        Toast.makeText(this, "Saved " + CryptoZip.getDisplayName(fileHeader), Toast.LENGTH_SHORT).show()
+        model.secretContent = newContent
+        CryptoZip.instance(this).updateStream(model.fileHeader, newNoteName, model.secretContent!!)
+        model.innerFileName = newNoteName // This must be set after the updateStream!
+        editTextTitle.setText(model.noteName)
+        Toast.makeText(this, "Saved " + model.noteName, Toast.LENGTH_SHORT).show()
     }
 
     private fun saveClick() {
@@ -56,23 +50,19 @@ class NoteEditActivity : AppCompatActivity() {
         applyEditMode(false)
     }
 
-    override fun onSaveInstanceState(bundle: Bundle) {
-        super.onSaveInstanceState(bundle)
-        bundle.putString(INNER_FILE_NAME, innerFileName) // TODO: Replace this with ViewModel
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        val innerFileName = intent.extras!!.getString(INNER_FILE_NAME)!!
+        model = NoteEditViewModel.instantiate(this, innerFileName)
+
         setContentView(R.layout.activity_note_edit)
         val toolbar = findViewById<Toolbar>(R.id.tool_bar_edit)
         setSupportActionBar(toolbar)
+
         editTextTitle = findViewById(R.id.edit_text_title)
         editTextMain = findViewById(R.id.edit_text_main)
-        if (savedInstanceState != null) {
-            innerFileName = savedInstanceState.getString(INNER_FILE_NAME)!!
-        } else {
-            innerFileName = intent.extras!!.getString(INNER_FILE_NAME)!!
-        }
 
         if (supportActionBar != null) { // add back arrow to toolbar
             supportActionBar!!.setDisplayHomeAsUpEnabled(true)
@@ -82,14 +72,14 @@ class NoteEditActivity : AppCompatActivity() {
         }
 
         // TODO: Check password at startup, make this self-contained...
-        secretContent = CryptoZip.instance(this).extractFileString(fileHeader)
-        if (secretContent == null) {
+        model.secretContent = CryptoZip.instance(this).extractFileString(model.fileHeader)
+        if (model.secretContent == null) {
             finish() // Should almost never happen
             return
         }
-        applyEditMode(secretContent!!.isEmpty())
-        editTextTitle.setText(CryptoZip.getDisplayName(fileHeader))
-        editTextMain.setText(secretContent)
+        applyEditMode(model.secretContent!!.isEmpty())
+        editTextTitle.setText(model.noteName)
+        editTextMain.setText(model.secretContent)
 
         // Required to make links clickable
         //editTextMain.setMovementMethod(LinkMovementMethod.getInstance());
@@ -98,8 +88,8 @@ class NoteEditActivity : AppCompatActivity() {
     }
 
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
-        menu.findItem(R.id.action_edit_note).isVisible = !editMode
-        menu.findItem(R.id.action_save_note).isVisible = editMode
+        menu.findItem(R.id.action_edit_note).isVisible = !model.editMode
+        menu.findItem(R.id.action_save_note).isVisible = model.editMode
         return true
     }
 

@@ -55,6 +55,8 @@ dependencies {
     implementation 'androidx.biometric:biometric:1.0.0-rc01'
     //implementation 'com.google.android.gms:play-services-ads:18.0.0'
 
+    implementation 'androidx.lifecycle:lifecycle-extensions:2.1.0'
+
     testImplementation 'junit:junit:4.12'
 
     androidTestImplementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
