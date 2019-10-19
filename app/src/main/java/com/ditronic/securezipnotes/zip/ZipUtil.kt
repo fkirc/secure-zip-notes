@@ -1,6 +1,7 @@
-package com.ditronic.securezipnotes.util
+package com.ditronic.securezipnotes.zip
 
 import android.content.Context
+import com.ditronic.securezipnotes.util.Boast
 import net.lingala.zip4j.io.ZipInputStream
 import java.io.IOException
 import java.io.InputStreamReader

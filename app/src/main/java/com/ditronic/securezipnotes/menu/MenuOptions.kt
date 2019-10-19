@@ -1,10 +1,12 @@
-package com.ditronic.securezipnotes
+package com.ditronic.securezipnotes.menu
 
 import android.app.Activity
 import android.content.Intent
 import android.view.MenuItem
 import androidx.core.content.FileProvider
+import com.ditronic.securezipnotes.R
 import com.ditronic.securezipnotes.util.Boast
+import com.ditronic.securezipnotes.zip.CryptoZip
 import com.ditronic.simplefilesync.DriveFileSync
 import com.ditronic.simplefilesync.DropboxFileSync
 import com.ditronic.simplefilesync.util.FilesUtil

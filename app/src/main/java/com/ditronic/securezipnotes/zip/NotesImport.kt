@@ -1,4 +1,4 @@
-package com.ditronic.securezipnotes
+package com.ditronic.securezipnotes.zip
 
 import android.content.Context
 import android.net.Uri

@@ -11,7 +11,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-import com.ditronic.securezipnotes.CryptoZip
+import com.ditronic.securezipnotes.zip.CryptoZip
 import com.ditronic.securezipnotes.R
 
 import net.lingala.zip4j.model.FileHeader

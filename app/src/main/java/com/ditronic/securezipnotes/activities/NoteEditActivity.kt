@@ -13,10 +13,10 @@ import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
-import com.ditronic.securezipnotes.CryptoZip
+import com.ditronic.securezipnotes.zip.CryptoZip
 import com.ditronic.securezipnotes.R
 import com.ditronic.securezipnotes.util.BannerAds
-import com.ditronic.securezipnotes.util.validateEntryNameToast
+import com.ditronic.securezipnotes.zip.validateEntryNameToast
 import net.lingala.zip4j.model.FileHeader
 
 class NoteEditActivity : AppCompatActivity() {

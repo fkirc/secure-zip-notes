@@ -1,10 +1,8 @@
-package com.ditronic.securezipnotes
+package com.ditronic.securezipnotes.zip
 
 import android.content.Context
 import com.ditronic.securezipnotes.password.PwManager
 import com.ditronic.securezipnotes.util.Boast
-import com.ditronic.securezipnotes.util.inputStreamToString
-import com.ditronic.securezipnotes.util.validateEntryNameToast
 import net.lingala.zip4j.core.ZipFile
 import net.lingala.zip4j.exception.ZipException
 import net.lingala.zip4j.exception.ZipExceptionConstants
