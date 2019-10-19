@@ -17,10 +17,10 @@
         android:supportsRtl="true"
         android:fullBackupContent="@xml/backup_rules"
         android:theme="@style/AppTheme">
-        <activity android:name="com.ditronic.securezipnotes.activities.PasswordConfirmActivity" />
-        <activity android:name="com.ditronic.securezipnotes.activities.NewPasswordActivity" />
-        <activity android:name="com.ditronic.securezipnotes.activities.NoteEditActivity" />
-        <activity android:name="com.ditronic.securezipnotes.activities.MainActivity">
+        <activity android:name="com.ditronic.securezipnotes.onboarding.PasswordConfirmActivity" />
+        <activity android:name="com.ditronic.securezipnotes.onboarding.NewPasswordActivity" />
+        <activity android:name="com.ditronic.securezipnotes.noteedit.NoteEditActivity" />
+        <activity android:name="com.ditronic.securezipnotes.noteselect.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

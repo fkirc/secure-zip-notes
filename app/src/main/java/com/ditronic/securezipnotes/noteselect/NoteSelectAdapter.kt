@@ -1,4 +1,4 @@
-package com.ditronic.securezipnotes.adapters
+package com.ditronic.securezipnotes.noteselect
 
 import android.content.Context
 import android.view.LayoutInflater

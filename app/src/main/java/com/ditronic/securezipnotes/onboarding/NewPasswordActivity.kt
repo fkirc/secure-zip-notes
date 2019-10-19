@@ -1,4 +1,4 @@
-package com.ditronic.securezipnotes.activities
+package com.ditronic.securezipnotes.onboarding
 
 import android.os.Bundle
 import android.view.MenuItem

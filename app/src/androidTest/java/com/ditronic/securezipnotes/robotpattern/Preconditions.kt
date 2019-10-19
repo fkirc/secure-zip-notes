@@ -3,7 +3,7 @@ package com.ditronic.securezipnotes.robotpattern
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.ActivityTestRule
 import com.ditronic.securezipnotes.zip.CryptoZip
-import com.ditronic.securezipnotes.activities.MainActivity
+import com.ditronic.securezipnotes.noteselect.MainActivity
 import java.io.FileOutputStream
 
 

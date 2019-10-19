@@ -1,4 +1,4 @@
-package com.ditronic.securezipnotes.util
+package com.ditronic.securezipnotes.noteedit
 
 import android.annotation.TargetApi
 import android.content.Context

@@ -1,4 +1,4 @@
-package com.ditronic.securezipnotes.activities
+package com.ditronic.securezipnotes.onboarding
 
 import android.content.Context
 import android.content.Intent
@@ -12,6 +12,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import com.ditronic.securezipnotes.password.PwManager
 import com.ditronic.securezipnotes.R
+import com.ditronic.securezipnotes.noteselect.MainActivity
 import com.ditronic.securezipnotes.util.OnThrottleClickListener
 import java.util.*
 

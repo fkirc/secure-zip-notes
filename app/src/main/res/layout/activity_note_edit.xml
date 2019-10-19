@@ -4,7 +4,7 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".activities.NoteEditActivity">
+    tools:context=".noteedit.NoteEditActivity">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/tool_bar_edit"
@@ -26,7 +26,7 @@
         android:layout_weight="1" >
         <!-- android:linksClickable="true" -->
         <!-- android:autoLink="web|email" -->
-    <com.ditronic.securezipnotes.util.PlainEditText
+    <com.ditronic.securezipnotes.noteedit.PlainEditText
         android:id="@+id/edit_text_main"
         android:inputType="textMultiLine"
         android:gravity="top|start"

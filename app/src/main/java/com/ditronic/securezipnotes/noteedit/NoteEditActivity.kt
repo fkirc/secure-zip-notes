@@ -1,4 +1,4 @@
-package com.ditronic.securezipnotes.activities
+package com.ditronic.securezipnotes.noteedit
 
 import android.content.Context
 import android.content.Intent

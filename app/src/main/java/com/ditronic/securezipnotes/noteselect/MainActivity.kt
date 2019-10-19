@@ -1,4 +1,4 @@
-package com.ditronic.securezipnotes.activities
+package com.ditronic.securezipnotes.noteselect
 
 import android.app.Activity
 import android.content.Context
@@ -14,8 +14,9 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import com.ditronic.securezipnotes.*
-import com.ditronic.securezipnotes.adapters.NoteSelectAdapter
 import com.ditronic.securezipnotes.menu.MenuOptions
+import com.ditronic.securezipnotes.onboarding.NewPasswordActivity
+import com.ditronic.securezipnotes.noteedit.NoteEditActivity
 import com.ditronic.securezipnotes.password.PwManager
 import com.ditronic.securezipnotes.util.*
 import com.ditronic.securezipnotes.zip.CryptoZip
