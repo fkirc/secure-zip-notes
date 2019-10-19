@@ -1,4 +1,4 @@
-package com.ditronic.securezipnotes.tests
+package com.ditronic.securezipnotes.onlinetests
 
 import androidx.test.espresso.Espresso
 import androidx.test.ext.junit.runners.AndroidJUnit4
