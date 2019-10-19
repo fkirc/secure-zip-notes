@@ -18,20 +18,13 @@ android {
     buildTypes {
         release {
             minifyEnabled true
-            useProguard false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
         debug {
             // A different "package name" for debug builds enables a clean separation during development.
             applicationIdSuffix = ".dev"
             versionNameSuffix '-DEBUG'
-
-            // (minifyEnabled=true + useProguard=false) uses the builtin R8 compiler instead of ProGuard.
-            // R8 shrinks at least as good as ProGuard and it works with Instant Run (unlike ProGuard).
-            // Therefore, R8 + Instant Run enables us to use the same shrinking configuration for debug + release.
-            // Note that R8 still uses ProGuard rule files for some configuration options.
             minifyEnabled false
-            useProguard false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
@@ -52,14 +45,14 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'androidx.appcompat:appcompat:1.1.0-rc01'
+    implementation 'androidx.appcompat:appcompat:1.1.0'
     //implementation 'com.android.support:multidex:1.0.3'
 
     implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
-    implementation 'com.google.android.material:material:1.1.0-alpha07'
+    implementation 'com.google.android.material:material:1.1.0-beta01'
     implementation 'androidx.cardview:cardview:1.0.0'
 
-    implementation 'androidx.biometric:biometric:1.0.0-alpha04'
+    implementation 'androidx.biometric:biometric:1.0.0-rc01'
     //implementation 'com.google.android.gms:play-services-ads:18.0.0'
 
     testImplementation 'junit:junit:4.12'
@@ -76,7 +69,7 @@ dependencies {
 
     implementation project(path: ':simplefilesync')
     implementation project(path: ':zip4j')
-    implementation "androidx.core:core-ktx:1.2.0-alpha02"
+    implementation "androidx.core:core-ktx:1.2.0-beta01"
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 }
 repositories {
