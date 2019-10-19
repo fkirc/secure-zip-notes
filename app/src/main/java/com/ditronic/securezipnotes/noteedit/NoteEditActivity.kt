@@ -2,127 +2,31 @@ package com.ditronic.securezipnotes.noteedit
 
 import android.content.Context
 import android.content.Intent
-import android.os.Build
 import android.os.Bundle
-import android.view.ActionMode
 import android.view.Menu
 import android.view.MenuItem
-import android.view.WindowManager
-import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
-import com.ditronic.securezipnotes.zip.CryptoZip
 import com.ditronic.securezipnotes.R
 import com.ditronic.securezipnotes.util.BannerAds
+import com.ditronic.securezipnotes.zip.CryptoZip
 import com.ditronic.securezipnotes.zip.validateEntryNameToast
 import net.lingala.zip4j.model.FileHeader
 
 class NoteEditActivity : AppCompatActivity() {
 
-    private var editMode: Boolean = false
-    private lateinit var editTextMain: EditText
-    private lateinit var editTextTitle: EditText
-    private lateinit var innerFileName: String
-    private var secretContent: String? = null
+    internal var editMode: Boolean = false
+    internal lateinit var editTextMain: EditText
+    internal lateinit var editTextTitle: EditText
+    internal lateinit var innerFileName: String
+    internal var secretContent: String? = null
 
     private val fileHeader: FileHeader
         get() = CryptoZip.instance(this).getFileHeader(innerFileName)!!
 
-    private fun applyEditMode(enable: Boolean) {
-        editMode = enable
-
-        // Rather simple procedure for title edit text
-        editTextTitle.isCursorVisible = editMode
-        editTextTitle.isClickable = editMode
-        editTextTitle.isFocusable = editMode
-        editTextTitle.isLongClickable = editMode
-        editTextTitle.setTextIsSelectable(editMode)
-        editTextTitle.isLongClickable = editMode
-
-
-        // Complicated procedure for the main edit text
-        if (Build.VERSION.SDK_INT >= MIN_API_COPY_READ_ONLY) { // 21
-            editTextMain.showSoftInputOnFocus = editMode
-            editTextMain.isCursorVisible = editMode
-        } else {
-            editTextMain.isCursorVisible = editMode
-            editTextMain.isClickable = editMode
-            editTextMain.isFocusable = editMode
-            editTextMain.isLongClickable = editMode
-            editTextMain.setTextIsSelectable(editMode)
-            editTextMain.isLongClickable = editMode
-        }
-
-        if (!editMode) {
-            editTextMain.customSelectionActionModeCallback = CustomSelectionActionModeCallback()
-            if (Build.VERSION.SDK_INT >= MIN_API_COPY_READ_ONLY) { // 23
-                editTextMain.customInsertionActionModeCallback = CustomInsertionActionModeCallback()
-            }
-            // Close keyboard
-            window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN)
-            val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-            imm.hideSoftInputFromWindow(editTextMain.windowToken, 0)
-        } else {
-            editTextMain.customSelectionActionModeCallback = null
-            if (Build.VERSION.SDK_INT >= MIN_API_COPY_READ_ONLY) { // 23
-                editTextMain.customInsertionActionModeCallback = null
-            }
-            // Open keyboard
-            editTextMain.requestFocus()
-            window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE)
-            val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-            imm.showSoftInput(editTextMain, InputMethodManager.SHOW_IMPLICIT)
-        }
-
-        invalidateOptionsMenu()
-    }
-
-    private class CustomSelectionActionModeCallback : ActionMode.Callback {
-        override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
-            return true
-        }
-
-        override fun onPrepareActionMode(mode: ActionMode, menu: Menu): Boolean {
-            try {
-                val copyItem = menu.findItem(android.R.id.copy)
-                val title = copyItem.title
-                menu.clear() // We only want copy functionality, no paste, no cut.
-                menu.add(0, android.R.id.copy, 0, title)
-            } catch (ignored: Exception) {
-            }
-
-            return true
-        }
-
-        override fun onActionItemClicked(mode: ActionMode, item: MenuItem): Boolean {
-            return false
-        }
-
-        override fun onDestroyActionMode(mode: ActionMode) {}
-    }
-
-    private class CustomInsertionActionModeCallback : ActionMode.Callback {
-        override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
-            return false
-        }
-
-        override fun onPrepareActionMode(mode: ActionMode, menu: Menu): Boolean {
-            return false
-        }
-
-        override fun onActionItemClicked(mode: ActionMode, item: MenuItem): Boolean {
-            return false
-        }
-
-        override fun onDestroyActionMode(mode: ActionMode) {}
-    }
-
     private fun saveContent() {
-        if (!editMode) {
-            return
-        }
         val newContent = editTextMain.text.toString()
         var newFileName = editTextTitle.text.toString()
 
@@ -154,7 +58,7 @@ class NoteEditActivity : AppCompatActivity() {
 
     override fun onSaveInstanceState(bundle: Bundle) {
         super.onSaveInstanceState(bundle)
-        bundle.putString(INNER_FILE_NAME, innerFileName)
+        bundle.putString(INNER_FILE_NAME, innerFileName) // TODO: Replace this with ViewModel
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -177,6 +81,7 @@ class NoteEditActivity : AppCompatActivity() {
             supportActionBar!!.setDisplayShowTitleEnabled(false)
         }
 
+        // TODO: Check password at startup, make this self-contained...
         secretContent = CryptoZip.instance(this).extractFileString(fileHeader)
         if (secretContent == null) {
             finish() // Should almost never happen
@@ -231,7 +136,7 @@ class NoteEditActivity : AppCompatActivity() {
 
     companion object {
 
-        private const val INNER_FILE_NAME = "inner_file_name"
+        internal const val INNER_FILE_NAME = "inner_file_name"
 
         fun launch(cx: Context, innerFileName: String) {
             val intent = Intent(cx, NoteEditActivity::class.java)
@@ -239,6 +144,6 @@ class NoteEditActivity : AppCompatActivity() {
             cx.startActivity(intent)
         }
 
-        private const val MIN_API_COPY_READ_ONLY = 23
+        internal const val MIN_API_COPY_READ_ONLY = 23
     }
 }
