@@ -22,28 +22,33 @@ class NoteEditActivity : AppCompatActivity() {
     internal lateinit var model: NoteEditViewModel
 
     private fun saveContent() {
+        val oldContent = model.secretContent ?: return // Uninitialized state
+        val oldNoteName = model.noteName
+
         val newContent = editTextMain.text.toString()
         var newNoteName = editTextTitle.text.toString()
 
-        if (newNoteName != model.noteName && CryptoZip.instance(this).isDuplicateEntryName(newNoteName)) {
+        if (newNoteName != oldNoteName && CryptoZip.instance(this).isDuplicateEntryName(newNoteName)) {
             Toast.makeText(this, newNoteName + " already exists", Toast.LENGTH_SHORT).show()
-            newNoteName = model.noteName
+            newNoteName = oldNoteName
         }
         if (!validateEntryNameToast(newNoteName, this)) {
             // Use old entry name as a fallback mode if there is a problem.
-            newNoteName = model.noteName
+            newNoteName = oldNoteName
         }
 
-        if (newContent == model.secretContent && newNoteName == model.noteName) {
+        if (newContent == oldContent && newNoteName == oldNoteName) {
             editTextTitle.setText(newNoteName)
             return  // Nothing to save, text unchanged
         }
 
+        // Apply changes, point of no return
         model.secretContent = newContent
-        CryptoZip.instance(this).updateStream(model.fileHeader, newNoteName, model.secretContent!!)
+        CryptoZip.instance(this).updateStream(model.fileHeader, newNoteName, newContent)
         model.innerFileName = newNoteName // This must be set after the updateStream!
-        editTextTitle.setText(model.noteName)
-        Toast.makeText(this, "Saved " + model.noteName, Toast.LENGTH_SHORT).show()
+
+        editTextTitle.setText(newNoteName)
+        Toast.makeText(this, "Saved " + newNoteName, Toast.LENGTH_SHORT).show()
     }
 
     private fun saveClick() {
@@ -54,24 +59,6 @@ class NoteEditActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        val innerFileName = intent.extras!!.getString(INNER_FILE_NAME)!!
-        model = NoteEditViewModel.instantiate(this, innerFileName)
-
-        // TODO: Check password at startup, make this self-contained...
-        PwManager.instance().retrievePasswordAsync(this, model.fileHeader) {
-            model.secretContent = CryptoZip.instance(this).extractFileString(model.fileHeader)
-            if (model.secretContent == null) {
-                finish() // Wrong password
-            } else {
-                loadUI()
-            }
-        }
-
-        BannerAds.loadBottomAdsBanner(this)
-    }
-
-    private fun loadUI() {
         setContentView(R.layout.activity_note_edit)
         val toolbar = findViewById<Toolbar>(R.id.tool_bar_edit)
         setSupportActionBar(toolbar)
@@ -86,9 +73,27 @@ class NoteEditActivity : AppCompatActivity() {
             supportActionBar!!.setDisplayShowTitleEnabled(false)
         }
 
-        applyEditMode(model.secretContent!!.isEmpty())
+        val innerFileName = intent.extras!!.getString(INNER_FILE_NAME)!!
+        model = NoteEditViewModel.instantiate(this, innerFileName)
+
         editTextTitle.setText(model.noteName)
-        editTextMain.setText(model.secretContent)
+
+        PwManager.instance().retrievePasswordAsync(this, model.fileHeader) { // TODO: Add failure callback?
+            val secretContent = CryptoZip.instance(this).extractFileString(model.fileHeader)
+            model.secretContent = secretContent
+            if (secretContent == null) {
+                finish() // Wrong password
+            } else {
+                showSecretContent(secretContent)
+            }
+        }
+
+        BannerAds.loadBottomAdsBanner(this)
+    }
+
+    private fun showSecretContent(secretContent: String) {
+        applyEditMode(secretContent.isEmpty())
+        editTextMain.setText(secretContent)
         // Required to make links clickable
         //editTextMain.setMovementMethod(LinkMovementMethod.getInstance());
     }
