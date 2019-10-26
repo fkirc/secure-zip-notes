@@ -143,7 +143,7 @@ class CryptoZip private constructor(cx: Context) {
 
         fileHeader.password = password.toCharArray()
 
-        try {
+        try { // TODO: Reuse this input stream from the outside
             val `is` = zipFile.getInputStream(fileHeader)
             //is.close();
             `is`.close(true)
