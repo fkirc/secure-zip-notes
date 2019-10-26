@@ -195,7 +195,8 @@ class CryptoZip private constructor(cx: Context) {
     fun extractFileString(fileHeader: FileHeader): String? {
 
         val pw = PwManager.instance().passwordFast
-                ?: return null // Prior singleton instance has been killed, we cannot recreate it synchronously
+                ?: return null
+
         fileHeader.password = pw
 
         try {

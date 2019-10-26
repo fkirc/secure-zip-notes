@@ -10,6 +10,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import com.ditronic.securezipnotes.R
+import com.ditronic.securezipnotes.password.PwManager
 import com.ditronic.securezipnotes.util.BannerAds
 import com.ditronic.securezipnotes.zip.CryptoZip
 import com.ditronic.securezipnotes.zip.validateEntryNameToast
@@ -57,6 +58,20 @@ class NoteEditActivity : AppCompatActivity() {
         val innerFileName = intent.extras!!.getString(INNER_FILE_NAME)!!
         model = NoteEditViewModel.instantiate(this, innerFileName)
 
+        // TODO: Check password at startup, make this self-contained...
+        PwManager.instance().retrievePasswordAsync(this, model.fileHeader) {
+            model.secretContent = CryptoZip.instance(this).extractFileString(model.fileHeader)
+            if (model.secretContent == null) {
+                finish() // Wrong password
+            } else {
+                loadUI()
+            }
+        }
+
+        BannerAds.loadBottomAdsBanner(this)
+    }
+
+    private fun loadUI() {
         setContentView(R.layout.activity_note_edit)
         val toolbar = findViewById<Toolbar>(R.id.tool_bar_edit)
         setSupportActionBar(toolbar)
@@ -71,20 +86,11 @@ class NoteEditActivity : AppCompatActivity() {
             supportActionBar!!.setDisplayShowTitleEnabled(false)
         }
 
-        // TODO: Check password at startup, make this self-contained...
-        model.secretContent = CryptoZip.instance(this).extractFileString(model.fileHeader)
-        if (model.secretContent == null) {
-            finish() // Should almost never happen
-            return
-        }
         applyEditMode(model.secretContent!!.isEmpty())
         editTextTitle.setText(model.noteName)
         editTextMain.setText(model.secretContent)
-
         // Required to make links clickable
         //editTextMain.setMovementMethod(LinkMovementMethod.getInstance());
-
-        BannerAds.loadBottomAdsBanner(this)
     }
 
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {

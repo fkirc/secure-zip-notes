@@ -52,7 +52,7 @@ class MainActivity : AppCompatActivity() {
         notesListView.onItemClickListener = object : OnThrottleItemClickListener() {
             public override fun onThrottleItemClick(parent: AdapterView<*>, view: View, position: Int, id: Long) {
                 val fileHeader = noteSelectAdapter.getItem(position) as FileHeader
-                PwManager.instance().retrievePasswordAsync(this@MainActivity, fileHeader) { NoteEditActivity.launch(this@MainActivity, fileHeader.fileName) }
+                NoteEditActivity.launch(this@MainActivity, fileHeader.fileName)
             }
         }
         notesListView.emptyView = findViewById(R.id.list_view_empty)
@@ -249,7 +249,7 @@ class MainActivity : AppCompatActivity() {
                 createNewNote()
             }
         } else {
-            val fileHeader = CryptoZip.instance(this).fileHeadersFast!![0] // We use this to ensure password consistency accross the zip file
+            val fileHeader = CryptoZip.instance(this).fileHeadersFast!![0] // We use this to ensure password consistency across the zip file
             PwManager.instance().retrievePasswordAsync(this, fileHeader) { this.createNewNote() }
         }
     }
