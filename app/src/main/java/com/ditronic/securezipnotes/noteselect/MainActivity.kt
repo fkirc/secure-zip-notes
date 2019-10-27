@@ -114,8 +114,8 @@ class MainActivity : AppCompatActivity() {
     private fun renameFileDialog(fileHeader: FileHeader) {
 
         // Retrieving the password for renames should not be necessary, but this is the current implementation
-        PwManager.instance().retrievePasswordAsync(this@MainActivity, fileHeader) { zipInputStream ->
-            zipInputStream?.close(true)
+        PwManager.instance().retrievePasswordAsync(this@MainActivity, fileHeader) { res ->
+            res.inputStream?.close(true)
 
             val builder = AlertDialog.Builder(this@MainActivity)
             builder.setTitle("Rename " + CryptoZip.getDisplayName(fileHeader))
@@ -252,8 +252,8 @@ class MainActivity : AppCompatActivity() {
             }
         } else {
             val fileHeader = CryptoZip.instance(this).fileHeadersFast!![0] // We use this to ensure password consistency across the zip file
-            PwManager.instance().retrievePasswordAsync(this, fileHeader) { zipInputStream ->
-                zipInputStream?.close(true)
+            PwManager.instance().retrievePasswordAsync(this, fileHeader) { res ->
+                res.inputStream?.close(true)
                 this.createNewNote()
             }
         }

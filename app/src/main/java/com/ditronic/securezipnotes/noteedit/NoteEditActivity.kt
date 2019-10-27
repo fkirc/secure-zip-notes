@@ -78,13 +78,13 @@ class NoteEditActivity : AppCompatActivity() {
 
         editTextTitle.setText(model.noteName)
 
-        PwManager.instance().retrievePasswordAsync(this, model.fileHeader) { zipInputStream ->
+        PwManager.instance().retrievePasswordAsync(this, model.fileHeader) { res ->
             // TODO: Add failure callback?
-            if (zipInputStream == null) {
+            if (res.inputStream == null) {
                 finish() // Wrong password
                 return@retrievePasswordAsync
             }
-            val secretContent = CryptoZip.instance(this).extractFileString(zipInputStream)
+            val secretContent = CryptoZip.instance(this).extractFileString(res.inputStream)
             model.secretContent = secretContent
             showSecretContent(secretContent)
         }

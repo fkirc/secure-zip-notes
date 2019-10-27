@@ -13,6 +13,7 @@ import androidx.appcompat.widget.Toolbar
 import com.ditronic.securezipnotes.password.PwManager
 import com.ditronic.securezipnotes.R
 import com.ditronic.securezipnotes.noteselect.MainActivity
+import com.ditronic.securezipnotes.password.PwResult
 import com.ditronic.securezipnotes.util.OnThrottleClickListener
 import java.util.*
 
@@ -36,7 +37,7 @@ class PasswordConfirmActivity : AppCompatActivity() {
             }
         })
 
-        confirmPasswordText!!.setOnEditorActionListener { v, actionId, event ->
+        confirmPasswordText!!.setOnEditorActionListener { _, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_DONE) {
                 savePassword()
                 return@setOnEditorActionListener true
@@ -64,7 +65,7 @@ class PasswordConfirmActivity : AppCompatActivity() {
         }
         confirmPasswordText!!.error = null
 
-        PwManager.instance().saveUserProvidedPassword(this, password = confirmedPassword, zipStream = null) {
+        PwManager.instance().saveUserProvidedPassword(this, PwResult(password = confirmedPassword, inputStream = null)) {
             MainActivity.launchCleanWithNewNote(this)
         }
     }
