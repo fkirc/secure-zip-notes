@@ -8,7 +8,7 @@ import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.matcher.RootMatchers
 import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.platform.app.InstrumentationRegistry
-import com.ditronic.securezipnotes.testutils.clickBottomCenter // TODO: Move this to class or module (instead of individual imports)
+import com.ditronic.securezipnotes.testutils.clickBottomCenter
 import com.ditronic.securezipnotes.testutils.click_dialogOK
 import com.ditronic.securezipnotes.R
 import com.ditronic.securezipnotes.testutils.pressBack

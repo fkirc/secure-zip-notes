@@ -64,7 +64,9 @@ class PasswordConfirmActivity : AppCompatActivity() {
         }
         confirmPasswordText!!.error = null
 
-        PwManager.instance().saveUserProvidedPassword(this, confirmedPassword) { MainActivity.launchCleanWithNewNote(this) }
+        PwManager.instance().saveUserProvidedPassword(this, password = confirmedPassword, zipStream = null) {
+            MainActivity.launchCleanWithNewNote(this)
+        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

@@ -6,6 +6,7 @@ import com.ditronic.securezipnotes.util.Boast
 import net.lingala.zip4j.core.ZipFile
 import net.lingala.zip4j.exception.ZipException
 import net.lingala.zip4j.exception.ZipExceptionConstants
+import net.lingala.zip4j.io.ZipInputStream
 import net.lingala.zip4j.model.FileHeader
 import net.lingala.zip4j.model.ZipParameters
 import net.lingala.zip4j.util.Zip4jConstants
@@ -133,27 +134,27 @@ class CryptoZip private constructor(cx: Context) {
         }
     }
 
-    fun isPasswordValid(fileHeader: FileHeader, password: String): Boolean {
+    fun isPasswordValid(fileHeader: FileHeader, password: String): ZipInputStream? {
         if (!fileHeader.isEncrypted) {
             throw RuntimeException("Expected encrypted file header")
         }
         if (password.isEmpty()) {
-            return false
+            return null
         }
 
         fileHeader.password = password.toCharArray()
 
-        try { // TODO: Reuse this input stream from the outside
-            val `is` = zipFile.getInputStream(fileHeader)
-            //is.close();
-            `is`.close(true)
+        val zipStream : ZipInputStream?
+        try {
+            zipStream = zipFile.getInputStream(fileHeader)
+            //is.close(true);
         } catch (e: ZipException) {
             // This check is a workaround for a bug in Zip4j version 2.0.3.
             //if (e.message!!.contains("Wrong Password")) {
             //    return false
             //}
-            return if (e.code == ZipExceptionConstants.WRONG_PASSWORD) {
-                false
+            if (e.code == ZipExceptionConstants.WRONG_PASSWORD) {
+                return null
             } else {
                 throw RuntimeException(e)
             }
@@ -161,7 +162,7 @@ class CryptoZip private constructor(cx: Context) {
             throw RuntimeException(e)
         }
 
-        return true
+        return zipStream
     }
 
 
@@ -192,17 +193,11 @@ class CryptoZip private constructor(cx: Context) {
     }
 
 
-    fun extractFileString(fileHeader: FileHeader): String? {
-
-        val pw = PwManager.instance().passwordFast
-                ?: return null
-
-        fileHeader.password = pw
+    fun extractFileString(zipInputStream: ZipInputStream): String {
 
         try {
-            val `is` = zipFile.getInputStream(fileHeader)
-            val content = inputStreamToString(`is`)
-            `is`.close()
+            val content = inputStreamToString(zipInputStream)
+            zipInputStream.close()
             return content
         } catch (e: Exception) {
             throw RuntimeException(e)

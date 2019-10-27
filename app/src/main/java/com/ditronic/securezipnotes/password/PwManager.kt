@@ -14,6 +14,7 @@ import androidx.biometric.BiometricPrompt
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
 import com.ditronic.securezipnotes.zip.CryptoZip
+import net.lingala.zip4j.io.ZipInputStream
 import net.lingala.zip4j.model.FileHeader
 import javax.crypto.Cipher
 
@@ -21,6 +22,7 @@ class PwManager private constructor() {
 
     private var password: String? = null
 
+    // TODO: Remove this fct?
     val passwordFast
         get() = if (password == null) {
             null
@@ -30,13 +32,14 @@ class PwManager private constructor() {
 
 
 
-    private fun onRetrievedPassword(ac: FragmentActivity, fileHeader: FileHeader, cb: () -> Unit) {
+    private fun onRetrievedPassword(ac: FragmentActivity, fileHeader: FileHeader, cb: (zipStream: ZipInputStream?) -> Unit) {
         if (password == null) {
             showPasswordDialog(ac, fileHeader, cb)
             return
         }
-        if (CryptoZip.instance(ac).isPasswordValid(fileHeader, password!!)) {
-            cb() // Password valid, run success callback.
+        val zipStream = CryptoZip.instance(ac).isPasswordValid(fileHeader, password!!)
+        if (zipStream != null) {
+            cb(zipStream) // Password valid, run success callback.
         } else {
             Log.d(TAG, "Outdated password, invalidate preferences and show password dialog")
             password = null
@@ -47,7 +50,7 @@ class PwManager private constructor() {
     }
 
 
-    fun retrievePasswordAsync(ac: FragmentActivity, fileHeader: FileHeader, cb: () -> Unit) {
+    fun retrievePasswordAsync(ac: FragmentActivity, fileHeader: FileHeader, cb: (zipStream: ZipInputStream?) -> Unit) {
 
         val aSync = retrievePasswordInternal(ac, fileHeader, cb)
         if (!aSync) {
@@ -56,7 +59,8 @@ class PwManager private constructor() {
     }
 
 
-    private fun retrievePasswordInternal(ac: FragmentActivity, fileHeader: FileHeader, cb: () -> Unit): Boolean {
+    // TODO: Use async/sync enum
+    private fun retrievePasswordInternal(ac: FragmentActivity, fileHeader: FileHeader, cb: (zipStream: ZipInputStream?) -> Unit): Boolean {
 
         if (password != null) {
             return false // Password already present.
@@ -79,7 +83,7 @@ class PwManager private constructor() {
     }
 
 
-    private fun showPasswordDialog(ac: FragmentActivity, fileHeader: FileHeader, cb: () -> Unit) {
+    private fun showPasswordDialog(ac: FragmentActivity, fileHeader: FileHeader, cb: (zipStream: ZipInputStream?) -> Unit) {
 
         // Ask the user for the password (asynchronously)
         val builder = AlertDialog.Builder(ac)
@@ -108,27 +112,28 @@ class PwManager private constructor() {
     }
 
 
-    private fun onPosBtnClick(ac: FragmentActivity, input: EditText, fileHeader: FileHeader, cb: () -> Unit, dialog: AlertDialog) {
+    private fun onPosBtnClick(ac: FragmentActivity, input: EditText, fileHeader: FileHeader, cb: (zipStream: ZipInputStream?) -> Unit, dialog: AlertDialog) {
         val typedPassword = input.text.toString()
-        if (CryptoZip.instance(ac).isPasswordValid(fileHeader, typedPassword)) {
+        val zipStream = CryptoZip.instance(ac).isPasswordValid(fileHeader, typedPassword)
+        if (zipStream != null) {
             input.error = null
-            saveUserProvidedPassword(ac, typedPassword, cb)
+            saveUserProvidedPassword(ac, typedPassword, zipStream, cb)
             dialog.dismiss()
         } else {
             input.error = "Wrong password"
         }
     }
 
-    fun saveUserProvidedPassword(ac: FragmentActivity, password: String, cb: () -> Unit) {
+    fun saveUserProvidedPassword(ac: FragmentActivity, password: String, zipStream: ZipInputStream?, cb: (zipStream: ZipInputStream?) -> Unit) {
 
-        val aSync = savePasswordInternal(ac, password, cb)
+        val aSync = savePasswordInternal(ac, password, zipStream, cb)
         if (!aSync) {
-            cb()
+            cb(zipStream)
         }
     }
 
 
-    private fun savePasswordInternal(ac: FragmentActivity, pw: String, cb: () -> Unit): Boolean {
+    private fun savePasswordInternal(ac: FragmentActivity, pw: String, zipStream: ZipInputStream?, cb: (zipStream: ZipInputStream?) -> Unit): Boolean {
 
         password = pw // This should be assigned before any callback is executed.
 
@@ -151,7 +156,7 @@ class PwManager private constructor() {
             } else {
                 Toast.makeText(ac, "Failed to encrypt the password", Toast.LENGTH_LONG).show()
             }
-            cb() // Callback must be executed regardless of success or failure.
+            cb(zipStream) // Callback must be executed regardless of success or failure.
         }
         return true // Asynchronous case
     }

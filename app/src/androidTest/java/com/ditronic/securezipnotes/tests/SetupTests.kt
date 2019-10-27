@@ -25,7 +25,6 @@ import java.text.SimpleDateFormat
 @LargeTest
 class SetupTests {
 
-    // TODO: Measure code coverage
 
     companion object {
         private const val SECRET_NOTE = "My secret note"
