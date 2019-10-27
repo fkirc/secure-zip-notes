@@ -149,7 +149,7 @@ class NoteEditActivity : AppCompatActivity() {
         fun launch(cx: Context, innerFileName: String, inputStream: ZipInputStream?) {
             val intent = Intent(cx, NoteEditActivity::class.java)
             intent.putExtra(INNER_FILE_NAME, innerFileName)
-            inputStreamCache.put(INNER_FILE_NAME, inputStream)
+            inputStreamCache.put(innerFileName, inputStream)
             cx.startActivity(intent)
         }
 
