@@ -23,16 +23,10 @@ data class PwResult(val inputStream: ZipInputStream?,
 
 class PwManager private constructor() {
 
-    private var password: String? = null
+    private var cachedPw: String? = null
 
-    // TODO: Remove this fct?
-    val passwordFast
-        get() = if (password == null) {
-            null
-        } else {
-            password!!.toCharArray()
-        }
-
+    val cachedPassword
+        get() = cachedPw
 
 
     private fun onRetrievedPassword(ac: FragmentActivity, fileHeader: FileHeader, pw: String?, cb: (res: PwResult) -> Unit) {
@@ -42,11 +36,11 @@ class PwManager private constructor() {
         }
         val zipStream = CryptoZip.instance(ac).isPasswordValid(fileHeader, pw)
         if (zipStream != null) {
-            password = pw // Assign password before running any callback!
+            cachedPw = pw // Assign password before running any callback!
             cb(PwResult(inputStream = zipStream, password = pw)) // Password valid, run success callback.
         } else {
             Log.d(TAG, "Outdated password, invalidate preferences and show password dialog")
-            password = null
+            cachedPw = null
             clearPrivatePrefs(ac)
             // Ask the user for the right password, which runs the callback later on.
             showPasswordDialog(ac, fileHeader, cb)
@@ -56,7 +50,7 @@ class PwManager private constructor() {
 
     public fun retrievePasswordAsync(ac: FragmentActivity, fileHeader: FileHeader, cb: (res: PwResult) -> Unit) {
 
-        val cachedPassword = password
+        val cachedPassword = cachedPassword
         if (cachedPassword != null) {
             onRetrievedPassword(ac, fileHeader, cachedPassword, cb) // Synchronous case: Password already present
             return
@@ -140,7 +134,7 @@ class PwManager private constructor() {
 
     private fun savePasswordInternal(ac: FragmentActivity, res: PwResult, cb: (res: PwResult) -> Unit): SyncMode {
 
-        password = res.password // Assign password before running any callback!
+        cachedPw = res.password // Assign password before running any callback!
 
         // The salt must be different for each file since this ZIP format uses counter mode with a constant IV!
         // Therefore we cannot simply store a key that is derived via PBKDF2. Instead, we encrypt the password via KeyStore.

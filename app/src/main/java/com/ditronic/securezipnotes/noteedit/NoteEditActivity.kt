@@ -44,7 +44,7 @@ class NoteEditActivity : AppCompatActivity() {
 
         // Apply changes, point of no return
         model.secretContent = newContent
-        CryptoZip.instance(this).updateStream(model.fileHeader, newNoteName, newContent)
+        CryptoZip.instance(this).updateStream(PwManager.instance().cachedPassword!!, model.fileHeader, newNoteName, newContent)
         model.innerFileName = newNoteName // This must be set after the updateStream!
 
         editTextTitle.setText(newNoteName)

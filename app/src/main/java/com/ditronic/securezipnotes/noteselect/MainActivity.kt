@@ -125,7 +125,7 @@ class MainActivity : AppCompatActivity() {
             builder.setView(input)
             builder.setPositiveButton(android.R.string.ok) { _, _ ->
                 val newName = input.text.toString()
-                CryptoZip.instance(this@MainActivity).renameFile(fileHeader, newName, this@MainActivity)
+                CryptoZip.instance(this@MainActivity).renameFile(res.password!!, fileHeader, newName, this@MainActivity)
                 this@MainActivity.noteSelectAdapter.notifyDataSetChanged()
             }
 
@@ -234,9 +234,9 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun createNewNote() {
+    private fun createNewNote(pw: String) {
         val displayName = CryptoZip.instance(this).generateUnusedFileName()
-        CryptoZip.instance(this@MainActivity).addStream(displayName, ByteArrayInputStream(ByteArray(0)))
+        CryptoZip.instance(this@MainActivity).addStream(displayName = displayName, pw = pw, inputStream = ByteArrayInputStream(ByteArray(0)))
         noteSelectAdapter.notifyDataSetChanged()
         NoteEditActivity.launch(this@MainActivity, displayName)
     }
@@ -244,17 +244,18 @@ class MainActivity : AppCompatActivity() {
     private fun btnNewNote() {
 
         if (CryptoZip.instance(this).numFileHeaders == 0) {
-            if (PwManager.instance().passwordFast == null) {
+            val cachedPw = PwManager.instance().cachedPassword
+            if (cachedPw == null) {
                 val intent = Intent(this, NewPasswordActivity::class.java)
                 startActivity(intent)
             } else {
-                createNewNote()
+                createNewNote(pw = cachedPw)
             }
         } else {
             val fileHeader = CryptoZip.instance(this).fileHeadersFast!![0] // We use this to ensure password consistency across the zip file
             PwManager.instance().retrievePasswordAsync(this, fileHeader) { res ->
                 res.inputStream?.close(true)
-                this.createNewNote()
+                this.createNewNote(res.password!!)
             }
         }
     }

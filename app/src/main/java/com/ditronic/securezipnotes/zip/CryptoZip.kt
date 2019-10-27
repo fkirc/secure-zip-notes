@@ -73,7 +73,7 @@ class CryptoZip private constructor(cx: Context) {
         return false
     }
 
-    fun addStream(displayName: String, inputStream: InputStream) {
+    fun addStream(displayName: String, pw: String, inputStream: InputStream) {
 
         if (isDuplicateEntryName(displayName)) {
             throw java.lang.RuntimeException("Must not add a duplicate entry name")
@@ -91,7 +91,7 @@ class CryptoZip private constructor(cx: Context) {
         parameters.encryptionMethod = Zip4jConstants.ENC_METHOD_AES
         parameters.aesKeyStrength = Zip4jConstants.AES_STRENGTH_256
 
-        parameters.password = PwManager.instance().passwordFast
+        parameters.password = pw.toCharArray()
 
         try {
             zipFile.addStream(inputStream, parameters)
@@ -102,21 +102,21 @@ class CryptoZip private constructor(cx: Context) {
     }
 
 
-    fun updateStream(fileHeader: FileHeader, newEntryName: String, newContent: String) {
+    fun updateStream(pw: String, fileHeader: FileHeader, newEntryName: String, newContent: String) {
 
         val inStream = ByteArrayInputStream(newContent.toByteArray())
         try {
-            // This might lead to a potential data loss in the unlikely case of an early exception.
+            // This might lead to a potential data loss in the case of an early exception.
             // However, there must not exist two simultaneous entries with the same name.
             // Moreover, this seems like the solution with less memory overhead.
             zipFile.removeFile(fileHeader)
-            addStream(newEntryName, inStream)
+            addStream(displayName = newEntryName, pw = pw, inputStream = inStream)
         } catch (e: Exception) {
             throw RuntimeException(e)
         }
     }
 
-    fun renameFile(fileHeader: FileHeader, newEntryName: String, cx : Context) {
+    fun renameFile(pw: String, fileHeader: FileHeader, newEntryName: String, cx : Context) {
         if (isDuplicateEntryName(newEntryName)) {
             Boast.makeText(cx, newEntryName + " already exists").show()
             return
@@ -124,10 +124,10 @@ class CryptoZip private constructor(cx: Context) {
         if (!validateEntryNameToast(newEntryName, cx)) {
             return
         }
-        fileHeader.password = PwManager.instance().passwordFast
+        fileHeader.password = pw.toCharArray()
         try {
             val inputStream = zipFile.getInputStream(fileHeader)
-            addStream(newEntryName, inputStream) // closes input stream
+            addStream(displayName = newEntryName, pw = pw, inputStream = inputStream) // closes input stream
             zipFile.removeFile(fileHeader)
         } catch (e: Exception) {
             throw RuntimeException(e)
