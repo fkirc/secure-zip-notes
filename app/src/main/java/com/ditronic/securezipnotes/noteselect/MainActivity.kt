@@ -52,7 +52,9 @@ class MainActivity : AppCompatActivity() {
         notesListView.onItemClickListener = object : OnThrottleItemClickListener() {
             public override fun onThrottleItemClick(parent: AdapterView<*>, view: View, position: Int, id: Long) {
                 val fileHeader = noteSelectAdapter.getItem(position) as FileHeader
-                NoteEditActivity.launch(this@MainActivity, fileHeader.fileName)
+                PwManager.instance().retrievePasswordAsync(this@MainActivity, fileHeader = fileHeader) { res ->
+                    NoteEditActivity.launch(this@MainActivity, fileHeader.fileName, res.inputStream)
+                }
             }
         }
         notesListView.emptyView = findViewById(R.id.list_view_empty)
@@ -238,7 +240,7 @@ class MainActivity : AppCompatActivity() {
         val displayName = CryptoZip.instance(this).generateUnusedFileName()
         CryptoZip.instance(this@MainActivity).addStream(displayName = displayName, pw = pw, inputStream = ByteArrayInputStream(ByteArray(0)))
         noteSelectAdapter.notifyDataSetChanged()
-        NoteEditActivity.launch(this@MainActivity, displayName)
+        NoteEditActivity.launch(this@MainActivity, displayName, null)
     }
 
     private fun btnNewNote() {

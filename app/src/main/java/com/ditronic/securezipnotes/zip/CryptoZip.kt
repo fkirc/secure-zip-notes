@@ -134,12 +134,14 @@ class CryptoZip private constructor(cx: Context) {
         }
     }
 
-    fun isPasswordValid(fileHeader: FileHeader, password: String): ZipInputStream? {
+    fun isPasswordValid(fileHeader: FileHeader, password: String?): ZipInputStream? {
+
+        if (password == null) {
+            return null
+        }
+
         if (!fileHeader.isEncrypted) {
             throw RuntimeException("Expected encrypted file header")
-        }
-        if (password.isEmpty()) {
-            return null
         }
 
         fileHeader.password = password.toCharArray()

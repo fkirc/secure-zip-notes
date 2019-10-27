@@ -14,6 +14,9 @@ import com.ditronic.securezipnotes.password.PwManager
 import com.ditronic.securezipnotes.util.BannerAds
 import com.ditronic.securezipnotes.zip.CryptoZip
 import com.ditronic.securezipnotes.zip.validateEntryNameToast
+import net.lingala.zip4j.io.ZipInputStream
+import java.util.*
+import java.util.Collections.synchronizedMap
 
 class NoteEditActivity : AppCompatActivity() {
 
@@ -78,21 +81,22 @@ class NoteEditActivity : AppCompatActivity() {
 
         editTextTitle.setText(model.noteName)
 
-        PwManager.instance().retrievePasswordAsync(this, model.fileHeader) { res ->
-            // TODO: Add failure callback?
-            if (res.inputStream == null) {
-                finish() // Wrong password
-                return@retrievePasswordAsync
-            }
-            val secretContent = CryptoZip.instance(this).extractFileString(res.inputStream)
-            model.secretContent = secretContent
-            showSecretContent(secretContent)
+        var inputStream = inputStreamCache.remove(innerFileName)
+        if (inputStream == null) {
+            inputStream = CryptoZip.instance(this).isPasswordValid(fileHeader = model.fileHeader, password = PwManager.instance().cachedPassword)
+        }
+        if (inputStream == null) {
+            finish() // Wrong password, should never happen at this point...
+        } else {
+            showSecretContent(inputStream)
         }
 
         BannerAds.loadBottomAdsBanner(this)
     }
 
-    private fun showSecretContent(secretContent: String) {
+    private fun showSecretContent(inputStream: ZipInputStream) {
+        val secretContent = CryptoZip.instance(this).extractFileString(inputStream)
+        model.secretContent = secretContent
         applyEditMode(secretContent.isEmpty())
         editTextMain.setText(secretContent)
         // Required to make links clickable
@@ -138,11 +142,14 @@ class NoteEditActivity : AppCompatActivity() {
 
     companion object {
 
+        private val inputStreamCache = synchronizedMap(TreeMap<String, ZipInputStream>())
+
         internal const val INNER_FILE_NAME = "inner_file_name"
 
-        fun launch(cx: Context, innerFileName: String) {
+        fun launch(cx: Context, innerFileName: String, inputStream: ZipInputStream?) {
             val intent = Intent(cx, NoteEditActivity::class.java)
             intent.putExtra(INNER_FILE_NAME, innerFileName)
+            inputStreamCache.put(INNER_FILE_NAME, inputStream)
             cx.startActivity(intent)
         }
 
