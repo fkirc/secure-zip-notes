@@ -1,0 +1,7 @@
+<resources>
+
+    <!-- This app key is linked to a sample Dropbox app for debugging purposes. Do not use this app key for production apps. -->
+    <string name="dropbox_app_key">b7hsm39zkdqdgud</string>
+    <string name="dropbox_app_key_db">db-b7hsm39zkdqdgud</string>
+
+</resources>

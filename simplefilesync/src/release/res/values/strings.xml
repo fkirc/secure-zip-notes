@@ -1,0 +1,7 @@
+<resources>
+
+    <!-- This is the production app key for Secure Zip Notes Dropbox. -->
+    <string name="dropbox_app_key">62deec4uibwo7e2</string>
+    <string name="dropbox_app_key_db">db-62deec4uibwo7e2</string>
+
+</resources>

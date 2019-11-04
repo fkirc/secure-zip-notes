@@ -1,5 +1,4 @@
 <resources>
-    <string name="app_name">Secure Zip Notes</string>
     <string name="app_name_main_activity">Secure Zip Notes</string>
 
     <string name="admob_app_id">ca-app-pub-3394747202744753~4306949160</string>

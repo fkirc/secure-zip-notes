@@ -64,7 +64,7 @@ public class DriveFileSync extends AbstractFileSync {
 				AndroidHttp.newCompatibleTransport(),
 				new GsonFactory(),
 				credential)
-				.setApplicationName(context.getString(R.string.app_name))
+				.setApplicationName("Secure Zip Notes")
 				.build();
 		return true;
 	}
