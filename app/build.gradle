@@ -59,6 +59,7 @@ dependencies {
 
     implementation 'androidx.biometric:biometric:1.0.0-rc01'
     //implementation 'com.google.android.gms:play-services-ads:18.0.0'
+    implementation 'com.google.firebase:firebase-analytics:17.2.1'
 
     implementation 'androidx.lifecycle:lifecycle-extensions:2.1.0'
 
@@ -82,3 +83,5 @@ dependencies {
 repositories {
     mavenCentral()
 }
+
+apply plugin: 'com.google.gms.google-services'

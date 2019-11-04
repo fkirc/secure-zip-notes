@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "680419627907",
+    "firebase_url": "https://zip-notes.firebaseio.com",
+    "project_id": "secure-zip-notes",
+    "storage_bucket": "secure-zip-notes.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:680419627907:android:e452ae4cd6765d4a8a5cb6",
+        "android_client_info": {
+          "package_name": "com.ditronic.securezipnotes"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "680419627907-0tst6ljm7i300pcbfjh0cfledohd24ld.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB7HTjR6I997G8bYktR_Xv791ALUTRROyE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "680419627907-0tst6ljm7i300pcbfjh0cfledohd24ld.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
