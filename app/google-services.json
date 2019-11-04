@@ -34,6 +34,35 @@
           ]
         }
       }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:680419627907:android:9e6bbe18bfc6b03f8a5cb6",
+        "android_client_info": {
+          "package_name": "com.ditronic.securezipnotes.dev"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "680419627907-0tst6ljm7i300pcbfjh0cfledohd24ld.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB7HTjR6I997G8bYktR_Xv791ALUTRROyE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "680419627907-0tst6ljm7i300pcbfjh0cfledohd24ld.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
     }
   ],
   "configuration_version": "1"
