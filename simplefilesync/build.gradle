@@ -11,6 +11,10 @@ android {
         versionName "1.0.0"
     }
 
+    lintOptions {
+        abortOnError true
+        warning 'InvalidPackage'
+    }
 }
 
 dependencies {
@@ -18,7 +22,9 @@ dependencies {
 
     implementation 'com.google.android.gms:play-services-auth:17.0.0'
     implementation 'com.google.android.gms:play-services-drive:17.0.0'
-    implementation 'com.google.http-client:google-http-client-gson:1.26.0'
+    implementation ('com.google.http-client:google-http-client-gson:1.26.0') {
+        exclude group: 'org.apache.httpcomponents'
+    }
     implementation('com.google.api-client:google-api-client-android:1.26.0') {
         exclude group: 'org.apache.httpcomponents'
     }
@@ -27,4 +33,5 @@ dependencies {
     }
 
     implementation 'com.dropbox.core:dropbox-core-sdk:3.1.1'
+    api 'com.squareup.okhttp3:okhttp:3.12.0'
 }
