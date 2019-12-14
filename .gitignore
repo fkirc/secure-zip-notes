@@ -64,6 +64,7 @@ fabric.properties
 ### Android ###
 # Built application files
 *.apk
+*.aab
 *.ap_
 
 # Files for the Dalvik VM
