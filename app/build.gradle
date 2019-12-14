@@ -36,6 +36,7 @@ android {
     compileOptions {
         targetCompatibility = '1.8'
         sourceCompatibility = '1.8'
+        kotlinOptions.allWarningsAsErrors = true
     }
     kotlinOptions {
         jvmTarget = "1.8"

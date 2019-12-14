@@ -28,7 +28,7 @@ class PasswordConfirmActivity : AppCompatActivity() {
         val toolbar = findViewById<Toolbar>(R.id.tool_bar)
         setSupportActionBar(toolbar)
 
-        password = Objects.requireNonNull(intent.extras).getString(INTENT_PASSWORD)
+        password = intent.extras!!.getString(INTENT_PASSWORD)
         confirmPasswordText = findViewById(R.id.input_password_confirm)
 
         findViewById<View>(R.id.btn_confirm_master_password).setOnClickListener(object : OnThrottleClickListener() {

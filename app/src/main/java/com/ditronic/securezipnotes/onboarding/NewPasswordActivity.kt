@@ -29,7 +29,7 @@ class NewPasswordActivity : AppCompatActivity() {
 
         passwordText.setText(generatePassword())
 
-        findViewById<View>(R.id.btn_generate_master_password).setOnClickListener { v -> passwordText!!.setText(generatePassword()) }
+        findViewById<View>(R.id.btn_generate_master_password).setOnClickListener { _ -> passwordText.setText(generatePassword()) }
 
         findViewById<View>(R.id.btn_next).setOnClickListener(object : OnThrottleClickListener() {
             public override fun onThrottleClick(v: View) {
@@ -37,7 +37,7 @@ class NewPasswordActivity : AppCompatActivity() {
             }
         })
 
-        passwordText.setOnEditorActionListener { v, actionId, event ->
+        passwordText.setOnEditorActionListener { _, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_DONE) {
                 btnNext()
                 true

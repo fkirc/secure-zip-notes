@@ -7,6 +7,7 @@ import com.google.android.gms.ads.AdSize;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.MobileAds;*/
 
+@Suppress("UNUSED_PARAMETER")
 object BannerAds {
 
     const val TEST_AD_UNIT_ID = "ca-app-pub-3940256099942544/6300978111"

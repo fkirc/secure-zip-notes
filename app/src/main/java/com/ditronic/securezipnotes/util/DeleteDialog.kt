@@ -15,8 +15,8 @@ object DeleteDialog {
         AlertDialog.Builder(cx)
                 .setIcon(android.R.drawable.ic_dialog_alert)
                 .setMessage(message)
-                .setPositiveButton(android.R.string.yes) { dialog, id -> target.onPositiveClick() }
-                .setNegativeButton(android.R.string.no) { dialog, id -> target.onNegativeClick() }
+                .setPositiveButton(android.R.string.yes) { _, _ -> target.onPositiveClick() }
+                .setNegativeButton(android.R.string.no) { _, _ -> target.onNegativeClick() }
                 .show()
     }
 }
