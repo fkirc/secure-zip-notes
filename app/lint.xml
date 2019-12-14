@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<lint>
+    <issue id="ContentDescription" severity="ignore" />
+    <issue id="UnusedResources" severity="ignore" />
+    <issue id="RtlSymmetry" severity="ignore" />
+    <issue id="RtlHardcoded" severity="ignore" />
+    <issue id="GoogleAppIndexingWarning" severity="ignore" />
+    <issue id="GoogleAppIndexingApiWarning" severity="ignore" />
+    <issue id="SyntheticAccessor" severity="ignore" />
+    <issue id="SpUsage" severity="ignore" />
+    <issue id="Overdraw" severity="ignore" />
+    <issue id="AlwaysShowAction" severity="ignore" />
+    <issue id="LabelFor" severity="ignore" />
+
+    <issue id="SetTextI18n" severity="informational" />
+    <issue id="HardcodedText" severity="informational" />
+    <issue id="OldTargetApi" severity="informational" />
+    <issue id="GradleDependency" severity="informational" />
+</lint>

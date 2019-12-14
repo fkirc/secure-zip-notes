@@ -1,6 +1,6 @@
 apply plugin: 'com.android.application'
-apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
 
 android {
     compileSdkVersion 28
@@ -30,8 +30,8 @@ android {
     }
     lintOptions {
         abortOnError true
-        //checkAllWarnings true
-        //warningsAsErrors true
+        warningsAsErrors true
+        lintConfig file('lint.xml')
     }
     compileOptions {
         targetCompatibility = '1.8'
