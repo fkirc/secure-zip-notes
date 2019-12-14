@@ -10,17 +10,16 @@ import android.view.inputmethod.EditorInfo
 import android.widget.EditText
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
-import com.ditronic.securezipnotes.password.PwManager
 import com.ditronic.securezipnotes.R
 import com.ditronic.securezipnotes.noteselect.MainActivity
+import com.ditronic.securezipnotes.password.PwManager
 import com.ditronic.securezipnotes.password.PwResult
 import com.ditronic.securezipnotes.util.OnThrottleClickListener
-import java.util.*
 
 class PasswordConfirmActivity : AppCompatActivity() {
 
     private var password: String? = null
-    private var confirmPasswordText: EditText? = null
+    private lateinit var confirmPasswordText: EditText
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,7 +36,7 @@ class PasswordConfirmActivity : AppCompatActivity() {
             }
         })
 
-        confirmPasswordText!!.setOnEditorActionListener { _, actionId, _ ->
+        confirmPasswordText.setOnEditorActionListener { _, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_DONE) {
                 savePassword()
                 return@setOnEditorActionListener true
@@ -53,17 +52,17 @@ class PasswordConfirmActivity : AppCompatActivity() {
 
         val window = window
         window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE)
-        confirmPasswordText!!.requestFocus()
+        confirmPasswordText.requestFocus()
     }
 
     private fun savePassword() {
 
-        val confirmedPassword = confirmPasswordText!!.text.toString()
+        val confirmedPassword = confirmPasswordText.text.toString()
         if (confirmedPassword != password) {
-            confirmPasswordText!!.error = "Passwords do not match"
+            confirmPasswordText.error = "Passwords do not match"
             return
         }
-        confirmPasswordText!!.error = null
+        confirmPasswordText.error = null
 
         PwManager.instance().saveUserProvidedPassword(this, PwResult(password = confirmedPassword, inputStream = null)) {
             MainActivity.launchCleanWithNewNote(this)
