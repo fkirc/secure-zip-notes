@@ -72,13 +72,13 @@ class ImportTests {
     @Test
     fun importSubDirs() {
         importWithSuccess("4passwords_subdirs.aeszip")
-        main_assertListState(entries = listOf("pw4_entry", "pw3_entry/dir/dir/pw2", "pw2_entry", "pw1_entry/dir/pw1"))
+        main_assertListState(entries = listOf("pw1_entry/dir/pw1", "pw2_entry", "pw3_entry/dir/dir/pw2", "pw4_entry"))
     }
 
     @Test
     fun importTwoPasswords() {
         importWithSuccess("twopasswords.ZIP")
-        main_assertListState(entries = listOf("pw2_entry", "testpassword_entry"))
+        main_assertListState(entries = listOf("testpassword_entry", "pw2_entry"))
     }
 
 
@@ -136,7 +136,6 @@ class ImportTests {
 
     private fun importCompressionWithSuccess(assetToImport: String) {
         importWithSuccess(assetToImport)
-        click_dialogOK()
         main_assertListState(entries = listOf("100a.txt"))
         main_clickNote("100a.txt", password = TESTPASSWORD)
         noteEdit_assertState(noteTitle = "100a.txt", secretContent = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
@@ -146,6 +145,7 @@ class ImportTests {
         precondition_cleanStart()
         importExistingNotes(assetToImport)
         main_assertAlertDialog("Successfully imported zip notes.")
+        click_dialogOK()
     }
 
     private fun importExistingNotes(assetToImport: String) {
