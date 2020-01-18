@@ -127,7 +127,7 @@ class MainActivity : AppCompatActivity() {
             builder.setView(input)
             builder.setPositiveButton(android.R.string.ok) { _, _ ->
                 val newName = input.text.toString()
-                CryptoZip.instance(this@MainActivity).renameFile(res.password!!, fileHeader, newName, this@MainActivity)
+                CryptoZip.instance(this@MainActivity).renameFile(res.password, fileHeader, newName, this@MainActivity)
                 this@MainActivity.noteSelectAdapter.notifyDataSetChanged()
             }
 
@@ -257,7 +257,7 @@ class MainActivity : AppCompatActivity() {
             val fileHeader = fileHeaders[0] // We use this to ensure password consistency across the zip file
             PwManager.retrievePasswordAsync(this, fileHeader) { res ->
                 res.inputStream?.close(true)
-                this.createNewNote(res.password!!)
+                this.createNewNote(res.password)
             }
         }
     }

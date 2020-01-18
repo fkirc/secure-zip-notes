@@ -18,8 +18,11 @@ import net.lingala.zip4j.io.ZipInputStream
 import net.lingala.zip4j.model.FileHeader
 import javax.crypto.Cipher
 
-data class PwResult(val inputStream: ZipInputStream?,
-                    val password: String?)
+sealed class PwResult {
+    class Success(val inputStream: ZipInputStream?,
+                  val password: String): PwResult()
+    object Failure : PwResult()
+}
 
 object PwManager {
 
@@ -29,7 +32,7 @@ object PwManager {
         get() = cachedPw
 
 
-    private fun onRetrievedPassword(ac: FragmentActivity, fileHeader: FileHeader, pw: String?, cb: (res: PwResult) -> Unit) {
+    private fun onRetrievedPassword(ac: FragmentActivity, fileHeader: FileHeader, pw: String?, cb: (res: PwResult.Success) -> Unit) {
         if (pw == null) {
             showPasswordDialog(ac, fileHeader, cb)
             return
@@ -37,7 +40,7 @@ object PwManager {
         val zipStream = CryptoZip.instance(ac).isPasswordValid(fileHeader, pw)
         if (zipStream != null) {
             cachedPw = pw // Assign password before running any callback!
-            cb(PwResult(inputStream = zipStream, password = pw)) // Password valid, run success callback.
+            cb(PwResult.Success(inputStream = zipStream, password = pw)) // Password valid, run success callback.
         } else {
             Log.d(TAG, "Outdated password, invalidate preferences and show password dialog")
             cachedPw = null
@@ -48,7 +51,7 @@ object PwManager {
     }
 
 
-    public fun retrievePasswordAsync(ac: FragmentActivity, fileHeader: FileHeader, cb: (res: PwResult) -> Unit) {
+    fun retrievePasswordAsync(ac: FragmentActivity, fileHeader: FileHeader, cb: (res: PwResult.Success) -> Unit) {
 
         val cachedPassword = cachedPassword
         if (cachedPassword != null) {
@@ -78,7 +81,7 @@ object PwManager {
     }
 
 
-    private fun showPasswordDialog(ac: FragmentActivity, fileHeader: FileHeader, cb: (res: PwResult) -> Unit) {
+    private fun showPasswordDialog(ac: FragmentActivity, fileHeader: FileHeader, cb: (res: PwResult.Success) -> Unit) {
 
         // Ask the user for the password (asynchronously)
         val builder = AlertDialog.Builder(ac)
@@ -107,12 +110,12 @@ object PwManager {
     }
 
 
-    private fun onPosBtnClick(ac: FragmentActivity, input: EditText, fileHeader: FileHeader, cb: (res: PwResult) -> Unit, dialog: AlertDialog) {
+    private fun onPosBtnClick(ac: FragmentActivity, input: EditText, fileHeader: FileHeader, cb: (res: PwResult.Success) -> Unit, dialog: AlertDialog) {
         val typedPassword = input.text.toString()
         val zipStream = CryptoZip.instance(ac).isPasswordValid(fileHeader, typedPassword)
         if (zipStream != null) {
             input.error = null
-            saveUserProvidedPassword(ac, PwResult(inputStream = zipStream, password = typedPassword), cb)
+            saveUserProvidedPassword(ac, PwResult.Success(inputStream = zipStream, password = typedPassword), cb)
             dialog.dismiss()
         } else {
             input.error = "Wrong password"
@@ -123,7 +126,7 @@ object PwManager {
         SYNC, ASYNC
     }
 
-    fun saveUserProvidedPassword(ac: FragmentActivity, res: PwResult, cb: (res: PwResult) -> Unit) {
+    fun saveUserProvidedPassword(ac: FragmentActivity, res: PwResult.Success, cb: (res: PwResult.Success) -> Unit) {
 
         val syncMode = savePasswordInternal(ac, res, cb)
         if (syncMode == SyncMode.SYNC) {
@@ -132,7 +135,7 @@ object PwManager {
     }
 
 
-    private fun savePasswordInternal(ac: FragmentActivity, res: PwResult, cb: (res: PwResult) -> Unit): SyncMode {
+    private fun savePasswordInternal(ac: FragmentActivity, res: PwResult.Success, cb: (res: PwResult.Success) -> Unit): SyncMode {
 
         cachedPw = res.password // Assign password before running any callback!
 
@@ -140,7 +143,7 @@ object PwManager {
         // Therefore we cannot simply store a key that is derived via PBKDF2. Instead, we encrypt the password via KeyStore.
 
         if (Build.VERSION.SDK_INT < 23) {
-            saveLowAPIPw(res.password!!, ac)
+            saveLowAPIPw(res.password, ac)
             return SyncMode.SYNC
         }
 
@@ -149,7 +152,7 @@ object PwManager {
 
         // Unlock the freshly created key in order to encrypt the password.
         unlockCipherWithBiometricPrompt(ac, cipherToUnlock) { unlockedCipher ->
-            val success = finalizePwEncryption(ac, res.password!!, unlockedCipher)
+            val success = finalizePwEncryption(ac, res.password, unlockedCipher)
             if (success) {
                 Toast.makeText(ac, "Password configured successfully", Toast.LENGTH_LONG).show()
             } else {

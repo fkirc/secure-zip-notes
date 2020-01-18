@@ -63,7 +63,7 @@ class PasswordConfirmActivity : AppCompatActivity() {
         }
         confirmPasswordText.error = null
 
-        PwManager.saveUserProvidedPassword(this, PwResult(password = confirmedPassword, inputStream = null)) {
+        PwManager.saveUserProvidedPassword(this, PwResult.Success(password = confirmedPassword, inputStream = null)) {
             MainActivity.launchCleanWithNewNote(this)
         }
     }
