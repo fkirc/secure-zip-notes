@@ -44,11 +44,10 @@ class PasswordConfirmActivity : AppCompatActivity() {
             false
         }
 
-        if (supportActionBar != null) { // add back arrow to toolbar
-            supportActionBar!!.setDisplayHomeAsUpEnabled(true)
-            supportActionBar!!.setDisplayShowHomeEnabled(true)
-            supportActionBar!!.title = "Confirm Master Password"
-        }
+        // add back arrow to toolbar
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.setDisplayShowHomeEnabled(true)
+        supportActionBar?.title = "Confirm Master Password"
 
         val window = window
         window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE)

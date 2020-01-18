@@ -66,35 +66,32 @@ object NotesImport {
 
         val fileHeaders = tmpZipFile.fileHeadersFast
 
-        for (fh in fileHeaders!!) {
-            if (fh.isDirectory) {
+        fileHeaders.forEach {
+            if (it.isDirectory) {
                 alertDialog(cx, "Import failed. Zip files with pure directory entries are not supported.")
                 return false
             }
         }
-        for (fh in fileHeaders) {
-            if (!fh.isEncrypted) {
+        fileHeaders.forEach {
+            if (!it.isEncrypted) {
                 alertDialog(cx, "Import failed. Zip files with non-encrypted entries are not supported.")
                 return false
             }
         }
-        for (fh in fileHeaders) {
-            if (fh.encryptionMethod != Zip4jConstants.ENC_METHOD_AES) {
+        fileHeaders.forEach {
+            if (it.encryptionMethod != Zip4jConstants.ENC_METHOD_AES) {
                 alertDialog(cx, "Unsupported encryption algorithm. This app only supports Zip files with AES encryption.")
                 return false
             }
         }
-        for (fh in fileHeaders) {
-
-        }
-        for (fh in fileHeaders) {
-            if (fh.fileName.isEmpty()) {
+        fileHeaders.forEach {
+            if (it.fileName.isEmpty()) {
                 alertDialog(cx, "File names must not have zero lengths.")
                 return false
             }
         }
-        for (fh in fileHeaders) {
-            if (!validateCompressionMethod(cx, fh)) {
+        fileHeaders.forEach {
+            if (!validateCompressionMethod(cx, it)) {
                 return false
             }
         }

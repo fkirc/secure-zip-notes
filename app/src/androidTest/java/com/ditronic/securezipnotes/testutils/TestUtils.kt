@@ -51,14 +51,10 @@ fun clearLocalFilesDir() {
     val appContext = InstrumentationRegistry.getInstrumentation().targetContext
     val root = appContext.filesDir
     val files = root.listFiles()
-    if (files != null) {
-        var i = 0
-        while (i < files.size) {
-            println("Remove file prior to UI test: " + files[i].absolutePath)
-            if (files[i].delete()) {
-                throw RuntimeException("Failed to delete from filesDir")
-            }
-            i++
+    files?.forEach {
+        println("Remove file prior to UI test: " + it.absolutePath)
+        if (it.delete()) {
+            throw RuntimeException("Failed to delete from filesDir")
         }
     }
 }

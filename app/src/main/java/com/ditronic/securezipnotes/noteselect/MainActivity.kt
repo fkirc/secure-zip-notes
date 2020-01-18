@@ -244,8 +244,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun btnNewNote() {
-
-        if (CryptoZip.instance(this).numFileHeaders == 0) {
+        val fileHeaders = CryptoZip.instance(this).fileHeadersFast
+        if (fileHeaders == null) {
             val cachedPw = PwManager.cachedPassword
             if (cachedPw == null) {
                 val intent = Intent(this, NewPasswordActivity::class.java)
@@ -254,7 +254,7 @@ class MainActivity : AppCompatActivity() {
                 createNewNote(pw = cachedPw)
             }
         } else {
-            val fileHeader = CryptoZip.instance(this).fileHeadersFast!![0] // We use this to ensure password consistency across the zip file
+            val fileHeader = fileHeaders[0] // We use this to ensure password consistency across the zip file
             PwManager.retrievePasswordAsync(this, fileHeader) { res ->
                 res.inputStream?.close(true)
                 this.createNewNote(res.password!!)
@@ -286,7 +286,6 @@ class MainActivity : AppCompatActivity() {
             intent.putExtra(INTENT_NEW_NOTE, true)
             cx.startActivity(intent)
         }
-
 
         private const val REQUEST_CODE_IMPORT_FILE_RES_CODE = 1
     }

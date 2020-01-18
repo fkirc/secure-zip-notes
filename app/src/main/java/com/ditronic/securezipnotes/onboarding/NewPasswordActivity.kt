@@ -46,11 +46,9 @@ class NewPasswordActivity : AppCompatActivity() {
             }
         }
 
-        if (supportActionBar != null) {
-            supportActionBar!!.setDisplayHomeAsUpEnabled(true)
-            supportActionBar!!.setDisplayShowHomeEnabled(true)
-            supportActionBar!!.title = "New Master Password"
-        }
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.setDisplayShowHomeEnabled(true)
+        supportActionBar?.title = "New Master Password"
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -88,7 +86,7 @@ class NewPasswordActivity : AppCompatActivity() {
             val length = DEFAULT_PW_LEN
             val secureRandom = SecureRandom()
             val stringBuilder = StringBuilder(length)
-            for (i in 0 until length) {
+            repeat(times = length) {
                 stringBuilder.append(ALPHABET[secureRandom.nextInt(ALPHABET.length)])
             }
             return stringBuilder.toString()

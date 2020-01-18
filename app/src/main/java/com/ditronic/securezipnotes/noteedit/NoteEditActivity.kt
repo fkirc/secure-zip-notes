@@ -69,12 +69,11 @@ class NoteEditActivity : AppCompatActivity() {
         editTextTitle = findViewById(R.id.edit_text_title)
         editTextMain = findViewById(R.id.edit_text_main)
 
-        if (supportActionBar != null) { // add back arrow to toolbar
-            supportActionBar!!.setDisplayHomeAsUpEnabled(true)
-            supportActionBar!!.setDisplayShowHomeEnabled(true)
-            // We do not want a "title" since the EditText consumes all the space
-            supportActionBar!!.setDisplayShowTitleEnabled(false)
-        }
+        // add back arrow to toolbar
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.setDisplayShowHomeEnabled(true)
+        // We do not want a "title" since the EditText consumes all the space
+        supportActionBar?.setDisplayShowTitleEnabled(false)
 
         val innerFileName = intent.extras!!.getString(INNER_FILE_NAME)!!
         model = NoteEditViewModel.instantiate(this, innerFileName)

@@ -1,12 +1,9 @@
 package com.ditronic.securezipnotes.robotpattern
 
-import android.app.Activity
 import android.view.View
 import android.widget.ListView
 import android.widget.TextView
 import androidx.core.view.forEach
-import androidx.core.view.get
-import androidx.core.view.iterator
 import androidx.core.view.size
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.assertion.ViewAssertions
@@ -19,7 +16,6 @@ import org.hamcrest.Description
 import org.hamcrest.Matcher
 import org.hamcrest.Matchers
 import org.hamcrest.TypeSafeMatcher
-import org.hamcrest.collection.IsArrayContaining
 import org.junit.Assert
 
 data class NoteEntry(var name: String,
@@ -43,8 +39,7 @@ fun main_extractEntryList() : List<NoteEntry> {
     val ac = getCurrentActivity()
     val noteEntries = mutableListOf<NoteEntry>()
     val listView = ac.findViewById<ListView>(R.id.list_view_notes)
-    for (idx in 0 until listView.size) {
-        val item = listView.get(idx)
+    listView.forEach { item ->
         val noteEntry = NoteEntry(
                 name = item.findViewById<TextView>(R.id.txt_cardview).text.toString(),
                 modDate = item.findViewById<TextView>(R.id.txt_cardview_2).text.toString(),

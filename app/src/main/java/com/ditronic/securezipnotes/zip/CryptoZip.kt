@@ -1,7 +1,6 @@
 package com.ditronic.securezipnotes.zip
 
 import android.content.Context
-import com.ditronic.securezipnotes.password.PwManager
 import com.ditronic.securezipnotes.util.Boast
 import net.lingala.zip4j.core.ZipFile
 import net.lingala.zip4j.exception.ZipException
@@ -65,12 +64,9 @@ class CryptoZip private constructor(cx: Context) {
 
     fun isDuplicateEntryName(entryName: String) : Boolean {
         val fileHeaders = zipFile.fileHeadersFast ?: return false
-        for (f in fileHeaders) {
-            if (f.fileName == entryName) {
-                return true
-            }
+        return null != fileHeaders.find {
+            it.fileName == entryName
         }
-        return false
     }
 
     fun addStream(displayName: String, pw: String, inputStream: InputStream) {
@@ -82,7 +78,7 @@ class CryptoZip private constructor(cx: Context) {
         val parameters = ZipParameters()
         parameters.fileNameInZip = displayName
         // For security reasons, it is best to NOT compress data before encrypting it.
-        // Compressing data after encryption is useless since the entropy of encrypted data is expected to be maximal.
+        // Compressing data after encryption is useless since AES ciphertexts are random bits with maximal entropy.
         parameters.compressionMethod = Zip4jConstants.COMP_STORE
         //parameters.setCompressionLevel(Zip4jConstants.DEFLATE_LEVEL_FASTEST);
         parameters.isEncryptFiles = true
