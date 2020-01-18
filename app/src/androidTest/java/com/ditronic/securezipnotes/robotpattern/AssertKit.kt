@@ -1,9 +1,12 @@
 package com.ditronic.securezipnotes.robotpattern
 
 import android.app.Activity
+import android.view.View
 import android.widget.ListView
 import android.widget.TextView
+import androidx.core.view.forEach
 import androidx.core.view.get
+import androidx.core.view.iterator
 import androidx.core.view.size
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.assertion.ViewAssertions
@@ -65,18 +68,38 @@ fun noteEdit_assertState(noteTitle: String, secretContent: String, editMode: Boo
 }
 
 
+fun withListSize(size: Int): Matcher<View> {
+    return object : TypeSafeMatcher<View>() {
+        public override fun matchesSafely(view: View): Boolean {
+            return (view as ListView).count == size
+        }
+        override fun describeTo(description: Description) {
+            description.appendText("ListView should have $size items")
+        }
+    }
+}
+
+private fun assertCardViewContents(expectedEntries: Collection<String>): Matcher<View> {
+    return object : TypeSafeMatcher<View>() {
+        public override fun matchesSafely(view: View): Boolean {
+            val listView = view as ListView
+            val actualEntries = mutableListOf<String>()
+            listView.forEach {
+                actualEntries += it.findViewById<TextView>(R.id.txt_cardview).text.toString()
+            }
+            actualEntries.reverse()
+            Assert.assertEquals(expectedEntries, actualEntries)
+            return true
+        }
+        override fun describeTo(description: Description) {
+            description.appendText("ListView should have entries $expectedEntries")
+        }
+    }
+}
+
 
 fun main_assertListState(entries: Collection<String>) {
-    // TODO: Change to matcher
-    val ac = getCurrentActivity()
-    val listView = ac.findViewById<ListView>(R.id.list_view_notes)
-    Assert.assertEquals(entries.size, listView.size)
-
-    for (idx in 0 until listView.size) {
-        val item = listView.get(idx)
-        val noteName = item.findViewById<TextView>(R.id.txt_cardview).text.toString()
-        Assert.assertThat(entries.toTypedArray(), IsArrayContaining.hasItemInArray(Matchers.`is`(noteName)))
-    }
+    Espresso.onView(ViewMatchers.withId(R.id.list_view_notes)).check(ViewAssertions.matches(assertCardViewContents(expectedEntries = entries)))
 }
 
 
