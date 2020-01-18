@@ -52,7 +52,7 @@ class MainActivity : AppCompatActivity() {
         notesListView.onItemClickListener = object : OnThrottleItemClickListener() {
             public override fun onThrottleItemClick(parent: AdapterView<*>, view: View, position: Int, id: Long) {
                 val fileHeader = noteSelectAdapter.getItem(position) as FileHeader
-                PwManager.instance().retrievePasswordAsync(this@MainActivity, fileHeader = fileHeader) { res ->
+                PwManager.retrievePasswordAsync(this@MainActivity, fileHeader = fileHeader) { res ->
                     NoteEditActivity.launch(this@MainActivity, fileHeader.fileName, res.inputStream)
                 }
             }
@@ -116,7 +116,7 @@ class MainActivity : AppCompatActivity() {
     private fun renameFileDialog(fileHeader: FileHeader) {
 
         // Retrieving the password for renames should not be necessary, but this is the current implementation
-        PwManager.instance().retrievePasswordAsync(this@MainActivity, fileHeader) { res ->
+        PwManager.retrievePasswordAsync(this@MainActivity, fileHeader) { res ->
             res.inputStream?.close(true)
 
             val builder = AlertDialog.Builder(this@MainActivity)
@@ -246,7 +246,7 @@ class MainActivity : AppCompatActivity() {
     private fun btnNewNote() {
 
         if (CryptoZip.instance(this).numFileHeaders == 0) {
-            val cachedPw = PwManager.instance().cachedPassword
+            val cachedPw = PwManager.cachedPassword
             if (cachedPw == null) {
                 val intent = Intent(this, NewPasswordActivity::class.java)
                 startActivity(intent)
@@ -255,7 +255,7 @@ class MainActivity : AppCompatActivity() {
             }
         } else {
             val fileHeader = CryptoZip.instance(this).fileHeadersFast!![0] // We use this to ensure password consistency across the zip file
-            PwManager.instance().retrievePasswordAsync(this, fileHeader) { res ->
+            PwManager.retrievePasswordAsync(this, fileHeader) { res ->
                 res.inputStream?.close(true)
                 this.createNewNote(res.password!!)
             }

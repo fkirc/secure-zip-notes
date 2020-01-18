@@ -47,7 +47,7 @@ class NoteEditActivity : AppCompatActivity() {
 
         // Apply changes, point of no return
         model.secretContent = newContent
-        CryptoZip.instance(this).updateStream(PwManager.instance().cachedPassword!!, model.fileHeader, newNoteName, newContent)
+        CryptoZip.instance(this).updateStream(PwManager.cachedPassword!!, model.fileHeader, newNoteName, newContent)
         model.innerFileName = newNoteName // This must be set after the updateStream!
 
         editTextTitle.setText(newNoteName)
@@ -83,7 +83,7 @@ class NoteEditActivity : AppCompatActivity() {
 
         var inputStream = inputStreamCache.remove(innerFileName)
         if (inputStream == null) {
-            inputStream = CryptoZip.instance(this).isPasswordValid(fileHeader = model.fileHeader, password = PwManager.instance().cachedPassword)
+            inputStream = CryptoZip.instance(this).isPasswordValid(fileHeader = model.fileHeader, password = PwManager.cachedPassword)
         }
         if (inputStream == null) {
             finish() // Wrong password, should never happen at this point...
