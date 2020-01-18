@@ -29,7 +29,7 @@ If you are seeking advanced features like auto-fill passwords, then we recommend
 - Key derivation: PBKDF2
 
 Not all PC operating systems support Zip files with AES encryption by default.
-Therefore, you might need to install a PC software like 7-zip.
+Therefore, you might need to install a PC software like 7-Zip.
 _____________________________________________________________________
 
 ## Simple File Sync for Android
@@ -41,7 +41,7 @@ You may also open an issue to ask for new functionality.
 The [backlog](BACKLOG.md) contains a list of potential tasks and features for future releases of Secure Zip Notes.
 
 ## Copyright
-You are allowed to download this code for personal usage.
+You are free to download this code for personal usage.
 You must not redistribute this app or any modified version of this app in the Google Play Store or any other App Store.
 The `simplefilesync` subfolder is licenced separately under the MIT license.
 
