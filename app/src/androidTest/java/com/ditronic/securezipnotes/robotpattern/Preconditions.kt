@@ -1,29 +1,32 @@
 package com.ditronic.securezipnotes.robotpattern
 
 import androidx.test.platform.app.InstrumentationRegistry
-import androidx.test.rule.ActivityTestRule
-import com.ditronic.securezipnotes.zip.CryptoZip
 import com.ditronic.securezipnotes.noteselect.MainActivity
+import com.ditronic.securezipnotes.testutils.launchActivity
+import com.ditronic.securezipnotes.zip.CryptoZip
 import java.io.FileOutputStream
 
-
-fun precondition_cleanStart(rule: ActivityTestRule<MainActivity>) {
-    rule.launchActivity(null)
+private fun launchStartupActivity() {
+    launchActivity(MainActivity::class.java)
 }
 
-fun precondition_singleNote(rule: ActivityTestRule<MainActivity>) {
-    precondition_loadAsset(rule, "singlenote.aeszip")
-    main_assertListState(listOf("Note 1"), rule.activity)
+fun precondition_cleanStart() {
+    launchStartupActivity()
 }
 
-fun precondition_fourNotes(rule: ActivityTestRule<MainActivity>) {
-    precondition_loadAsset(rule, "4notes.aeszip")
-    main_assertListState(listOf("Note 1", "Note 2", "Note 3", "Note 4"), rule.activity)
+fun precondition_singleNote() {
+    precondition_loadAsset("singlenote.aeszip")
+    main_assertListState(listOf("Note 1"))
 }
 
-fun precondition_loadAsset(rule: ActivityTestRule<MainActivity>, assetPath: String) {
+fun precondition_fourNotes() {
+    precondition_loadAsset("4notes.aeszip")
+    main_assertListState(listOf("Note 1", "Note 2", "Note 3", "Note 4"))
+}
+
+fun precondition_loadAsset(assetPath: String) {
     loadAsset(assetPath)
-    rule.launchActivity(null)
+    launchStartupActivity()
 }
 
 private fun loadAsset(assetPath: String) {

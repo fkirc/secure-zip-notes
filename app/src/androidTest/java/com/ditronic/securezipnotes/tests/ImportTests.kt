@@ -9,12 +9,9 @@ import androidx.test.espresso.intent.matcher.IntentMatchers
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
-import androidx.test.rule.ActivityTestRule
-import com.ditronic.securezipnotes.testutils.click_dialogOK
-import com.ditronic.securezipnotes.noteselect.MainActivity
 import com.ditronic.securezipnotes.robotpattern.*
+import com.ditronic.securezipnotes.testutils.click_dialogOK
 import org.junit.After
-import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.io.File
@@ -25,8 +22,6 @@ import java.io.FileOutputStream
 @LargeTest
 class ImportTests {
 
-    @get:Rule var acRule: ActivityTestRule<MainActivity> = ActivityTestRule(MainActivity::class.java, false, false)
-
 
     @After
     fun afterEachTest() {
@@ -36,40 +31,40 @@ class ImportTests {
     @Test
     fun importSingleNote() {
         importWithSuccess("singlenote.aeszip")
-        main_assertListState(entries = listOf("Note 1"), ac = acRule.activity)
+        main_assertListState(entries = listOf("Note 1"))
     }
 
     @Test
     fun importInvalidSub() {
-        precondition_cleanStart(acRule)
+        precondition_cleanStart()
         importExistingNotes("subdirs.aeszip")
         main_assertAlertDialog("Import failed. Zip files with pure directory entries are not supported.")
     }
 
     @Test
     fun import7z() {
-        precondition_cleanStart(acRule)
+        precondition_cleanStart()
         importExistingNotes("invalid/emptynote.7z")
         main_assertAlertDialog("Import failed. Probably this is not a valid Zip file.")
     }
 
     @Test
     fun importEmptyZip() {
-        precondition_cleanStart(acRule)
+        precondition_cleanStart()
         importExistingNotes("invalid/emptyzip.zip")
         main_assertAlertDialog("Import failed. Probably this is not a valid Zip file.")
     }
 
     @Test
     fun importUnencryptedNote() {
-        precondition_cleanStart(acRule)
+        precondition_cleanStart()
         importExistingNotes("invalid/unencrypted_note.zip")
         main_assertAlertDialog("Import failed. Zip files with non-encrypted entries are not supported.")
     }
 
     @Test
     fun importBrokenZipCrypto() {
-        precondition_cleanStart(acRule)
+        precondition_cleanStart()
         importExistingNotes("invalid/broken_zipcrypto.zip")
         main_assertAlertDialog("Unsupported encryption algorithm. This app only supports Zip files with AES encryption.")
     }
@@ -77,15 +72,13 @@ class ImportTests {
     @Test
     fun importSubDirs() {
         importWithSuccess("4passwords_subdirs.aeszip")
-        main_assertListState(entries = listOf("pw4_entry", "pw3_entry/dir/dir/pw2", "pw2_entry", "pw1_entry/dir/pw1"),
-                ac = acRule.activity)
+        main_assertListState(entries = listOf("pw4_entry", "pw3_entry/dir/dir/pw2", "pw2_entry", "pw1_entry/dir/pw1"))
     }
 
     @Test
     fun importTwoPasswords() {
         importWithSuccess("twopasswords.ZIP")
-        main_assertListState(entries = listOf("pw2_entry", "testpassword_entry"),
-                ac = acRule.activity)
+        main_assertListState(entries = listOf("pw2_entry", "testpassword_entry"))
     }
 
 
@@ -135,22 +128,22 @@ class ImportTests {
 
 
     private fun importExpectFailureTest(assetToImport: String, errorMessage: String) {
-        precondition_cleanStart(acRule)
+        precondition_cleanStart()
         importExistingNotes(assetToImport)
         main_assertAlertDialog(errorMessage)
-        main_assertEmtpy(acRule.activity)
+        main_assertEmtpy()
     }
 
     private fun importCompressionWithSuccess(assetToImport: String) {
         importWithSuccess(assetToImport)
         click_dialogOK()
-        main_assertListState(entries = listOf("100a.txt"), ac = acRule.activity)
+        main_assertListState(entries = listOf("100a.txt"))
         main_clickNote("100a.txt", password = TESTPASSWORD)
         noteEdit_assertState(noteTitle = "100a.txt", secretContent = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
     }
 
     private fun importWithSuccess(assetToImport: String) {
-        precondition_cleanStart(acRule)
+        precondition_cleanStart()
         importExistingNotes(assetToImport)
         main_assertAlertDialog("Successfully imported zip notes.")
     }

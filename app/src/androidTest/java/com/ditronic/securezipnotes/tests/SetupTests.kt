@@ -5,26 +5,22 @@ import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.espresso.matcher.ViewMatchers.assertThat
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
-import androidx.test.rule.ActivityTestRule
-import com.ditronic.securezipnotes.noteselect.MainActivity
 import com.ditronic.securezipnotes.robotpattern.*
+import com.ditronic.securezipnotes.testutils.pressBack
 import org.hamcrest.Description
 import org.hamcrest.Matcher
 import org.hamcrest.Matchers
 import org.hamcrest.Matchers.containsString
 import org.hamcrest.TypeSafeMatcher
 import org.junit.Assert.assertEquals
-import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import com.ditronic.securezipnotes.testutils.pressBack
 import java.text.SimpleDateFormat
 
 
 @RunWith(AndroidJUnit4::class)
 @LargeTest
 class SetupTests {
-
 
     companion object {
         private const val SECRET_NOTE = "My secret note"
@@ -40,12 +36,9 @@ class SetupTests {
         }
     }
 
-    @get:Rule var acRule: ActivityTestRule<MainActivity> = ActivityTestRule(MainActivity::class.java, false, false)
-
-
     @Test
     fun createNewPassword() {
-        precondition_cleanStart(acRule)
+        precondition_cleanStart()
 
         init_createNewZipFile()
 
@@ -57,8 +50,8 @@ class SetupTests {
         noteEdit_assertState("Note 1", SECRET_NOTE, editMode = true)
         pressBack()
 
-        main_assertListState(listOf("Note 1"), acRule.activity)
-        val noteEntry = main_extractEntryList(acRule.activity)[0]
+        main_assertListState(listOf("Note 1"))
+        val noteEntry = main_extractEntryList()[0]
         assertEquals("Size: " + SECRET_NOTE.length, noteEntry.size)
         assertThat(noteEntry.modDate, containsString(SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault()).format(java.util.Calendar.getInstance().timeInMillis)))
 
@@ -67,14 +60,14 @@ class SetupTests {
         pressBack()
 
         // Back to MainActivity, assert that nothing changed
-        main_assertListState(listOf("Note 1"), acRule.activity)
-        val newNoteEntry = main_extractEntryList(acRule.activity)[0]
+        main_assertListState(listOf("Note 1"))
+        val newNoteEntry = main_extractEntryList()[0]
         assertEquals(noteEntry, newNoteEntry)
     }
 
     @Test
     fun passwordTooShort() {
-        precondition_cleanStart(acRule)
+        precondition_cleanStart()
 
         init_createNewZipFile()
         init_typeNewPassword("")
@@ -88,7 +81,7 @@ class SetupTests {
 
     @Test
     fun passwordMismatch() {
-        precondition_cleanStart(acRule)
+        precondition_cleanStart()
 
         init_createNewZipFile()
         init_typeNewPassword(TESTPASSWORD)
@@ -107,7 +100,7 @@ class SetupTests {
 
     @Test
     fun generateRandomPassword() {
-        precondition_cleanStart(acRule)
+        precondition_cleanStart()
 
         init_createNewZipFile()
         init_onViewPassword().check(ViewAssertions.matches(ViewMatchers.withText(matchesRandomPassword())))

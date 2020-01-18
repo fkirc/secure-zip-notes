@@ -2,6 +2,7 @@ package com.ditronic.securezipnotes.testutils
 
 import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.view.InputDevice
 import android.view.MotionEvent
 import androidx.test.espresso.Espresso
@@ -11,6 +12,9 @@ import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.matcher.RootMatchers
 import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.runner.lifecycle.ActivityLifecycleMonitorRegistry
+import androidx.test.runner.lifecycle.Stage
+import com.ditronic.securezipnotes.BuildConfig
 import org.hamcrest.CoreMatchers
 import java.io.File
 
@@ -18,7 +22,8 @@ fun targetContext() : Context {
     return InstrumentationRegistry.getInstrumentation().targetContext
 }
 
-fun assertToast(toastMessage : String, ac : Activity) {
+fun assertToast(toastMessage : String) {
+    val ac = getCurrentActivity()
     //Espresso.onView(ViewMatchers.withText(toastMessage)).inRoot(RootMatchers.withDecorView(CoreMatchers.not(CoreMatchers.`is`(ac.window.getDecorView())))).check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
     Espresso.onView(ViewMatchers.withText(toastMessage)).inRoot(RootMatchers.withDecorView(CoreMatchers.not(ac.window.getDecorView()))).check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
 }
@@ -66,7 +71,33 @@ fun removeAllPrefs() {
         println("Failed to list shared preference files")
         return
     }
-    for (fileName in sharedPrefs) {
+    sharedPrefs.forEach { fileName ->
         targetContext.getSharedPreferences(fileName.replace(".xml", ""), Context.MODE_PRIVATE).edit().clear().apply()
     }
 }
+
+fun getCurrentActivity(): Activity {
+    lateinit var currentActivity: Activity
+    InstrumentationRegistry.getInstrumentation().runOnMainSync {
+        run {
+            currentActivity = getCurrentActivityMainThread()
+        }
+    }
+    return currentActivity
+}
+
+fun getCurrentActivityMainThread(): Activity {
+    val currentActivity =
+            ActivityLifecycleMonitorRegistry.getInstance().getActivitiesInStage(Stage.RESUMED)
+                    .elementAt(0)
+    return currentActivity
+}
+
+internal fun launchActivity(activityClass : Class<out Activity>) {
+    val intent = Intent(Intent.ACTION_MAIN)
+    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+    intent.setClassName(BuildConfig.APPLICATION_ID, activityClass.name)
+    InstrumentationRegistry.getInstrumentation().startActivitySync(intent)
+    Espresso.onIdle()
+}
+
