@@ -128,6 +128,8 @@ class ITest {
         main_renameNote("Note 2", "Note 3")
         main_assertListState(listOf("Note 1", "Note 3"))
         main_addNewNote()
+        pressBack()
+        pressBack()
         main_assertListState(listOf("Note 1", "Note 3", "Note 4"))
     }
 
