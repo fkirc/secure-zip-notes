@@ -82,7 +82,6 @@ private fun assertCardViewContents(expectedEntries: Collection<String>): Matcher
             listView.forEach {
                 actualEntries += it.findViewById<TextView>(R.id.txt_cardview).text.toString()
             }
-            actualEntries.reverse()
             Assert.assertEquals(expectedEntries, actualEntries)
             return true
         }

@@ -72,13 +72,13 @@ class ImportTests {
     @Test
     fun importSubDirs() {
         importWithSuccess("4passwords_subdirs.aeszip")
-        main_assertListState(entries = listOf("pw1_entry/dir/pw1", "pw2_entry", "pw3_entry/dir/dir/pw2", "pw4_entry"))
+        main_assertListState(entries = listOf("pw4_entry", "pw3_entry/dir/dir/pw2", "pw2_entry", "pw1_entry/dir/pw1"))
     }
 
     @Test
     fun importTwoPasswords() {
         importWithSuccess("twopasswords.ZIP")
-        main_assertListState(entries = listOf("testpassword_entry", "pw2_entry"))
+        main_assertListState(entries = listOf("testpassword_entry", "pw2_entry").reversed())
     }
 
 
