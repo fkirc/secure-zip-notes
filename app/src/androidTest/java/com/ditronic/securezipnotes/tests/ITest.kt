@@ -53,7 +53,7 @@ class ITest {
             noteEdit_typeText(noteCnt.toString())
             pressBack()
         }
-        main_assertListState(noteEntries)
+        main_assertListState(noteEntries.reversed())
     }
 
     @Test
@@ -69,7 +69,7 @@ class ITest {
         main_renameNote("Note 2", "directory/")
         assertToast("directory/ is an invalid entry name")
 
-        main_assertListState(listOf("Note 1", "Note 2", "Note 3", "Note 4"))
+        main_assertListState(listOf("Note 1", "Note 2", "Note 3", "Note 4").reversed())
     }
 
     @Test
@@ -87,7 +87,7 @@ class ITest {
         assertToast("\\ is an invalid entry name")
 
         pressBack()
-        main_assertListState(listOf("Note 1", "Note 2", "Note 3", "Note 4"))
+        main_assertListState(listOf("Note 1", "Note 2", "Note 3", "Note 4").reversed())
     }
 
     @Test
@@ -124,13 +124,13 @@ class ITest {
         noteEdit_assertState("Note 2", "", editMode = true)
         pressBack()
         pressBack()
-        main_assertListState(listOf("Note 1", "Note 2"))
+        main_assertListState(listOf("Note 1", "Note 2").reversed())
         main_renameNote("Note 2", "Note 3")
-        main_assertListState(listOf("Note 1", "Note 3"))
+        main_assertListState(listOf("Note 1", "Note 3").reversed())
         main_addNewNote()
         pressBack()
         pressBack()
-        main_assertListState(listOf("Note 1", "Note 3", "Note 4"))
+        main_assertListState(listOf("Note 1", "Note 3", "Note 4").reversed())
     }
 
     // TODO: Fix this test

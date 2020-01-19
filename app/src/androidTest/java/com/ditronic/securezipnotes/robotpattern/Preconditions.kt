@@ -21,7 +21,7 @@ fun precondition_singleNote() {
 
 fun precondition_fourNotes() {
     precondition_loadAsset("4notes.aeszip")
-    main_assertListState(listOf("Note 1", "Note 2", "Note 3", "Note 4"))
+    main_assertListState(listOf("Note 1", "Note 2", "Note 3", "Note 4").reversed())
 }
 
 fun precondition_loadAsset(assetPath: String) {
