@@ -14,6 +14,6 @@
 
     <issue id="SetTextI18n" severity="informational" />
     <issue id="HardcodedText" severity="informational" />
-    <issue id="OldTargetApi" severity="informational" />
+    <issue id="OldTargetApi" severity="error" />
     <issue id="GradleDependency" severity="informational" />
 </lint>
