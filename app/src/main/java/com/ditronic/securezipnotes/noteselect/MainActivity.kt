@@ -39,9 +39,8 @@ class MainActivity : AppCompatActivity() {
         val toolbar = findViewById<Toolbar>(R.id.tool_bar)
         setSupportActionBar(toolbar)
         toolbar.setLogo(R.mipmap.ic_launcher)
-        if (supportActionBar != null) {
-            supportActionBar!!.setTitle(R.string.app_name_main_activity)
-        }
+        supportActionBar?.setTitle(R.string.app_name_main_activity)
+
         noteSelectAdapter = NoteSelectAdapter(this)
 
         val notesListView = findViewById<ListView>(R.id.list_view_notes)
