@@ -3,15 +3,10 @@ package com.ditronic.securezipnotes.password
 import android.os.Build
 import android.util.Log
 import android.widget.Toast
-import androidx.annotation.RequiresApi
-import androidx.biometric.BiometricConstants
-import androidx.biometric.BiometricPrompt
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
 import com.ditronic.securezipnotes.zip.CryptoZip
 import net.lingala.zip4j.io.ZipInputStream
 import net.lingala.zip4j.model.FileHeader
-import javax.crypto.Cipher
 
 sealed class PwResult {
     class Success(val inputStream: ZipInputStream?,
@@ -126,48 +121,4 @@ object PwManager {
     }
 
     private val TAG = PwManager::class.java.name
-
-
-    @RequiresApi(23)
-    private fun unlockCipherWithBiometricPrompt(ac: FragmentActivity, cipherToUnlock: Cipher, authCallback: (Cipher?) -> Unit) {
-
-        // Here we should use BiometricPrompt.Builder.setDeviceCredentialAllowed(true).
-        // However, setDeviceCredentialAllowed is not yet available within the compat lib.
-
-        val executor = ContextCompat.getMainExecutor(ac)
-        val biometricPrompt = BiometricPrompt(ac, executor, object : BiometricPrompt.AuthenticationCallback() {
-            override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
-                super.onAuthenticationError(errorCode, errString)
-                Log.d(TAG, "onAuthenticationError $errorCode: $errString")
-                // Check whether the user deliberately aborted the operation.
-                if (errorCode != BiometricConstants.ERROR_USER_CANCELED &&
-                        errorCode != BiometricConstants.ERROR_CANCELED &&
-                        errorCode != BiometricConstants.ERROR_NEGATIVE_BUTTON) {
-                    // Try to use the original cipher in case of authentication errors.
-                    // This should work in case of devices that do not have any fingerprint registered.
-                    authCallback(cipherToUnlock)
-                }
-            }
-
-            override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
-                super.onAuthenticationSucceeded(result)
-                val cryptoObject = result.cryptoObject
-                authCallback(cryptoObject?.cipher)
-            }
-
-            override fun onAuthenticationFailed() {
-                super.onAuthenticationFailed()
-                Log.d(TAG, "onAuthenticationFailed")
-            }
-        })
-        val promptInfo = BiometricPrompt.PromptInfo.Builder()
-                .setTitle("Unlock Encryption Key")
-                //.setSubtitle("Subtitle")
-                //.setDescription("Description")
-                .setNegativeButtonText(ac.getString(android.R.string.cancel))
-                .build()
-
-        val cryptoObject = BiometricPrompt.CryptoObject(cipherToUnlock)
-        biometricPrompt.authenticate(promptInfo, cryptoObject)
-    }
 }
