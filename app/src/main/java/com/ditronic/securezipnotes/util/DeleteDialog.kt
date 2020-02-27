@@ -27,7 +27,7 @@ class DeleteDialog(val continuations: DialogActions,
             oldDialog?.dismissCrashSafe()
         }
 
-        fun showDeleteQuestion(message: String, activity: FragmentActivity, continuations: DialogActions) {
+        fun show(message: String, activity: FragmentActivity, continuations: DialogActions) {
             val dialog = DeleteDialog(continuations = continuations, message = message)
             dismissIfActive(activity = activity)
             dialog.show(activity.supportFragmentManager, PwDialog.TAG.value)
