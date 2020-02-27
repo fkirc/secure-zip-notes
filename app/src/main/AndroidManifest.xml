@@ -11,6 +11,7 @@
 
     <!-- allowBackup="false" should be good for security since it prevents artifacts from being saved at Google. -->
     <application
+        android:name="com.ditronic.securezipnotes.app.ApplicationExt"
         android:allowBackup="false"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"

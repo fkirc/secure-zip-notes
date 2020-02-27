@@ -7,10 +7,13 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.WindowManager
 import android.view.inputmethod.InputMethodManager
+import kotlinx.android.synthetic.main.activity_note_edit.*
 
 
 fun NoteEditActivity.applyEditMode(enable: Boolean) {
     model.editMode = enable
+    val editTextTitle = edit_text_title
+    val editTextMain = edit_text_main
 
     // Rather simple procedure for title edit text
     editTextTitle.isCursorVisible = model.editMode

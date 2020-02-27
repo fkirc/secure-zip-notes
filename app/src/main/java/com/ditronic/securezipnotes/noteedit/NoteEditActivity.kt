@@ -5,24 +5,26 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
-import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
+import androidx.lifecycle.ViewModelProvider
 import com.ditronic.securezipnotes.R
+import com.ditronic.securezipnotes.app.AppEnvironment
+import com.ditronic.securezipnotes.app.ViewModelFactory
 import com.ditronic.securezipnotes.password.PwManager
 import com.ditronic.securezipnotes.util.BannerAds
 import com.ditronic.securezipnotes.zip.CryptoZip
 import com.ditronic.securezipnotes.zip.validateEntryNameToast
+import kotlinx.android.synthetic.main.activity_note_edit.*
 import net.lingala.zip4j.io.ZipInputStream
 import java.util.*
 import java.util.Collections.synchronizedMap
 
 class NoteEditActivity : AppCompatActivity() {
 
-    internal lateinit var editTextMain: EditText
-    internal lateinit var editTextTitle: EditText
-    internal lateinit var model: NoteEditViewModel
+    val model: NoteEditViewModel by lazy {
+        ViewModelProvider(this, ViewModelFactory(AppEnvironment.current)).get(NoteEditViewModel::class.java)
+    }
 
     private fun saveContent() {
         PwManager.retrievePasswordAsync(ac = this, fileHeader = model.fileHeader) {
@@ -34,8 +36,8 @@ class NoteEditActivity : AppCompatActivity() {
         val oldContent = model.secretContent ?: return // Uninitialized state
         val oldNoteName = model.noteName
 
-        val newContent = editTextMain.text.toString()
-        var newNoteName = editTextTitle.text.toString()
+        val newContent = edit_text_main.text.toString()
+        var newNoteName = edit_text_title.text.toString()
 
         if (newNoteName != oldNoteName && CryptoZip.instance(this).isDuplicateEntryName(newNoteName)) {
             Toast.makeText(this, newNoteName + " already exists", Toast.LENGTH_SHORT).show()
@@ -47,7 +49,7 @@ class NoteEditActivity : AppCompatActivity() {
         }
 
         if (newContent == oldContent && newNoteName == oldNoteName) {
-            editTextTitle.setText(newNoteName)
+            edit_text_title.setText(newNoteName)
             return  // Nothing to save, text unchanged
         }
 
@@ -56,7 +58,7 @@ class NoteEditActivity : AppCompatActivity() {
         CryptoZip.instance(this).updateStream(password, model.fileHeader, newNoteName, newContent)
         model.innerFileName = newNoteName // This must be set after the updateStream!
 
-        editTextTitle.setText(newNoteName)
+        edit_text_title.setText(newNoteName)
         Toast.makeText(this, "Saved " + newNoteName, Toast.LENGTH_SHORT).show()
     }
 
@@ -69,24 +71,16 @@ class NoteEditActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_note_edit)
-        val toolbar = findViewById<Toolbar>(R.id.tool_bar_edit)
-        setSupportActionBar(toolbar)
-
-        editTextTitle = findViewById(R.id.edit_text_title)
-        editTextMain = findViewById(R.id.edit_text_main)
-
-        // add back arrow to toolbar
+        setSupportActionBar(tool_bar_edit)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setDisplayShowHomeEnabled(true)
         // We do not want a "title" since the EditText consumes all the space
         supportActionBar?.setDisplayShowTitleEnabled(false)
 
-        val innerFileName = intent.extras!!.getString(INNER_FILE_NAME)!!
-        model = NoteEditViewModel.instantiate(this, innerFileName)
+        model.innerFileName = intent.extras!!.getString(INNER_FILE_NAME)!!
+        edit_text_title.setText(model.noteName)
 
-        editTextTitle.setText(model.noteName)
-
-        var inputStream = inputStreamCache.remove(innerFileName)
+        var inputStream = inputStreamCache.remove(model.innerFileName)
         if (inputStream == null) {
             inputStream = CryptoZip.instance(this).isPasswordValid(fileHeader = model.fileHeader, password = PwManager.cachedPassword)
         }
@@ -103,7 +97,7 @@ class NoteEditActivity : AppCompatActivity() {
         val secretContent = CryptoZip.instance(this).extractFileString(inputStream)
         model.secretContent = secretContent
         applyEditMode(secretContent.isEmpty())
-        editTextMain.setText(secretContent)
+        edit_text_main.setText(secretContent)
         // Required to make links clickable
         //editTextMain.setMovementMethod(LinkMovementMethod.getInstance());
     }
