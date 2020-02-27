@@ -25,6 +25,12 @@ class NoteEditActivity : AppCompatActivity() {
     internal lateinit var model: NoteEditViewModel
 
     private fun saveContent() {
+        PwManager.retrievePasswordAsync(ac = this, fileHeader = model.fileHeader) {
+            saveContent(password = it.password)
+        }
+    }
+
+    private fun saveContent(password: String) {
         val oldContent = model.secretContent ?: return // Uninitialized state
         val oldNoteName = model.noteName
 
@@ -47,7 +53,7 @@ class NoteEditActivity : AppCompatActivity() {
 
         // Apply changes, point of no return
         model.secretContent = newContent
-        CryptoZip.instance(this).updateStream(PwManager.cachedPassword!!, model.fileHeader, newNoteName, newContent)
+        CryptoZip.instance(this).updateStream(password, model.fileHeader, newNoteName, newContent)
         model.innerFileName = newNoteName // This must be set after the updateStream!
 
         editTextTitle.setText(newNoteName)
