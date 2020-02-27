@@ -1,7 +1,5 @@
 apply plugin: 'com.android.library'
 
-// It is actually unnecessary that this is an Android library, it should be changed to something like: apply plugin: 'java-library'
-
 android {
     compileSdkVersion 29
 
@@ -25,6 +23,6 @@ android {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
-    implementation 'org.projectlombok:lombok:1.18.10'
-    annotationProcessor 'org.projectlombok:lombok:1.18.10'
+    implementation 'org.projectlombok:lombok:1.18.12'
+    annotationProcessor 'org.projectlombok:lombok:1.18.12'
 }

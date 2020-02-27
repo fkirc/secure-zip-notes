@@ -13,8 +13,6 @@ import com.ditronic.securezipnotes.testutils.click_dialogOK
 import com.ditronic.securezipnotes.R
 import com.ditronic.securezipnotes.testutils.pressBack
 
-// We follow Jake Wharton's "robot pattern", which is an excellent pattern for testing Android apps.
-
 const val TESTPASSWORD = "testpassword"
 
 // Main menu actions ----------------------------------------------------------------------
