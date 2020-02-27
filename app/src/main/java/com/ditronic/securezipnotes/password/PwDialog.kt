@@ -11,7 +11,6 @@ import android.widget.EditText
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentActivity
 import com.ditronic.securezipnotes.zip.CryptoZip
-import net.lingala.zip4j.model.FileHeader
 
 fun DialogFragment.dismissCrashSafe() {
     try {
@@ -24,9 +23,7 @@ fun DialogFragment.dismissCrashSafe() {
 
 data class FragmentTag(val value: String)
 
-// TODO: Make fragment constructor empty. Avoid potential activity leaks.
-class PwDialog(val continuation: (res: PwResult.Success) -> Unit,
-               val fileHeader: FileHeader): DialogFragment() {
+class PwDialog: DialogFragment() {
 
     companion object {
         val TAG = FragmentTag("PwDialog")
@@ -39,13 +36,15 @@ class PwDialog(val continuation: (res: PwResult.Success) -> Unit,
 
         fun show(activity: FragmentActivity,
                  pwRequest: PwRequest) {
-            val dialog = PwDialog(continuation = pwRequest.continuation, fileHeader = pwRequest.fileHeader)
+            val dialog = PwDialog()
+            dialog.pwRequest = pwRequest
             dismissIfActive(activity = activity)
             dialog.show(activity.supportFragmentManager, TAG.value)
         }
     }
 
     lateinit var editText: EditText
+    private var pwRequest: PwRequest? = null
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         editText = EditText(requireContext())
@@ -73,6 +72,10 @@ class PwDialog(val continuation: (res: PwResult.Success) -> Unit,
 
     override fun onResume() {
         super.onResume()
+        if (pwRequest == null) {
+            // This dialog dismisses upon activity re-creations.
+            dismiss()
+        }
         val positiveButton = (dialog as AlertDialog).getButton(AlertDialog.BUTTON_POSITIVE)
         positiveButton.setOnClickListener {
             onPositiveButtonClick()
@@ -80,11 +83,16 @@ class PwDialog(val continuation: (res: PwResult.Success) -> Unit,
     }
 
     private fun onPositiveButtonClick() {
+        val pwRequestLocal = pwRequest
+        if (pwRequestLocal == null) {
+            dismiss()
+            return
+        }
         val typedPassword = editText.text.toString()
-        val zipStream = CryptoZip.instance(requireActivity()).isPasswordValid(fileHeader, typedPassword)
+        val zipStream = CryptoZip.instance(requireActivity()).isPasswordValid(pwRequestLocal.fileHeader, typedPassword)
         if (zipStream != null) {
             editText.error = null
-            PwManager.saveUserProvidedPassword(requireActivity(), PwResult.Success(inputStream = zipStream, password = typedPassword), continuation)
+            PwManager.saveUserProvidedPassword(requireActivity(), PwResult.Success(inputStream = zipStream, password = typedPassword), pwRequestLocal.continuation)
             dismiss()
         } else {
             editText.error = "Wrong password"
