@@ -13,7 +13,7 @@ import androidx.fragment.app.FragmentActivity
 import com.ditronic.securezipnotes.zip.CryptoZip
 import net.lingala.zip4j.model.FileHeader
 
-private fun DialogFragment.dismissCrashSafe() {
+fun DialogFragment.dismissCrashSafe() {
     try {
         dismiss()
     } catch (exception: Exception) {
@@ -31,7 +31,7 @@ class PwDialog(val continuation: (res: PwResult.Success) -> Unit,
     companion object {
         val TAG = FragmentTag("PwDialog")
 
-        fun dismissIfActive(activity: FragmentActivity) {
+        private fun dismissIfActive(activity: FragmentActivity) {
             val fragmentManager = activity.supportFragmentManager
             val oldDialog = fragmentManager.findFragmentByTag(TAG.value) as? DialogFragment
             oldDialog?.dismissCrashSafe()
