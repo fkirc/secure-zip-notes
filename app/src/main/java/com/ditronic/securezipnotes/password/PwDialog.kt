@@ -38,9 +38,8 @@ class PwDialog(val continuation: (res: PwResult.Success) -> Unit,
         }
 
         fun show(activity: FragmentActivity,
-                 continuation: (res: PwResult.Success) -> Unit,
-                 fileHeader: FileHeader) {
-            val dialog = PwDialog(continuation = continuation, fileHeader = fileHeader)
+                 pwRequest: PwRequest) {
+            val dialog = PwDialog(continuation = pwRequest.continuation, fileHeader = pwRequest.fileHeader)
             dismissIfActive(activity = activity)
             dialog.show(activity.supportFragmentManager, TAG.value)
         }

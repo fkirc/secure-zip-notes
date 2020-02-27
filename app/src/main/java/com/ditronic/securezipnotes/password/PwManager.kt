@@ -19,6 +19,11 @@ sealed class PwResult {
     object Failure : PwResult()
 }
 
+class PwRequest(
+        val fileHeader: FileHeader,
+        val continuation: (res: PwResult.Success) -> Unit
+)
+
 object PwManager {
 
     private var cachedPw: String? = null
@@ -27,42 +32,42 @@ object PwManager {
         get() = cachedPw
 
 
-    private fun onRetrievedPassword(ac: FragmentActivity, fileHeader: FileHeader, pw: String?, cb: (res: PwResult.Success) -> Unit) {
+    private fun onRetrievedPassword(ac: FragmentActivity, pwRequest: PwRequest, pw: String?) {
         if (pw == null) {
-            showPasswordDialog(ac, fileHeader, cb)
+            showPasswordDialog(ac, pwRequest = pwRequest)
             return
         }
-        val zipStream = CryptoZip.instance(ac).isPasswordValid(fileHeader, pw)
+        val zipStream = CryptoZip.instance(ac).isPasswordValid(pwRequest.fileHeader, pw)
         if (zipStream != null) {
             cachedPw = pw // Assign password before running any callback!
-            cb(PwResult.Success(inputStream = zipStream, password = pw)) // Password valid, run success callback.
+            pwRequest.continuation(PwResult.Success(inputStream = zipStream, password = pw)) // Password valid, run success callback.
         } else {
             Log.d(TAG, "Outdated password, invalidate preferences and show password dialog")
             cachedPw = null
             clearPrivatePrefs(ac)
             // Ask the user for the right password, which runs the callback later on.
-            showPasswordDialog(ac, fileHeader, cb)
+            showPasswordDialog(ac, pwRequest = pwRequest)
         }
     }
 
 
-    fun retrievePasswordAsync(ac: FragmentActivity, fileHeader: FileHeader, cb: (res: PwResult.Success) -> Unit) {
-
+    fun retrievePasswordAsync(ac: FragmentActivity, fileHeader: FileHeader, continuation: (res: PwResult.Success) -> Unit) {
+        val pwRequest = PwRequest(fileHeader = fileHeader, continuation = continuation)
         val cachedPassword = cachedPassword
         if (cachedPassword != null) {
-            onRetrievedPassword(ac, fileHeader, cachedPassword, cb) // Synchronous case: Password already present
+            onRetrievedPassword(ac, pwRequest = pwRequest, pw = cachedPassword) // Synchronous case: Password already present
             return
         }
 
         if (Build.VERSION.SDK_INT < 23) {
             val pw = getOldApiPw(ac)
-            onRetrievedPassword(ac, fileHeader, pw, cb) // Synchronous case: Old API
+            onRetrievedPassword(ac, pwRequest = pwRequest, pw = pw) // Synchronous case: Old API
             return
         }
 
         val cipherToUnlock = initDecryptCipher(ac)
         if (cipherToUnlock == null) {
-            onRetrievedPassword(ac, fileHeader, null, cb) // Synchronous case: Cipher failure
+            onRetrievedPassword(ac, pwRequest = pwRequest, pw = null) // Synchronous case: Cipher failure
             return
         }
 
@@ -71,13 +76,13 @@ object PwManager {
             if (unlockedCipher != null) {
                 pw = decryptPassword(ac, unlockedCipher)
             }
-            onRetrievedPassword(ac, fileHeader, pw, cb) // Asynchronous case
+            onRetrievedPassword(ac, pwRequest = pwRequest, pw = pw) // Asynchronous case
         }
     }
 
 
-    private fun showPasswordDialog(ac: FragmentActivity, fileHeader: FileHeader, cb: (res: PwResult.Success) -> Unit) {
-        PwDialog.show(activity = ac, continuation = cb, fileHeader = fileHeader)
+    private fun showPasswordDialog(ac: FragmentActivity, pwRequest: PwRequest) {
+        PwDialog.show(activity = ac, pwRequest = pwRequest)
     }
 
     private enum class SyncMode {
