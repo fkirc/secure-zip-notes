@@ -78,7 +78,7 @@ object PwManager {
 
 
     private fun showPasswordDialog(ac: FragmentActivity, pwRequest: PwRequest) {
-        PwDialog.show(activity = ac, pwRequest = pwRequest)
+        PwDialog().show(activity = ac, state = pwRequest)
     }
 
     private enum class SyncMode {

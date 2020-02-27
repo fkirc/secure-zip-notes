@@ -101,12 +101,12 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun askNoteDelete(fileHeader: FileHeader) {
-        DeleteDialog.show("Delete " + CryptoZip.getDisplayName(fileHeader) + "?", this, object : DeleteDialog.DialogActions {
+        val deleteMessage = "Delete " + CryptoZip.getDisplayName(fileHeader) + "?"
+        DeleteDialog().show(this, object : DeleteDialogState(message = deleteMessage) {
             override fun onPositiveClick() {
                 CryptoZip.instance(this@MainActivity).removeFile(this@MainActivity, fileHeader)
                 this@MainActivity.noteSelectAdapter.notifyDataSetChanged()
             }
-
             override fun onNegativeClick() {}
         })
     }
