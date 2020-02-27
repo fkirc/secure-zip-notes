@@ -67,9 +67,10 @@ object PwManager {
         }
 
         unlockCipherWithBiometricPrompt(ac, cipherToUnlock) { unlockedCipher ->
-            var pw: String? = null
-            if (unlockedCipher != null) {
-                pw = decryptPassword(ac, unlockedCipher)
+            val pw = if (unlockedCipher != null) {
+                decryptPassword(ac, unlockedCipher)
+            } else {
+                null
             }
             onRetrievedPassword(ac, pwRequest = pwRequest, pw = pw) // Asynchronous case
         }
