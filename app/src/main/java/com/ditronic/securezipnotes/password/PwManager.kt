@@ -1,12 +1,7 @@
 package com.ditronic.securezipnotes.password
 
-import android.app.AlertDialog
 import android.os.Build
-import android.text.InputType
 import android.util.Log
-import android.view.WindowManager
-import android.view.inputmethod.EditorInfo
-import android.widget.EditText
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.biometric.BiometricConstants
@@ -82,44 +77,7 @@ object PwManager {
 
 
     private fun showPasswordDialog(ac: FragmentActivity, fileHeader: FileHeader, cb: (res: PwResult.Success) -> Unit) {
-
-        // Ask the user for the password (asynchronously)
-        val builder = AlertDialog.Builder(ac)
-        builder.setTitle("Master password:")
-        val input = EditText(ac)
-        input.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
-        input.hint = "Master password"
-        builder.setView(input)
-        builder.setPositiveButton(android.R.string.ok) { _, _ ->
-            // Ignored
-        }.setNeutralButton(android.R.string.cancel) { dialog, _ -> dialog.cancel() }
-        val dialog = builder.create()
-        input.setOnEditorActionListener { _, actionId, _ ->
-            if (actionId == EditorInfo.IME_ACTION_DONE) {
-                onPosBtnClick(ac, input, fileHeader, cb, dialog)
-                return@setOnEditorActionListener true
-            }
-            false
-        }
-        val window = dialog.window
-        window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE)
-        dialog.show()
-        input.requestFocus()
-        val posBtn = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
-        posBtn.setOnClickListener { onPosBtnClick(ac, input, fileHeader, cb, dialog) }
-    }
-
-
-    private fun onPosBtnClick(ac: FragmentActivity, input: EditText, fileHeader: FileHeader, cb: (res: PwResult.Success) -> Unit, dialog: AlertDialog) {
-        val typedPassword = input.text.toString()
-        val zipStream = CryptoZip.instance(ac).isPasswordValid(fileHeader, typedPassword)
-        if (zipStream != null) {
-            input.error = null
-            saveUserProvidedPassword(ac, PwResult.Success(inputStream = zipStream, password = typedPassword), cb)
-            dialog.dismiss()
-        } else {
-            input.error = "Wrong password"
-        }
+        PwDialog.show(activity = ac, continuation = cb, fileHeader = fileHeader)
     }
 
     private enum class SyncMode {
@@ -127,7 +85,6 @@ object PwManager {
     }
 
     fun saveUserProvidedPassword(ac: FragmentActivity, res: PwResult.Success, cb: (res: PwResult.Success) -> Unit) {
-
         val syncMode = savePasswordInternal(ac, res, cb)
         if (syncMode == SyncMode.SYNC) {
             cb(res)
