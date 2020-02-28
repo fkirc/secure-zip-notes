@@ -13,6 +13,8 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.ditronic.securezipnotes.R
 import com.ditronic.securezipnotes.databinding.ActivityMainBinding
+import com.ditronic.securezipnotes.dialogs.DeleteDialog
+import com.ditronic.securezipnotes.dialogs.DeleteDialogState
 import com.ditronic.securezipnotes.menu.MenuOptions
 import com.ditronic.securezipnotes.noteedit.NoteEditActivity
 import com.ditronic.securezipnotes.onboarding.NewPasswordActivity
@@ -117,6 +119,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun renameFileDialog(fileHeader: FileHeader) {
 
+        // TODO: Make DialogFragment
         // Retrieving the password for renames should not be necessary, but this is the current implementation
         PwManager.retrievePasswordAsync(this@MainActivity, fileHeader) { res ->
             res.inputStream?.close(true)

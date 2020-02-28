@@ -1,4 +1,4 @@
-package com.ditronic.securezipnotes.util
+package com.ditronic.securezipnotes.dialogs
 
 import android.util.Log
 import androidx.annotation.CallSuper

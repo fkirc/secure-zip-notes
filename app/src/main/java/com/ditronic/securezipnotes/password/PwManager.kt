@@ -4,6 +4,7 @@ import android.os.Build
 import android.util.Log
 import android.widget.Toast
 import androidx.fragment.app.FragmentActivity
+import com.ditronic.securezipnotes.dialogs.PwDialog
 import com.ditronic.securezipnotes.zip.CryptoZip
 import net.lingala.zip4j.io.ZipInputStream
 import net.lingala.zip4j.model.FileHeader

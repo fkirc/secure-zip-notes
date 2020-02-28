@@ -1,4 +1,4 @@
-package com.ditronic.securezipnotes.password
+package com.ditronic.securezipnotes.dialogs
 
 import android.app.AlertDialog
 import android.app.Dialog
@@ -7,8 +7,9 @@ import android.text.InputType
 import android.view.WindowManager
 import android.view.inputmethod.EditorInfo
 import android.widget.EditText
-import com.ditronic.securezipnotes.util.FragmentTag
-import com.ditronic.securezipnotes.util.ShortLifeDialogFragment
+import com.ditronic.securezipnotes.password.PwManager
+import com.ditronic.securezipnotes.password.PwRequest
+import com.ditronic.securezipnotes.password.PwResult
 import com.ditronic.securezipnotes.zip.CryptoZip
 
 

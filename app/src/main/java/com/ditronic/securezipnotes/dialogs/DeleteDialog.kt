@@ -1,4 +1,4 @@
-package com.ditronic.securezipnotes.util
+package com.ditronic.securezipnotes.dialogs
 
 import android.app.Dialog
 import android.os.Bundle
