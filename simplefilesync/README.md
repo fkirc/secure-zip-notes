@@ -100,9 +100,6 @@ It might be a good idea to disable the Android Auto Backup feature.
 This can be done by setting `android:allowBackup="false"` in your application `AndroidManifest.xml`.
 Alternatively, you might disable Auto Backup for a selected folder where your local sync files are stored.
 Otherwise, the Auto Backup might mess up the synchronization with Dropbox or Google Drive.
-For example, Auto Backup might restore an outdated version of a file.
-This outdated version might then inadvertently override the most recent file in Dropbox or Google Drive (if it has a newer timestamp than the remote file).
-Further research is necessary to understand the exact implications of Auto Backup.
 
 
 #### Build Failure about META_INF/DEPENDENCIES
@@ -117,18 +114,5 @@ android {
 }
 ```
 
-#### Build Failure caused by duplicate classes
-The Play Services Drive library fails to build with some versions of the appcompat library.
-In case of build problems, you might try a more recent version of the appcompat library.
-As of June 2019, the following version of the appcompat library works:
-```
-implementation 'androidx.appcompat:appcompat:1.1.0-beta01'
-```
-
 ## License
 The entire `simplefilesync` subfolder is released under the MIT license.
-
-
-## Contributions
-Pull requests are always welcome.
-It would be nice to support additional cloud backends other than Dropbox and Google Drive.
