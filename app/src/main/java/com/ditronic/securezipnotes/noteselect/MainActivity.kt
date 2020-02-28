@@ -4,22 +4,27 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.text.InputType
-import android.view.*
+import android.view.ContextMenu
+import android.view.Menu
+import android.view.MenuItem
+import android.view.View
 import android.widget.AdapterView
-import android.widget.EditText
 import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.ditronic.securezipnotes.R
 import com.ditronic.securezipnotes.databinding.ActivityMainBinding
 import com.ditronic.securezipnotes.dialogs.DeleteDialog
 import com.ditronic.securezipnotes.dialogs.DeleteDialogState
+import com.ditronic.securezipnotes.dialogs.RenameFileDialog
+import com.ditronic.securezipnotes.dialogs.RenameFileDialogState
 import com.ditronic.securezipnotes.menu.MenuOptions
 import com.ditronic.securezipnotes.noteedit.NoteEditActivity
 import com.ditronic.securezipnotes.onboarding.NewPasswordActivity
 import com.ditronic.securezipnotes.password.PwManager
-import com.ditronic.securezipnotes.util.*
+import com.ditronic.securezipnotes.util.BannerAds
+import com.ditronic.securezipnotes.util.Boast
+import com.ditronic.securezipnotes.util.OnThrottleClickListener
+import com.ditronic.securezipnotes.util.OnThrottleItemClickListener
 import com.ditronic.securezipnotes.zip.CryptoZip
 import com.ditronic.securezipnotes.zip.NotesImport
 import com.ditronic.simplefilesync.AbstractFileSync
@@ -118,32 +123,13 @@ class MainActivity : AppCompatActivity() {
 
 
     private fun renameFileDialog(fileHeader: FileHeader) {
-
-        // TODO: Make DialogFragment
-        // Retrieving the password for renames should not be necessary, but this is the current implementation
-        PwManager.retrievePasswordAsync(this@MainActivity, fileHeader) { res ->
-            res.inputStream?.close(true)
-
-            val builder = AlertDialog.Builder(this@MainActivity)
-            builder.setTitle("Rename " + CryptoZip.getDisplayName(fileHeader))
-            val input = EditText(this@MainActivity)
-            input.inputType = InputType.TYPE_CLASS_TEXT
-            input.setText(CryptoZip.getDisplayName(fileHeader))
-            builder.setView(input)
-            builder.setPositiveButton(android.R.string.ok) { _, _ ->
-                val newName = input.text.toString()
-                CryptoZip.instance(this@MainActivity).renameFile(res.password, fileHeader, newName, this@MainActivity)
-                this@MainActivity.noteSelectAdapter.notifyDataSetChanged()
-            }
-
-            builder.setNegativeButton(android.R.string.cancel) { dialog, _ -> dialog.cancel() }
-            val dialog = builder.create()
-            val window = dialog.window
-            window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE)
-            dialog.show()
-            input.requestFocus()
+        PwManager.retrievePasswordAsync(this@MainActivity, fileHeader) {
+            RenameFileDialog().show(this@MainActivity, object: RenameFileDialogState(pwResult = it, fileHeader = fileHeader) {
+                override fun onRenameReturned() {
+                    this@MainActivity.noteSelectAdapter.notifyDataSetChanged()
+                }
+            })
         }
-
     }
 
 
