@@ -8,15 +8,14 @@ import android.text.InputType
 import android.view.*
 import android.widget.AdapterView
 import android.widget.EditText
-import android.widget.ListView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
-import com.ditronic.securezipnotes.*
+import com.ditronic.securezipnotes.R
+import com.ditronic.securezipnotes.databinding.ActivityMainBinding
 import com.ditronic.securezipnotes.menu.MenuOptions
-import com.ditronic.securezipnotes.onboarding.NewPasswordActivity
 import com.ditronic.securezipnotes.noteedit.NoteEditActivity
+import com.ditronic.securezipnotes.onboarding.NewPasswordActivity
 import com.ditronic.securezipnotes.password.PwManager
 import com.ditronic.securezipnotes.util.*
 import com.ditronic.securezipnotes.zip.CryptoZip
@@ -31,19 +30,23 @@ import java.io.ByteArrayInputStream
 
 class MainActivity : AppCompatActivity() {
 
+    private lateinit var binding: ActivityMainBinding
+
     private lateinit var noteSelectAdapter: NoteSelectAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-        val toolbar = findViewById<Toolbar>(R.id.tool_bar)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+        val toolbar = binding.toolBar
         setSupportActionBar(toolbar)
         toolbar.setLogo(R.mipmap.ic_launcher)
         supportActionBar?.setTitle(R.string.app_name_main_activity)
 
         noteSelectAdapter = NoteSelectAdapter(this)
 
-        val notesListView = findViewById<ListView>(R.id.list_view_notes)
+        val notesListView = binding.listViewNotes
         notesListView.adapter = noteSelectAdapter
 
         registerForContextMenu(notesListView)
@@ -56,24 +59,24 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
-        notesListView.emptyView = findViewById(R.id.list_view_empty)
+        notesListView.emptyView = binding.listViewEmpty
 
-        findViewById<View>(R.id.btn_create_new_note).setOnClickListener(object : OnThrottleClickListener() {
+        binding.btnCreateNewNote.setOnClickListener(object : OnThrottleClickListener() {
             public override fun onThrottleClick(v: View) {
                 btnNewNote()
             }
         })
-        findViewById<View>(R.id.btn_import_existing_notes).setOnClickListener(object : OnThrottleClickListener() {
+        binding.btnImportExistingNotes.setOnClickListener(object : OnThrottleClickListener() {
             public override fun onThrottleClick(v: View) {
                 btnImportExistingNotes()
             }
         })
-        findViewById<View>(R.id.btn_sync_dropbox).setOnClickListener(object : OnThrottleClickListener() {
+        binding.btnSyncDropbox.setOnClickListener(object : OnThrottleClickListener() {
             public override fun onThrottleClick(v: View) {
                 DropboxFileSync.launchInitialOauthActivity(this@MainActivity)
             }
         })
-        findViewById<View>(R.id.btn_sync_drive).setOnClickListener(object : OnThrottleClickListener() {
+        binding.btnSyncDrive.setOnClickListener(object : OnThrottleClickListener() {
             public override fun onThrottleClick(v: View) {
                 DriveFileSync.launchInitialOauthActivity(this@MainActivity)
             }
@@ -217,6 +220,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    // TODO: Remove this memory leak. Use ViewModel and observables instead.
     private fun onSyncCompleted(res: SSyncResult, cloudBackend: String) {
 
         if (res.resultCode == ResultCode.CONNECTION_FAILURE) {
