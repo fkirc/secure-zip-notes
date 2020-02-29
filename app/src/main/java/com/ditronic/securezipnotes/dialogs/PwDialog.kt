@@ -1,12 +1,12 @@
 package com.ditronic.securezipnotes.dialogs
 
-import android.app.AlertDialog
 import android.app.Dialog
 import android.os.Bundle
 import android.text.InputType
 import android.view.WindowManager
 import android.view.inputmethod.EditorInfo
 import android.widget.EditText
+import androidx.appcompat.app.AlertDialog
 import com.ditronic.securezipnotes.password.PwManager
 import com.ditronic.securezipnotes.password.PwRequest
 import com.ditronic.securezipnotes.password.PwResult
@@ -23,7 +23,7 @@ class PwDialog: ShortLifeDialogFragment<PwRequest>() {
 
     override fun getFragmentTag() = TAG
 
-    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+    override fun onCreateDialog(savedInstanceState: Bundle?, state: PwRequest): Dialog {
         editText = EditText(requireContext())
 
         val builder = AlertDialog.Builder(requireContext())

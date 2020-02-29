@@ -124,6 +124,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun renameFileDialog(fileHeader: FileHeader) {
         PwManager.retrievePasswordAsync(this@MainActivity, fileHeader) {
+            it.inputStream?.close(true)
             RenameFileDialog().show(this@MainActivity, object: RenameFileDialogState(pwResult = it, fileHeader = fileHeader) {
                 override fun onRenameReturned() {
                     this@MainActivity.noteSelectAdapter.notifyDataSetChanged()

@@ -23,21 +23,17 @@ class RenameFileDialog: ShortLifeDialogFragment<RenameFileDialogState>() {
 
     lateinit var editText: EditText
 
-    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        // TODO: Refactor to only create with state. onCreateStatefulDialog().
-        val state = fetchStateOrDie()
+    override fun onCreateDialog(savedInstanceState: Bundle?, state: RenameFileDialogState): Dialog {
         editText = EditText(requireContext())
-        state?.pwResult?.inputStream?.close(true)
 
         val builder = AlertDialog.Builder(requireContext())
-        builder.setTitle("Rename " + CryptoZip.getDisplayName(state!!.fileHeader)) // TODO: Remove !!
+        builder.setTitle("Rename " + CryptoZip.getDisplayName(state.fileHeader))
         editText.inputType = InputType.TYPE_CLASS_TEXT
         editText.setText(CryptoZip.getDisplayName(state.fileHeader))
         builder.setView(editText)
         builder.setPositiveButton(android.R.string.ok) { _, _ ->
             onRenameConfirmed()
         }
-
         builder.setNegativeButton(android.R.string.cancel) { dialog, _ -> dialog.cancel() }
         val dialog = builder.create()
         val window = dialog.window

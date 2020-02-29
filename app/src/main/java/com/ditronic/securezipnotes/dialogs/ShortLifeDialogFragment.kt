@@ -1,5 +1,7 @@
 package com.ditronic.securezipnotes.dialogs
 
+import android.app.Dialog
+import android.os.Bundle
 import android.util.Log
 import androidx.annotation.CallSuper
 import androidx.fragment.app.DialogFragment
@@ -23,6 +25,8 @@ abstract class ShortLifeDialogFragment<EphemeralState>: DialogFragment() {
 
     abstract fun getFragmentTag(): FragmentTag
 
+    abstract fun onCreateDialog(savedInstanceState: Bundle?, state: EphemeralState): Dialog
+
     private var ephemeralState: EphemeralState? = null
 
     fun show(activity: FragmentActivity, state: EphemeralState) {
@@ -35,6 +39,15 @@ abstract class ShortLifeDialogFragment<EphemeralState>: DialogFragment() {
     override fun onResume() {
         super.onResume()
         fetchStateOrDie()
+    }
+
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        val state = fetchStateOrDie()
+        return if (state != null) {
+            onCreateDialog(savedInstanceState, state)
+        } else {
+            androidx.appcompat.app.AlertDialog.Builder(requireContext()).create()
+        }
     }
 
     protected fun fetchStateOrDie(): EphemeralState? {
