@@ -5,6 +5,8 @@ import android.content.Context
 import android.content.Intent
 import android.view.InputDevice
 import android.view.MotionEvent
+import android.widget.Button
+import androidx.annotation.IdRes
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.ViewAction
 import androidx.test.espresso.action.*
@@ -20,6 +22,10 @@ import java.io.File
 
 fun targetContext() : Context {
     return InstrumentationRegistry.getInstrumentation().targetContext
+}
+
+fun getResourceString(@IdRes resId: Int): String {
+    return targetContext() .getString(resId)
 }
 
 fun assertToast(toastMessage : String) {
@@ -97,3 +103,9 @@ internal fun launchActivity(activityClass : Class<out Activity>) {
     Espresso.onIdle()
 }
 
+fun clickButtonWithoutEspresso(button: Button) {
+    InstrumentationRegistry.getInstrumentation().runOnMainSync {
+        button.performClick()
+    }
+    Espresso.onIdle()
+}

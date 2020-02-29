@@ -1,6 +1,8 @@
 package com.ditronic.securezipnotes.robotpattern
 
 import android.text.InputType
+import androidx.appcompat.app.AlertDialog
+import androidx.fragment.app.FragmentActivity
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.ViewInteraction
 import androidx.test.espresso.action.ViewActions
@@ -8,10 +10,9 @@ import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.matcher.RootMatchers
 import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.platform.app.InstrumentationRegistry
-import com.ditronic.securezipnotes.testutils.clickBottomCenter
-import com.ditronic.securezipnotes.testutils.click_dialogOK
 import com.ditronic.securezipnotes.R
-import com.ditronic.securezipnotes.testutils.pressBack
+import com.ditronic.securezipnotes.dialogs.PwDialog
+import com.ditronic.securezipnotes.testutils.*
 
 const val TESTPASSWORD = "testpassword"
 
@@ -20,7 +21,19 @@ const val TESTPASSWORD = "testpassword"
 private fun main_typeMasterPassword(password: String = TESTPASSWORD) {
     Espresso.onView(ViewMatchers.withInputType(InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD))
             .inRoot(RootMatchers.isDialog()).perform(ViewActions.replaceText(password))
-    click_dialogOK()
+    //click_dialogOK()
+    clickPasswordOkButton()
+}
+
+fun clickPasswordOkButton() {
+    val passwordDialog = findPasswordDialog()
+    val positiveButton = (passwordDialog.dialog as AlertDialog).getButton(AlertDialog.BUTTON_POSITIVE)
+    clickButtonWithoutEspresso(button = positiveButton)
+}
+
+fun findPasswordDialog(): PwDialog {
+    val activity = getCurrentActivity() as FragmentActivity
+    return activity.supportFragmentManager.findFragmentByTag(PwDialog.TAG.value) as PwDialog
 }
 
 fun main_clickNote(noteName: String, password: String? = null) {
