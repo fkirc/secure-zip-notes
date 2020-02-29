@@ -2,17 +2,16 @@ package com.ditronic.securezipnotes.dialogs
 
 import android.app.Dialog
 import android.os.Bundle
-import android.util.Log
 import androidx.annotation.CallSuper
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentActivity
+import timber.log.Timber
 
 fun DialogFragment.dismissCrashSafe() {
     try {
         dismiss()
     } catch (exception: Exception) {
-        // TODO: Integrate Timber
-        Log.e("DialogFragment", "dismissCrashSafe", exception)
+        Timber.e(exception)
     }
 }
 

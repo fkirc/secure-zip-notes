@@ -1,13 +1,13 @@
 package com.ditronic.securezipnotes.password
 
 import android.os.Build
-import android.util.Log
 import android.widget.Toast
 import androidx.fragment.app.FragmentActivity
 import com.ditronic.securezipnotes.dialogs.PwDialog
 import com.ditronic.securezipnotes.zip.CryptoZip
 import net.lingala.zip4j.io.ZipInputStream
 import net.lingala.zip4j.model.FileHeader
+import timber.log.Timber
 
 sealed class PwResult {
     class Success(val inputStream: ZipInputStream?,
@@ -38,7 +38,7 @@ object PwManager {
             cachedPw = pw // Assign password before running any callback!
             pwRequest.continuation(PwResult.Success(inputStream = zipStream, password = pw)) // Password valid, run success callback.
         } else {
-            Log.d(TAG, "Outdated password, invalidate preferences and show password dialog")
+            Timber.d("Outdated password, invalidate preferences and show password dialog")
             cachedPw = null
             clearPrivatePrefs(ac)
             // Ask the user for the right password, which runs the callback later on.
@@ -121,6 +121,4 @@ object PwManager {
         }
         return SyncMode.ASYNC // Asynchronous case
     }
-
-    private val TAG = PwManager::class.java.name
 }

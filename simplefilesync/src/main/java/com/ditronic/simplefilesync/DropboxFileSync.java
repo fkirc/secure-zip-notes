@@ -2,7 +2,6 @@ package com.ditronic.simplefilesync;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -25,14 +24,14 @@ import com.dropbox.core.v2.files.WriteMode;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+
+import timber.log.Timber;
 
 
 public class DropboxFileSync extends AbstractFileSync {
 
-    private static final String TAG = DropboxFileSync.class.getName();
     private static final String DROPBOX_PREF_FILE = "pref_dropbox_file_sync";
     private static final String PREF_DROPBOX_ACCESS_TOKEN = "dropbox_access_token";
 
@@ -60,7 +59,7 @@ public class DropboxFileSync extends AbstractFileSync {
             downloader.close();
             return res;
         } catch (Exception e) {
-            Log.e(TAG, "Failed to download", e);
+            Timber.e(e);
             return new SSyncResult(ResultCode.CONNECTION_FAILURE);
         }
     }
@@ -73,14 +72,12 @@ public class DropboxFileSync extends AbstractFileSync {
             dbxClient.files().uploadBuilder(getDbxPath())
                     .withMode(WriteMode.OVERWRITE)
                     .uploadAndFinish(inputStream);
-            Log.d(TAG, "Upload succeeded");
+            Timber.d("Upload succeeded");
             return new SSyncResult(ResultCode.UPLOAD_SUCCESS);
-        } catch (DbxException e) {
-            Log.e(TAG, "Upload failed", e);
-        } catch (IOException e) {
-            Log.e(TAG, "Upload failed", e);
+        } catch (Exception e) {
+            Timber.e(e);
+            return new SSyncResult(ResultCode.CONNECTION_FAILURE);
         }
-        return new SSyncResult(ResultCode.CONNECTION_FAILURE);
     }
 
 
@@ -91,7 +88,7 @@ public class DropboxFileSync extends AbstractFileSync {
 
         final String oauthToken = getOauthToken(context);
         if (oauthToken == null) {
-            Log.d(TAG, "No oauthtoken found. Cannot instantiate DbxClientV2.");
+            Timber.e("No oauthtoken found. Cannot instantiate DbxClientV2.");
             return new SSyncResult(ResultCode.NO_CREDENTIALS_FAILURE);
         }
 
@@ -101,49 +98,49 @@ public class DropboxFileSync extends AbstractFileSync {
         FileMetadata remoteMeta;
         try {
             remoteMeta = (FileMetadata)dbxClient.files().getMetadata(getDbxPath());
-            Log.d(TAG, "Fetched metadata: " + remoteMeta);
+            Timber.d("Fetched metadata: %s", remoteMeta);
         } catch (GetMetadataErrorException e) {
             remoteMeta = null; // This means that the remote file does not exist, but the connection to Dropbox worked.
         } catch (DbxException e) {
-            Log.d(TAG, "Failed to fetch metadata. Probably due to an invalid token or missing Internet connectivity.", e);
+            Timber.e(e);
             return new SSyncResult(ResultCode.CONNECTION_FAILURE); // Return immediately in case of a connectivity failure
         }
 
         final boolean localNonEmpty = localFileNonEmpty();
 
         if (!localNonEmpty && remoteMeta == null) {
-            Log.d(TAG, "Connection succeeded, but neither local nor remote is non-empty");
+            Timber.d("Connection succeeded, but neither local nor remote is non-empty");
             return new SSyncResult(ResultCode.FILES_NOT_EXIST_OR_EMPTY);
         }
         if (remoteMeta == null) {
-            Log.d(TAG, "Only local exists, try to upload it");
+            Timber.d("Only local exists, try to upload it");
             return dbxUpload(dbxClient);
         }
         if (!localNonEmpty) {
-            Log.d(TAG, "Only remote is non-empty, try to download it");
+            Timber.d("Only remote is non-empty, try to download it");
             return dbxDownload(dbxClient);
         }
 
         final long serverModified = remoteMeta.getServerModified().getTime();
         final long clientModified = localFile.lastModified();
         if (timestampsEqualToSavedTimestamps(serverModified)) {
-            Log.d(TAG, "Time stamps did not change since the last hash comparison");
+            Timber.d("Time stamps did not change since the last hash comparison");
             return new SSyncResult(ResultCode.REMOTE_EQUALS_LOCAL);
         }
 
         final String remoteHash = remoteMeta.getContentHash();
         final String localHash = FilesUtil.hashFromFile(localFile, new DropboxContentHasher());
         if (remoteHash.equalsIgnoreCase(localHash)) {
-            Log.d(TAG, "Remote hash matches local hash, no need to upload or download");
+            Timber.d("Remote hash matches local hash, no need to upload or download");
             saveLastModifiedOfEqualFiles(serverModified);
             return new SSyncResult(ResultCode.REMOTE_EQUALS_LOCAL);
         }
 
         if (serverModified > clientModified) {
-            Log.d(TAG, "Remote is newer than local, try to download it");
+            Timber.d("Remote is newer than local, try to download it");
             return dbxDownload(dbxClient);
         } else {
-            Log.d(TAG, "Local is newer than remote, try to upload it");
+            Timber.d("Local is newer than remote, try to upload it");
             return dbxUpload(dbxClient);
         }
     }
@@ -156,7 +153,7 @@ public class DropboxFileSync extends AbstractFileSync {
 
     public static void storeNewOauthToken(@NonNull final String oauthToken, Context cx) {
         // This can potentially overwrite an old oauthtoken, which is fine.
-        Log.d(TAG, "Retrieved a new oauthtoken");
+        Timber.d("Retrieved a new oauthtoken");
         SharedPreferences prefs = cx.getSharedPreferences(DROPBOX_PREF_FILE, Context.MODE_PRIVATE);
         prefs.edit().putString(PREF_DROPBOX_ACCESS_TOKEN, oauthToken).apply();
 
@@ -177,7 +174,7 @@ public class DropboxFileSync extends AbstractFileSync {
     }
 
     public static void launchInitialOauthActivity(final Context cx) {
-        Log.d(TAG, "Initiate Dropbox oauth flow");
+        Timber.d("Initiate Dropbox oauth flow");
         // Here we should use getApplicationContext() to prevent the Dropbox core client from keeping a static activity reference.
         // However, the application context led to a crash in certain cases where a failure dialog is shown by the Dropbox core client.
         Auth.startOAuth2Authentication(cx, cx.getString(R.string.dropbox_app_key));

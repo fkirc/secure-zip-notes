@@ -5,17 +5,17 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
+import com.ditronic.simplefilesync.util.SSyncResult;
 
 import java.io.File;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-import com.ditronic.simplefilesync.util.ResultCode;
-import com.ditronic.simplefilesync.util.SSyncResult;
+import timber.log.Timber;
 
 public abstract class AbstractFileSync extends AsyncTask<Object, String, SSyncResult> {
 
@@ -77,17 +77,13 @@ public abstract class AbstractFileSync extends AsyncTask<Object, String, SSyncRe
         cb.onSyncCompleted(res);
     }
 
-    private String TAG() {
-        return getClass().getName();
-    }
-
     protected boolean localFileNonEmpty() {
         if (!localFile.exists()) {
-            Log.d(TAG(), localFile.getAbsolutePath() + " does not exist");
+            Timber.d("%s does not exist", localFile.getAbsolutePath());
             return false;
         }
         if (localFile.length() == 0) {
-            Log.d(TAG(), localFile.getAbsolutePath() + " is empty");
+            Timber.d("%s is empty", localFile.getAbsolutePath());
             return false;
         }
         return true;

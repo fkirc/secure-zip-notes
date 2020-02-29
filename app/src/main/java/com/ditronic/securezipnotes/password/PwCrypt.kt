@@ -5,12 +5,12 @@ import android.os.Build
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
 import android.util.Base64
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.biometric.BiometricConstants
 import androidx.biometric.BiometricPrompt
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
+import timber.log.Timber
 import java.nio.charset.StandardCharsets
 import java.security.InvalidAlgorithmParameterException
 import java.security.KeyStore
@@ -59,11 +59,11 @@ fun tryGenerateKeyStoreKey() : SecretKey? {
     try {
         return tryGenerateKeystoreKeyUnchecked(true)
     } catch (e1: Exception) {
-        Log.d(TAG, "Failed to generate key with UserAuthenticationRequired", e1)
+        Timber.e(e1)
         try {
             return tryGenerateKeystoreKeyUnchecked(false)
         } catch (e2: Exception) {
-            Log.d(TAG, "Failed the second attempt to generate a keystore key", e2)
+            Timber.e(e2)
             return null
         }
     }
@@ -76,7 +76,7 @@ private val getKeyStoreKey: SecretKey?
             ks.load(null)
             ks.getKey(SEC_ALIAS, null) as SecretKey
         } catch (e: Exception) {
-            Log.e(TAG, "Failed to retrieve KeyStore key", e)
+            Timber.e(e)
             null
         }
     }
@@ -109,7 +109,7 @@ fun finalizePwEncryption(cx: Context, password: String, unlockedCipher: Cipher?)
     try {
         encPw = unlockedCipher.doFinal(password.toByteArray(StandardCharsets.UTF_8))
     } catch (e: Exception) {
-        Log.e(TAG, "doFinal failed to encrypt the password", e)
+        Timber.e(e)
         return false
     }
 
@@ -129,7 +129,7 @@ fun initEncryptCipher(secretKey: SecretKey) : Cipher? {
         cipherToUnlock.init(Cipher.ENCRYPT_MODE, secretKey)
         return cipherToUnlock
     } catch (e: Exception) {
-        Log.d(TAG, "Failed to init encrypt cipher", e)
+        Timber.e(e)
         return null
     }
 }
@@ -146,7 +146,7 @@ fun initDecryptCipher(ac: FragmentActivity) : Cipher? {
         cipherToUnlock.init(Cipher.DECRYPT_MODE, secretKey, IvParameterSpec(pwEncIv))
         return cipherToUnlock
     } catch (e: Exception) {
-        Log.d(TAG, "Failed to init decrypt cipher", e)
+        Timber.e(e)
         return null
     }
 }
@@ -156,7 +156,7 @@ fun decryptPassword(cx: Context, cipher: Cipher): String? {
         val encPw = getEncPw(cx) ?: return null
         return String(cipher.doFinal(encPw), StandardCharsets.UTF_8)
     } catch (e: Exception) {
-        Log.e(TAG, "doFinal failed to decrypt the password", e)
+        Timber.e(e)
         return null
     }
 }
@@ -194,7 +194,7 @@ internal fun unlockCipherWithBiometricPrompt(ac: FragmentActivity, cipherToUnloc
     val biometricPrompt = BiometricPrompt(ac, executor, object : BiometricPrompt.AuthenticationCallback() {
         override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
             super.onAuthenticationError(errorCode, errString)
-            Log.d("PwCrypt", "onAuthenticationError $errorCode: $errString")
+            Timber.e("onAuthenticationError $errorCode: $errString")
             // Check whether the user deliberately aborted the operation.
             if (errorCode != BiometricConstants.ERROR_USER_CANCELED &&
                     errorCode != BiometricConstants.ERROR_CANCELED &&
@@ -213,7 +213,7 @@ internal fun unlockCipherWithBiometricPrompt(ac: FragmentActivity, cipherToUnloc
 
         override fun onAuthenticationFailed() {
             super.onAuthenticationFailed()
-            Log.d("PwCrypt", "onAuthenticationFailed")
+            Timber.e("onAuthenticationFailed")
         }
     })
     val promptInfo = BiometricPrompt.PromptInfo.Builder()

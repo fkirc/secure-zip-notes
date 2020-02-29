@@ -2,12 +2,12 @@ package com.ditronic.securezipnotes.zip
 
 import android.content.Context
 import android.net.Uri
-import android.util.Log
 import androidx.appcompat.app.AlertDialog
 import com.ditronic.simplefilesync.util.FilesUtil
 import net.lingala.zip4j.core.ZipFile
 import net.lingala.zip4j.model.FileHeader
 import net.lingala.zip4j.util.Zip4jConstants
+import timber.log.Timber
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.IOException
@@ -59,7 +59,7 @@ object NotesImport {
             tmpZipFile = ZipFile(tmpFile.path)
             tmpZipFile.readZipInfo()
         } catch (e: Exception) {
-            Log.d(TAG, "Failed to import zip notes", e)
+            Timber.e(e)
             alertDialog(cx, "Import failed. Probably this is not a valid Zip file.")
             return false
         }

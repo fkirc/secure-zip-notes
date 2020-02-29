@@ -3,7 +3,6 @@ package com.ditronic.simplefilesync;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -35,6 +34,8 @@ import com.ditronic.simplefilesync.util.FilesUtil;
 import com.ditronic.simplefilesync.util.ResultCode;
 import com.ditronic.simplefilesync.util.SSyncResult;
 
+import timber.log.Timber;
+
 public class DriveFileSync extends AbstractFileSync {
 
 	public DriveFileSync(Context cx, java.io.File localFile, String remoteFileName, SSyncCallback cb) {
@@ -43,7 +44,6 @@ public class DriveFileSync extends AbstractFileSync {
 
 	private Drive driveService;
 
-	private static final String TAG = DriveFileSync.class.getName();
 	public static final int REQUEST_CODE_GOOGLE_SIGN_IN = 45235;
 
 	private boolean instantiateDriveService() {
@@ -52,10 +52,10 @@ public class DriveFileSync extends AbstractFileSync {
 		}
 		final GoogleSignInAccount googleAccount = GoogleSignIn.getLastSignedInAccount(context);
 		if (googleAccount == null) {
-			Log.d(TAG, "Failed to instantiate Drive service - the user is not signed in to Google");
+			Timber.e("Failed to instantiate Drive service - the user is not signed in to Google");
 			return false;
 		}
-		Log.d(TAG, "Signed in as " + googleAccount.getEmail());
+		Timber.d("Signed in as %s", googleAccount.getEmail());
 		// Use the authenticated account to sign in to the Drive service.
 		GoogleAccountCredential credential = GoogleAccountCredential.usingOAuth2(
 						context, Collections.singleton(DriveScopes.DRIVE_FILE));
@@ -84,13 +84,13 @@ public class DriveFileSync extends AbstractFileSync {
 		try {
 			final File googleFile = driveService.files().create(metadata, localMediaContent).execute();
 			if (googleFile == null) {
-				Log.d(TAG, "Null result when requesting file creation.");
+				Timber.e("Null result when requesting file creation.");
 				return new SSyncResult(ResultCode.CONNECTION_FAILURE);
 			}
-			Log.d(TAG, "Created file " + googleFile);
+			Timber.d("Created file %s", googleFile);
 			return new SSyncResult(ResultCode.UPLOAD_SUCCESS);
 		} catch (IOException e) {
-			Log.e(TAG, "Failed to create file", e);
+			Timber.e(e);
 			return new SSyncResult(ResultCode.CONNECTION_FAILURE);
 		}
 	}
@@ -111,7 +111,7 @@ public class DriveFileSync extends AbstractFileSync {
 			os.close();
 			return res;
 		} catch (IOException e) {
-			Log.e(TAG, "Download failed", e);
+			Timber.e(e);
 			return new SSyncResult(ResultCode.CONNECTION_FAILURE);
 		}
 	}
@@ -124,10 +124,10 @@ public class DriveFileSync extends AbstractFileSync {
 		try {
 			final File metaData = new File().setName(remoteFileName);
 			driveService.files().update(remoteFile.getId(), metaData, new FileContent("application/zip", localFile)).execute();
-			Log.d(TAG, "Updated remote file " + remoteFile);
+			Timber.d("Updated remote file %s", remoteFile);
 			return new SSyncResult(ResultCode.UPLOAD_SUCCESS);
 		} catch (IOException e) {
-			Log.e(TAG, "Failed to update remote file", e);
+			Timber.e(e);
 			return new SSyncResult(ResultCode.CONNECTION_FAILURE);
 		}
 	}
@@ -138,7 +138,7 @@ public class DriveFileSync extends AbstractFileSync {
 			return driveService.files().get(remoteFile.getId())
 					.setFields("md5Checksum,size,modifiedTime,trashed").execute();
 		} catch (IOException e) {
-			Log.e(TAG, "Failed to retrieve metadata", e);
+			Timber.e(e);
 			return null;
 		}
 	}
@@ -151,7 +151,7 @@ public class DriveFileSync extends AbstractFileSync {
 
 		final FileList fileList = driveService.files().list().setQ(queryString).execute();
 
-		Log.d(TAG, "Fetched fileList: " + fileList);
+		Timber.d("Fetched fileList: %s", fileList);
 		File remoteFile = null;
 		final List<File> files = fileList.getFiles();
 		if (files.size() > 0) {
@@ -172,21 +172,21 @@ public class DriveFileSync extends AbstractFileSync {
 		try {
 			remoteFile = retrieveDriveFileByName();
 		} catch (IOException e) {
-			Log.d(TAG, "Failed to connect to Drive: " + e.getMessage());
+			Timber.e(e);
 			return new SSyncResult(ResultCode.CONNECTION_FAILURE);
 		}
 		final boolean localNonEmpty = localFileNonEmpty();
 
 		if (!localNonEmpty && remoteFile == null) {
-			Log.d(TAG, "Connection succeeded, but neither local nor remote is non-empty");
+			Timber.d("Connection succeeded, but neither local nor remote is non-empty");
 			return new SSyncResult(ResultCode.FILES_NOT_EXIST_OR_EMPTY);
 		}
 		if (remoteFile == null) {
-			Log.d(TAG, "Only local exists, try to upload it");
+			Timber.d("Only local exists, try to upload it");
 			return driveCreateNewRemote(localFile);
 		}
 		if (!localNonEmpty) {
-			Log.d(TAG, "Only remote is non-empty, try to download it");
+			Timber.d("Only remote is non-empty, try to download it");
 			return driveDownload(remoteFile);
 		}
 
@@ -199,23 +199,23 @@ public class DriveFileSync extends AbstractFileSync {
 		final long serverModified = remoteMetaData.getModifiedTime().getValue();
 		final long clientModified = localFile.lastModified();
 		if (timestampsEqualToSavedTimestamps(serverModified)) {
-			Log.d(TAG, "Time stamps did not change since the last hash comparison");
+			Timber.d("Time stamps did not change since the last hash comparison");
 			return new SSyncResult(ResultCode.REMOTE_EQUALS_LOCAL);
 		}
 
 		final String remoteHash = remoteMetaData.getMd5Checksum();
 		final String localHash = FilesUtil.hashFromFile(localFile, getDigestInstance("MD5"));
 		if (remoteHash.equalsIgnoreCase(localHash)) {
-			Log.d(TAG, "Remote hash matches local hash, no need to upload or download");
+			Timber.d("Remote hash matches local hash, no need to upload or download");
 			saveLastModifiedOfEqualFiles(serverModified);
 			return new SSyncResult(ResultCode.REMOTE_EQUALS_LOCAL);
 		}
 
 		if (serverModified > clientModified) {
-			Log.d(TAG, "Remote is newer than local, try to download it");
+			Timber.d("Remote is newer than local, try to download it");
 			return driveDownload(remoteFile);
 		} else {
-			Log.d(TAG, "Local is newer than remote, try to upload it");
+			Timber.d("Local is newer than remote, try to upload it");
 			return driveUpload(remoteFile, localFile);
 		}
 	}
@@ -231,7 +231,7 @@ public class DriveFileSync extends AbstractFileSync {
 					.addOnSuccessListener(new OnSuccessListener<GoogleSignInAccount>() {
 						@Override
 						public void onSuccess(GoogleSignInAccount googleAccount) {
-							Log.d(TAG, "Oauth flow completed successfully for " + googleAccount.getEmail());
+							Timber.d("Oauth flow completed successfully for %s", googleAccount.getEmail());
 							setCurrentSyncBackend(ac, DriveFileSync.class); // Must be set before running the callback
 							driveSignInSuccessCallback.run();
 						}
@@ -239,16 +239,16 @@ public class DriveFileSync extends AbstractFileSync {
 					.addOnFailureListener(new OnFailureListener() {
 						@Override
 						public void onFailure(@NonNull Exception e) {
-							Log.e(TAG, "Unable to sign in", e);
+							Timber.e(e);
 						}
 					});
 		} else {
-			Log.d(TAG, "Oauth flow failed or rejected by the user");
+			Timber.e("Oauth flow failed or rejected by the user");
 		}
 	}
 
 	public static void launchInitialOauthActivity(final Activity ac) {
-		Log.d(TAG, "Initiate Google oauth flow");
+		Timber.d("Initiate Google oauth flow");
 
 		GoogleSignInOptions signInOptions =
 				new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
