@@ -7,6 +7,8 @@ import android.view.InputDevice
 import android.view.MotionEvent
 import android.widget.Button
 import androidx.annotation.IdRes
+import androidx.appcompat.app.AlertDialog
+import androidx.fragment.app.DialogFragment
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.ViewAction
 import androidx.test.espresso.action.*
@@ -101,6 +103,11 @@ internal fun launchActivity(activityClass : Class<out Activity>) {
     intent.setClassName(BuildConfig.APPLICATION_ID, activityClass.name)
     InstrumentationRegistry.getInstrumentation().startActivitySync(intent)
     Espresso.onIdle()
+}
+
+fun clickDialogOkWithoutEspresso(dialog: DialogFragment) {
+    val positiveButton = (dialog.dialog as AlertDialog).getButton(AlertDialog.BUTTON_POSITIVE)
+    clickButtonWithoutEspresso(button = positiveButton)
 }
 
 fun clickButtonWithoutEspresso(button: Button) {

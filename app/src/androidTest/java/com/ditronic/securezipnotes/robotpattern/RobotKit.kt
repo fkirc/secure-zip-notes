@@ -12,6 +12,7 @@ import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.platform.app.InstrumentationRegistry
 import com.ditronic.securezipnotes.R
 import com.ditronic.securezipnotes.dialogs.PwDialog
+import com.ditronic.securezipnotes.dialogs.RenameFileDialog
 import com.ditronic.securezipnotes.testutils.*
 
 const val TESTPASSWORD = "testpassword"
@@ -26,14 +27,21 @@ private fun main_typeMasterPassword(password: String = TESTPASSWORD) {
 }
 
 fun clickPasswordOkButton() {
-    val passwordDialog = findPasswordDialog()
-    val positiveButton = (passwordDialog.dialog as AlertDialog).getButton(AlertDialog.BUTTON_POSITIVE)
-    clickButtonWithoutEspresso(button = positiveButton)
+    clickDialogOkWithoutEspresso(dialog = findPasswordDialog())
+}
+
+fun clickRenameOkButton() {
+    clickDialogOkWithoutEspresso(dialog = findRenameDialog())
 }
 
 fun findPasswordDialog(): PwDialog {
     val activity = getCurrentActivity() as FragmentActivity
     return activity.supportFragmentManager.findFragmentByTag(PwDialog.TAG.value) as PwDialog
+}
+
+fun findRenameDialog(): RenameFileDialog {
+    val activity = getCurrentActivity() as FragmentActivity
+    return activity.supportFragmentManager.findFragmentByTag(RenameFileDialog.TAG.value) as RenameFileDialog
 }
 
 fun main_clickNote(noteName: String, password: String? = null) {
@@ -78,7 +86,8 @@ fun main_renameNote(oldName: String, newName: String, typePassword: Boolean = fa
         main_typeMasterPassword()
     }
     Espresso.onView(ViewMatchers.withText(oldName)).inRoot(RootMatchers.isDialog()).perform(ViewActions.replaceText(newName))
-    Espresso.onView(ViewMatchers.withText("OK")).inRoot(RootMatchers.isDialog()).perform(ViewActions.click())
+    clickRenameOkButton()
+    //Espresso.onView(ViewMatchers.withText("OK")).inRoot(RootMatchers.isDialog()).perform(ViewActions.click())
 }
 
 fun main_deleteNote(entryName: String) {
