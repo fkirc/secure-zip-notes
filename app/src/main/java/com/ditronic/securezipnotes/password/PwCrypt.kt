@@ -59,7 +59,7 @@ fun tryGenerateKeyStoreKey() : SecretKey? {
     try {
         return tryGenerateKeystoreKeyUnchecked(true)
     } catch (e1: Exception) {
-        Timber.e(e1)
+        Timber.w(e1)
         try {
             return tryGenerateKeystoreKeyUnchecked(false)
         } catch (e2: Exception) {
@@ -76,7 +76,7 @@ private val getKeyStoreKey: SecretKey?
             ks.load(null)
             ks.getKey(SEC_ALIAS, null) as SecretKey
         } catch (e: Exception) {
-            Timber.e(e)
+            Timber.w(e)
             null
         }
     }
@@ -194,7 +194,7 @@ internal fun unlockCipherWithBiometricPrompt(ac: FragmentActivity, cipherToUnloc
     val biometricPrompt = BiometricPrompt(ac, executor, object : BiometricPrompt.AuthenticationCallback() {
         override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
             super.onAuthenticationError(errorCode, errString)
-            Timber.e("onAuthenticationError $errorCode: $errString")
+            Timber.w("onAuthenticationError $errorCode: $errString")
             // Check whether the user deliberately aborted the operation.
             if (errorCode != BiometricConstants.ERROR_USER_CANCELED &&
                     errorCode != BiometricConstants.ERROR_CANCELED &&

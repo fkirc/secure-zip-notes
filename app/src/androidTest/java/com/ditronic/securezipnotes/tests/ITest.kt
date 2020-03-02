@@ -162,6 +162,4 @@ class ITest {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         assertToast(context.getString(R.string.toast_notes_empty_export))
     }
-
-    // TODO: Measure code coverage
 }
