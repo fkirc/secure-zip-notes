@@ -7,10 +7,8 @@ import android.view.MenuItem
 import android.view.View
 import android.view.WindowManager
 import android.view.inputmethod.EditorInfo
-import android.widget.EditText
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
-import com.ditronic.securezipnotes.R
+import com.ditronic.securezipnotes.databinding.ActivityPasswordConfirmBinding
 import com.ditronic.securezipnotes.noteselect.MainActivity
 import com.ditronic.securezipnotes.password.PwManager
 import com.ditronic.securezipnotes.password.PwResult
@@ -18,25 +16,25 @@ import com.ditronic.securezipnotes.util.OnThrottleClickListener
 
 class PasswordConfirmActivity : AppCompatActivity() {
 
-    private var password: String? = null
-    private lateinit var confirmPasswordText: EditText
+    private lateinit var password: String
+    private lateinit var binding: ActivityPasswordConfirmBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_password_confirm)
-        val toolbar = findViewById<Toolbar>(R.id.tool_bar)
+        binding = ActivityPasswordConfirmBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+        password = intent.extras!!.getString(INTENT_PASSWORD)!!
+
+        val toolbar = binding.toolBar
         setSupportActionBar(toolbar)
 
-        password = intent.extras!!.getString(INTENT_PASSWORD)
-        confirmPasswordText = findViewById(R.id.input_password_confirm)
-
-        findViewById<View>(R.id.btn_confirm_master_password).setOnClickListener(object : OnThrottleClickListener() {
+        binding.btnConfirmMasterPassword.setOnClickListener(object : OnThrottleClickListener() {
             public override fun onThrottleClick(v: View) {
                 savePassword()
             }
         })
 
-        confirmPasswordText.setOnEditorActionListener { _, actionId, _ ->
+        binding.inputPasswordConfirm.setOnEditorActionListener { _, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_DONE) {
                 savePassword()
                 return@setOnEditorActionListener true
@@ -51,17 +49,17 @@ class PasswordConfirmActivity : AppCompatActivity() {
 
         val window = window
         window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE)
-        confirmPasswordText.requestFocus()
+        binding.inputPasswordConfirm.requestFocus()
     }
 
     private fun savePassword() {
 
-        val confirmedPassword = confirmPasswordText.text.toString()
+        val confirmedPassword = binding.inputPasswordConfirm.text.toString()
         if (confirmedPassword != password) {
-            confirmPasswordText.error = "Passwords do not match"
+            binding.inputPasswordConfirm.error = "Passwords do not match"
             return
         }
-        confirmPasswordText.error = null
+        binding.inputPasswordConfirm.error = null
 
         PwManager.saveUserProvidedPassword(this, PwResult.Success(password = confirmedPassword, inputStream = null)) {
             MainActivity.launchCleanWithNewNote(this)
