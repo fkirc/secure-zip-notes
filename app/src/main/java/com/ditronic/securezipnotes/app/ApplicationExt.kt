@@ -2,9 +2,11 @@ package com.ditronic.securezipnotes.app
 
 
 import android.app.Application
+import com.ditronic.securezipnotes.BuildConfig
+import com.ditronic.securezipnotes.logging.CrashlyticsTree
+import timber.log.Timber
 
 class ApplicationExt : Application() {
-
 
     override fun onCreate() {
         super.onCreate()
@@ -14,9 +16,10 @@ class ApplicationExt : Application() {
     }
 
     private fun initLogging() {
-        // TODO: Plant Timber and Crashlytics tree
-//        if (BuildConfig.DEBUG) {
-//            Timber.plant(Timber.DebugTree())
-//        }
+        if (BuildConfig.DEBUG) {
+            Timber.plant(Timber.DebugTree())
+        } else {
+            Timber.plant(CrashlyticsTree())
+        }
     }
 }
