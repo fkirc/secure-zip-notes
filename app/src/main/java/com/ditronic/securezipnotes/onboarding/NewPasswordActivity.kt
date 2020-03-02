@@ -4,40 +4,35 @@ import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
 import android.view.inputmethod.EditorInfo
-import android.widget.EditText
-
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
-
-import com.ditronic.securezipnotes.R
+import com.ditronic.securezipnotes.databinding.ActivityNewPasswordBinding
 import com.ditronic.securezipnotes.util.OnThrottleClickListener
-
 import java.security.SecureRandom
 
 
 class NewPasswordActivity : AppCompatActivity() {
 
-    private lateinit var passwordText: EditText
+    private lateinit var binding: ActivityNewPasswordBinding
 
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_new_password)
-        val toolbar = findViewById<Toolbar>(R.id.tool_bar)
+        binding = ActivityNewPasswordBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+        val toolbar = binding.toolBar
         setSupportActionBar(toolbar)
-        passwordText = findViewById(R.id.input_password)
 
+        binding.inputPassword.setText(generatePassword())
 
-        passwordText.setText(generatePassword())
+        binding.btnGenerateMasterPassword.setOnClickListener { binding.inputPassword.setText(generatePassword()) }
 
-        findViewById<View>(R.id.btn_generate_master_password).setOnClickListener { _ -> passwordText.setText(generatePassword()) }
-
-        findViewById<View>(R.id.btn_next).setOnClickListener(object : OnThrottleClickListener() {
+        binding.btnNext.setOnClickListener(object : OnThrottleClickListener() {
             public override fun onThrottleClick(v: View) {
                 btnNext()
             }
         })
 
-        passwordText.setOnEditorActionListener { _, actionId, _ ->
+        binding.inputPassword.setOnEditorActionListener { _, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_DONE) {
                 btnNext()
                 true
@@ -63,14 +58,13 @@ class NewPasswordActivity : AppCompatActivity() {
 
     private fun btnNext() {
 
-        val password = passwordText.text.toString()
+        val password = binding.inputPassword.text.toString()
 
         if (password.isEmpty() || password.length < MIN_PW_LEN) {
-            passwordText.error = "Minimum length: $MIN_PW_LEN characters"
+            binding.inputPassword.error = "Minimum length: $MIN_PW_LEN characters"
             return
         }
-        passwordText.error = null
-
+        binding.inputPassword.error = null
         PasswordConfirmActivity.launch(this, password)
     }
 

@@ -78,6 +78,7 @@ class ITest {
         main_clickNote("Note 1", password = TESTPASSWORD)
 
         noteEdit_rename("Note 1", "Note 2")
+        Thread.sleep(2000)
         assertToast("Note 2 already exists")
 
         noteEdit_rename("Note 1", "")
