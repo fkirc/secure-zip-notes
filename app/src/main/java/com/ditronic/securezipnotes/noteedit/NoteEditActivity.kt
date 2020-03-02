@@ -13,6 +13,7 @@ import com.ditronic.securezipnotes.app.AppEnvironment
 import com.ditronic.securezipnotes.app.ViewModelFactory
 import com.ditronic.securezipnotes.password.PwManager
 import com.ditronic.securezipnotes.util.BannerAds
+import com.ditronic.securezipnotes.util.Boast
 import com.ditronic.securezipnotes.zip.CryptoZip
 import com.ditronic.securezipnotes.zip.validateEntryNameToast
 import kotlinx.android.synthetic.main.activity_note_edit.*
@@ -40,7 +41,7 @@ class NoteEditActivity : AppCompatActivity() {
         var newNoteName = edit_text_title.text.toString()
 
         if (newNoteName != oldNoteName && CryptoZip.instance(this).isDuplicateEntryName(newNoteName)) {
-            Toast.makeText(this, newNoteName + " already exists", Toast.LENGTH_SHORT).show()
+            Boast.makeText(this, newNoteName + " already exists", Toast.LENGTH_SHORT).show()
             newNoteName = oldNoteName
         }
         if (!validateEntryNameToast(newNoteName, this)) {
@@ -59,7 +60,7 @@ class NoteEditActivity : AppCompatActivity() {
         model.innerFileName = newNoteName // This must be set after the updateStream!
 
         edit_text_title.setText(newNoteName)
-        Toast.makeText(this, "Saved " + newNoteName, Toast.LENGTH_SHORT).show()
+        Boast.makeText(this, "Saved " + newNoteName, Toast.LENGTH_SHORT).show()
     }
 
     private fun saveClick() {

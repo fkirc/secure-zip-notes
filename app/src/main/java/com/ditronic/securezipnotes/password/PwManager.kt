@@ -4,6 +4,7 @@ import android.os.Build
 import android.widget.Toast
 import androidx.fragment.app.FragmentActivity
 import com.ditronic.securezipnotes.dialogs.PwDialog
+import com.ditronic.securezipnotes.util.Boast
 import com.ditronic.securezipnotes.zip.CryptoZip
 import net.lingala.zip4j.io.ZipInputStream
 import net.lingala.zip4j.model.FileHeader
@@ -113,9 +114,9 @@ object PwManager {
         unlockCipherWithBiometricPrompt(ac, cipherToUnlock) { unlockedCipher ->
             val success = finalizePwEncryption(ac, res.password, unlockedCipher)
             if (success) {
-                Toast.makeText(ac, "Password configured successfully", Toast.LENGTH_LONG).show()
+                Boast.makeText(ac, "Password configured successfully", Toast.LENGTH_LONG).show()
             } else {
-                Toast.makeText(ac, "Failed to encrypt the password", Toast.LENGTH_LONG).show()
+                Boast.makeText(ac, "Failed to encrypt the password", Toast.LENGTH_LONG).show()
             }
             cb(res) // Callback must be executed regardless of success or failure.
         }
