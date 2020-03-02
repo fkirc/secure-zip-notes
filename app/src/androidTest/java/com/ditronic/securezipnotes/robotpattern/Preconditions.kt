@@ -1,17 +1,19 @@
 package com.ditronic.securezipnotes.robotpattern
 
 import androidx.test.platform.app.InstrumentationRegistry
+import com.ditronic.securezipnotes.contrib.NonFatalAbortTree
 import com.ditronic.securezipnotes.noteselect.MainActivity
 import com.ditronic.securezipnotes.testutils.launchActivity
 import com.ditronic.securezipnotes.zip.CryptoZip
 import java.io.FileOutputStream
 
-private fun launchStartupActivity() {
+private fun commonPreconditions() {
+    NonFatalAbortTree.plantInTimber()
     launchActivity(MainActivity::class.java)
 }
 
 fun precondition_cleanStart() {
-    launchStartupActivity()
+    commonPreconditions()
 }
 
 fun precondition_singleNote() {
@@ -26,7 +28,7 @@ fun precondition_fourNotes() {
 
 fun precondition_loadAsset(assetPath: String) {
     loadAsset(assetPath)
-    launchStartupActivity()
+    commonPreconditions()
 }
 
 private fun loadAsset(assetPath: String) {
