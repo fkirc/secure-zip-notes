@@ -9,6 +9,7 @@ import androidx.test.espresso.intent.matcher.IntentMatchers
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
+import com.ditronic.securezipnotes.contrib.NonFatalAbortTree
 import com.ditronic.securezipnotes.robotpattern.*
 import com.ditronic.securezipnotes.testutils.click_dialogOK
 import org.junit.After
@@ -44,14 +45,18 @@ class ImportTests {
     @Test
     fun import7z() {
         precondition_cleanStart()
-        importExistingNotes("invalid/emptynote.7z")
+        NonFatalAbortTree.runWithoutAborts {
+            importExistingNotes("invalid/emptynote.7z")
+        }
         main_assertAlertDialog("Import failed. Probably this is not a valid Zip file.")
     }
 
     @Test
     fun importEmptyZip() {
         precondition_cleanStart()
-        importExistingNotes("invalid/emptyzip.zip")
+        NonFatalAbortTree.runWithoutAborts {
+            importExistingNotes("invalid/emptyzip.zip")
+        }
         main_assertAlertDialog("Import failed. Probably this is not a valid Zip file.")
     }
 
