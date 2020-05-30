@@ -15,6 +15,8 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         // Causes a "pm clear" command after each test invocation
         testInstrumentationRunnerArguments clearPackageData: 'true'
+
+        setProperty("archivesBaseName", applicationId + "-v" + versionCode + "(" + versionName + ")")
     }
     buildTypes {
         release {
