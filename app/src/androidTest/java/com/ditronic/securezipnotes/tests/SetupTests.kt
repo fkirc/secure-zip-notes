@@ -75,7 +75,7 @@ class SetupTests {
         init_typeNewPassword("sfse")
         init_newPassword_assertErrorText("Minimum length: 8 characters")
         init_typeNewPassword(TESTPASSWORD)
-        Thread.sleep(1000)
+        Thread.sleep(2000)
         init_confirmNewPassword(TESTPASSWORD)
         noteEdit_assertState("Note 1", "", editMode = true)
     }
