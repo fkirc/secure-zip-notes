@@ -114,5 +114,3 @@ android {
 }
 ```
 
-## License
-The entire `simplefilesync` subfolder is released under the MIT license.

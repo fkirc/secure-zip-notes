@@ -40,10 +40,6 @@ Pull requests are always welcome.
 You may also open an issue to ask for new functionality.
 The [backlog](BACKLOG.md) contains a list of potential tasks and features for future releases of Secure Zip Notes.
 
-## Copyright
-You are free to download this code for personal usage.
-You must not redistribute this app or any modified version of this app in the Google Play Store or any other App Store.
-The `simplefilesync` subfolder is licenced separately under the MIT license.
-
-Attributions:
+## Attributions
 This app uses a modified version of the Zip4j library (Apache License 2.0).
+
