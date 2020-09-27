@@ -1,3 +1,12 @@
+# Deprecation Notice
+
+This library does not reflect good Android-practices.
+Instead, I recommend to use Kotlin-Coroutines and ViewModels for file synchronization.
+This helps to prevent numerous memory leaks and lifecycle bugs.
+Or alternatively, I recommend to abandon native app-development and switch to cross-platform frameworks like https://capacitorjs.com/.
+
+____
+
 # Simple File Sync
 
 ``SimpleFileSync`` is an Android library that enables to easily synchronize individual files with Google Drive or Dropbox.
