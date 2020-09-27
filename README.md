@@ -35,10 +35,10 @@ _____________________________________________________________________
 ## Simple File Sync for Android
 The [SimpleFileSync](simplefilesync/) library is maintained as a separate module within this repository.
 
-## Contributions
-Pull requests are always welcome.
-You may also open an issue to ask for new functionality.
-The [backlog](BACKLOG.md) contains a list of potential tasks and features for future releases of Secure Zip Notes.
+## Tech-Stack Switch
+
+Due to unhappiness with the development-tools for native apps, I shifted my focus from native apps towards cross-platform apps with Capacitor/React/TypeScript.
+Nevertheless, this project remains in maintenance.
 
 ## Attributions
 This app uses a modified version of the Zip4j library (Apache License 2.0).
