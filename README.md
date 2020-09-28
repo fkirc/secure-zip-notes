@@ -37,7 +37,7 @@ The [SimpleFileSync](simplefilesync/) library is maintained as a separate module
 
 ## Tech-Stack Switch
 
-Due to unhappiness with the development-tools for native apps, I shifted my focus from native apps towards cross-platform apps with Capacitor/React/TypeScript.
+Due to unhappiness with native development tools, I shifted my focus from native apps towards cross-platform apps with Capacitor/React/TypeScript.
 Nevertheless, this project remains in maintenance.
 
 ## Attributions
