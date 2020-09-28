@@ -1,7 +1,7 @@
 # Deprecation Notice
 
-This library does not reflect good Android-practices.
-Instead, I recommend to use Kotlin-Coroutines and ViewModels for file synchronization.
+I deprecated this library because it does not reflect good Android-practices.
+Instead, I recommend to use Kotlin-Coroutines and ViewModels.
 This helps to prevent numerous memory leaks and lifecycle bugs.
 Or alternatively, I recommend to abandon native app-development and switch to cross-platform frameworks like https://capacitorjs.com/.
 
