@@ -1,6 +1,8 @@
 on:
   push:
   workflow_dispatch:
+  schedule:
+    - cron:  '0 12 15 * *'
 
 jobs:
   pre_job:
