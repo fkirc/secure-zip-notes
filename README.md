@@ -4,8 +4,6 @@ Securely store notes within an encrypted Zip file.
 <a href="https://play.google.com/store/apps/details?id=com.ditronic.securezipnotes" target="_blank">
 <img src="https://play.google.com/intl/en_us/badges/images/generic/en-play-badge.png" alt="Get it on Google Play" height="40"/></a>
 
-[![Build Status](https://travis-ci.com/fkirc/secure-zip-notes.svg?branch=master)](https://travis-ci.com/fkirc/secure-zip-notes)
-
 You do not trust bloated password managers with undocumented file formats?
 You want to retain 100% control over your data?
 Then Secure Zip Notes is your solution.
