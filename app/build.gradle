@@ -8,6 +8,7 @@ android {
     defaultConfig {
         applicationId "com.ditronic.securezipnotes"
         minSdkVersion 19
+        //noinspection OldTargetApi
         targetSdkVersion 29
         versionCode 5
         versionName "1.1.3"

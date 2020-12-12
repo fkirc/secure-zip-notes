@@ -1,8 +1,9 @@
 package com.ditronic.securezipnotes.app
 
+import android.annotation.SuppressLint
 import android.content.Context
 
-
+@SuppressLint("StaticFieldLeak")
 class AppEnvironment(val context: Context) {
 
     companion object {
