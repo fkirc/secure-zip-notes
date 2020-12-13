@@ -210,7 +210,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    // TODO: Remove this memory leak. Use ViewModel and observables instead.
+    // TODO: Remove memory leak. Use ViewModel and observables instead.
     private fun onSyncCompleted(res: SSyncResult, cloudBackend: String) {
 
         if (res.resultCode == ResultCode.CONNECTION_FAILURE) {
