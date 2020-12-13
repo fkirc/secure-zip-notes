@@ -19,8 +19,8 @@ class DeleteDialog: ShortLifeDialogFragment<DeleteDialogState>() {
         return AlertDialog.Builder(requireContext())
                 .setIcon(android.R.drawable.ic_dialog_alert)
                 .setMessage(state.message)
-                .setPositiveButton(android.R.string.yes) { _, _ -> state.onPositiveClick() }
-                .setNegativeButton(android.R.string.no) { _, _ -> state.onNegativeClick() }
+                .setPositiveButton("Yes") { _, _ -> state.onPositiveClick() }
+                .setNegativeButton("No") { _, _ -> state.onNegativeClick() }
                 .create()
     }
 
