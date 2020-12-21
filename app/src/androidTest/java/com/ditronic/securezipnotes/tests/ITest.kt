@@ -61,9 +61,11 @@ class ITest {
         precondition_fourNotes()
 
         main_renameNote("Note 1", "Note 2", typePassword = true)
+        Thread.sleep(1000)
         assertToast("Note 2 already exists")
 
         main_renameNote("Note 2", "")
+        Thread.sleep(1000)
         assertToast("Empty file names are not allowed")
 
         main_renameNote("Note 2", "directory/")
