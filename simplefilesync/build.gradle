@@ -22,7 +22,6 @@ dependencies {
 
     implementation "com.jakewharton.timber:timber:4.7.1"
     implementation 'com.google.android.gms:play-services-auth:19.0.0'
-    implementation 'com.google.android.gms:play-services-drive:17.0.0'
     implementation ('com.google.http-client:google-http-client-gson:1.38.0') {
         exclude group: 'org.apache.httpcomponents'
     }
