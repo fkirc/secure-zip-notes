@@ -1,3 +1,15 @@
+## 1.2.0
+
+- Remove Google Drive sync to remove bugs and streamline maintenance.
+
+## 1.1.4
+
+- Maintenance update (keeping up with Android updates and library updates)
+
+## 1.1.3
+
+- Maintenance update
+
 ## 1.1.2
 
 - Maintenance update
