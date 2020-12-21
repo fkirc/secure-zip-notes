@@ -9,7 +9,7 @@ ____
 
 # Simple File Sync
 
-``SimpleFileSync`` is an Android library that enables to easily synchronize individual files with Google Drive or Dropbox.
+``SimpleFileSync`` is an Android library that enables to easily synchronize individual files with Dropbox.
 
 ``SimpleFileSync`` provides synchronization in both directions, that is: It either uploads or downloads files.
 The direction depends on the timestamps.
@@ -91,24 +91,13 @@ Replace the `MY_APP_KEY` entries with the app key from your Dropbox developer da
 <string name="dropbox_app_key_db">db-MY_APP_KEY</string>
 ```
 
-## Google Drive Integration
-
-- Register an oauth2 app according to the Google Cloud developer documentation:
-https://console.cloud.google.com/.
-Among other things, you will need to specify the package name of your app
-and the SHA-1 fingerprint of your app signing key store (providing different SHA-1 fingerprints for your debug key store and your production key store).
-Unlike Dropbox, you do not get an app key that you can simply copy into your app.
-
-- The code integration is mostly the same as for Dropbox, except that you use `DriveFileSync` instead of `DropboxFileSync`.
-Unlike Dropbox, however, you need to call `DriveFileSync.onActivityResultOauthSignIn` from the `onActivityResult` of your Activity.
-
 ## Potential Issues
 
 #### Optional Auto Backup Configuration
 It might be a good idea to disable the Android Auto Backup feature.
 This can be done by setting `android:allowBackup="false"` in your application `AndroidManifest.xml`.
 Alternatively, you might disable Auto Backup for a selected folder where your local sync files are stored.
-Otherwise, the Auto Backup might mess up the synchronization with Dropbox or Google Drive.
+Otherwise, the Auto Backup might mess up the synchronization with Dropbox.
 
 
 #### Build Failure about META_INF/DEPENDENCIES
@@ -122,4 +111,3 @@ android {
     }
 }
 ```
-
