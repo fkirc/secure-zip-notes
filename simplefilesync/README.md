@@ -21,11 +21,6 @@ Moreover, ``SimpleFileSync`` compares a hash of the local file with the remote f
 - Dropbox Core SDK: `com.dropbox.core:dropbox-core-sdk`.
 The Dropbox Core SDK is open-sourced at https://github.com/dropbox/dropbox-sdk-java.
 
-
-- Play Services Drive library: `com.google.android.gms:play-services-drive`.
-The Play Services Drive library is probably not open-source, but the API is documented at https://developers.google.com/drive/api/v3/.
-Besides, there exists a demo app at https://github.com/gsuitedevs/android-samples/.
-
 ## Dropbox Integration
 Integrating ``SimpleFileSync`` into your app involves the following steps:
 
