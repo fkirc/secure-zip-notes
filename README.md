@@ -8,20 +8,21 @@ Securely store notes within an encrypted Zip file.
 
 You do not trust bloated password managers with undocumented file formats?
 You want to retain 100% control over your data?
-Then Secure Zip Notes is your solution.
+Then Secure Zip Notes is a solution.
 
 ## Features
 - View and edit encrypted text files on any platform, using password-protected Zip files.
-- Sync with Google Drive or Dropbox.
+- Optional sync with Dropbox (they cannot decrypt your data).
+- Simple import/export of Zip files.
 - Uses hardware-protected storage to avoid retyping the master password every time.
-- Open Source: Fetch this app from github if you do not trust us.
+- Open Source: Fetch this app from GitHub if you do not trust us.
 
 Our top priority is not only security and privacy, but also long-term stability.
-We take the responsiblity to retain your data seriously.
+We take the responsibility to retain your data seriously.
 Secure Zip Notes guarantees that you can easily decrypt your data in 50 years even if DiTronic Apps ceases to exist.
 
 This app only supports text notes.
-If you are seeking advanced features like auto-fill passwords, then we recommend an app like Keepass2Android.
+If you are seeking advanced features like auto-fill passwords, then we recommend other apps like Keepass2Android.
 
 ## Technical details
 - Supported independent programs: 7-Zip, WinZip, The Unarchiver (macOS), Gnome Archive Manager
@@ -31,14 +32,6 @@ If you are seeking advanced features like auto-fill passwords, then we recommend
 Not all PC operating systems support Zip files with AES encryption by default.
 Therefore, you might need to install a PC software like 7-Zip.
 _____________________________________________________________________
-
-## Simple File Sync for Android
-The [SimpleFileSync](simplefilesync/) library is maintained as a separate module within this repository.
-
-## Tech-Stack Switch
-
-Due to unhappiness with native development tools, I shifted my focus from native apps towards cross-platform apps with Capacitor/React/TypeScript.
-Nevertheless, this project remains in maintenance.
 
 ## Attributions
 This app uses a modified version of the Zip4j library (Apache License 2.0).

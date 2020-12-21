@@ -7,7 +7,6 @@ import androidx.core.content.FileProvider
 import com.ditronic.securezipnotes.R
 import com.ditronic.securezipnotes.util.Boast
 import com.ditronic.securezipnotes.zip.CryptoZip
-import com.ditronic.simplefilesync.DriveFileSync
 import com.ditronic.simplefilesync.DropboxFileSync
 import com.ditronic.simplefilesync.util.FilesUtil
 import java.io.File
@@ -62,10 +61,6 @@ object MenuOptions {
             }
             R.id.action_sync_dropbox -> {
                 DropboxFileSync.launchInitialOauthActivity(ac)
-                return true
-            }
-            R.id.action_sync_drive -> {
-                DriveFileSync.launchInitialOauthActivity(ac)
                 return true
             }
             else -> return false

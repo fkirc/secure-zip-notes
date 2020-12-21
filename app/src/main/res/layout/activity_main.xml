@@ -73,19 +73,6 @@
                     android:layout_marginBottom="15dp"
                     />
             </TableRow>
-            <TableRow
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" >
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btn_sync_drive"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:padding="12dp"
-                    android:text="@string/sync_with_google_drive"
-                    android:gravity="center_vertical"
-                    app:icon="@drawable/ic_drive"
-                    />
-            </TableRow>
         </TableLayout>
 
     </RelativeLayout>

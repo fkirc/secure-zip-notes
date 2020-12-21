@@ -61,9 +61,11 @@ class ITest {
         precondition_fourNotes()
 
         main_renameNote("Note 1", "Note 2", typePassword = true)
+        Thread.sleep(1000)
         assertToast("Note 2 already exists")
 
         main_renameNote("Note 2", "")
+        Thread.sleep(1000)
         assertToast("Empty file names are not allowed")
 
         main_renameNote("Note 2", "directory/")
@@ -133,20 +135,6 @@ class ITest {
         pressBack()
         main_assertListState(listOf("Note 1", "Note 3", "Note 4").reversed())
     }
-
-    // TODO: Fix this test
-    /*@Test
-    fun exportNote() {
-        precondition_singleNote(acRule)
-        Intents.init()
-
-        main_clickOptionsMenu(R.string.export_zip_file)
-
-        intended(hasAction(Intent.ACTION_CHOOSER))
-        intended(hasExtras(BundleMatchers.hasEntry("key", "value")))
-
-        Intents.release()
-    }*/
 
     @Test
     fun deleteLastNote() {

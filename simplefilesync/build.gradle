@@ -1,12 +1,12 @@
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion 29
+    compileSdkVersion 30
 
 
     defaultConfig {
         minSdkVersion 19
-        targetSdkVersion 29
+        targetSdkVersion 30
         versionCode 1
         versionName "1.0.0"
     }
@@ -22,14 +22,7 @@ dependencies {
 
     implementation "com.jakewharton.timber:timber:4.7.1"
     implementation 'com.google.android.gms:play-services-auth:19.0.0'
-    implementation 'com.google.android.gms:play-services-drive:17.0.0'
     implementation ('com.google.http-client:google-http-client-gson:1.38.0') {
-        exclude group: 'org.apache.httpcomponents'
-    }
-    implementation('com.google.api-client:google-api-client-android:1.31.1') {
-        exclude group: 'org.apache.httpcomponents'
-    }
-    implementation('com.google.apis:google-api-services-drive:v3-rev99-1.23.0') {
         exclude group: 'org.apache.httpcomponents'
     }
 

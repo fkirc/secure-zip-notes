@@ -18,9 +18,4 @@
         android:title="@string/sync_with_dropbox"
         app:showAsAction="never" />
 
-    <item
-        android:id="@+id/action_sync_drive"
-        android:title="@string/sync_with_google_drive"
-        app:showAsAction="never" />
-
 </menu>

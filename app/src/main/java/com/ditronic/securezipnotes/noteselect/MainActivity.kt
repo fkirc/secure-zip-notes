@@ -28,7 +28,6 @@ import com.ditronic.securezipnotes.util.OnThrottleItemClickListener
 import com.ditronic.securezipnotes.zip.CryptoZip
 import com.ditronic.securezipnotes.zip.NotesImport
 import com.ditronic.simplefilesync.AbstractFileSync
-import com.ditronic.simplefilesync.DriveFileSync
 import com.ditronic.simplefilesync.DropboxFileSync
 import com.ditronic.simplefilesync.util.ResultCode
 import com.ditronic.simplefilesync.util.SSyncResult
@@ -81,11 +80,6 @@ class MainActivity : AppCompatActivity() {
         binding.btnSyncDropbox.setOnClickListener(object : OnThrottleClickListener() {
             public override fun onThrottleClick(v: View) {
                 DropboxFileSync.launchInitialOauthActivity(this@MainActivity)
-            }
-        })
-        binding.btnSyncDrive.setOnClickListener(object : OnThrottleClickListener() {
-            public override fun onThrottleClick(v: View) {
-                DriveFileSync.launchInitialOauthActivity(this@MainActivity)
             }
         })
 
@@ -158,24 +152,17 @@ class MainActivity : AppCompatActivity() {
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
 
         val menuSyncDropbox = menu.findItem(R.id.action_sync_dropbox)
-        val menuSyncDrive = menu.findItem(R.id.action_sync_drive)
         menuSyncDropbox.isCheckable = false
-        menuSyncDrive.isCheckable = false
 
         val syncBackend = AbstractFileSync.getCurrentSyncBackend(this)
         if (syncBackend != null && syncBackend == DropboxFileSync::class.java.simpleName) {
             menuSyncDropbox.setCheckable(true).isChecked = true
-        } else if (syncBackend != null && syncBackend == DriveFileSync::class.java.simpleName) {
-            menuSyncDrive.setCheckable(true).isChecked = true
         }
         return true
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-
-        DriveFileSync.onActivityResultOauthSignIn(this, requestCode, resultCode, data
-        ) { this.initiateFileSync() }
 
         if (requestCode == REQUEST_CODE_IMPORT_FILE_RES_CODE && resultCode == Activity.RESULT_OK) {
             val importUri = data!!.data
@@ -204,9 +191,6 @@ class MainActivity : AppCompatActivity() {
         if (syncBackend == DropboxFileSync::class.java.simpleName) {
             DropboxFileSync(this, localFile, REMOTE_BACKUP_FILE_NAME
             ) { res -> this@MainActivity.onSyncCompleted(res, "Dropbox") }.execute()
-        } else if (syncBackend == DriveFileSync::class.java.simpleName) {
-            DriveFileSync(this, localFile, REMOTE_BACKUP_FILE_NAME
-            ) { res -> this@MainActivity.onSyncCompleted(res, "Google Drive") }.execute()
         }
     }
 
