@@ -136,20 +136,6 @@ class ITest {
         main_assertListState(listOf("Note 1", "Note 3", "Note 4").reversed())
     }
 
-    // TODO: Fix this test
-    /*@Test
-    fun exportNote() {
-        precondition_singleNote(acRule)
-        Intents.init()
-
-        main_clickOptionsMenu(R.string.export_zip_file)
-
-        intended(hasAction(Intent.ACTION_CHOOSER))
-        intended(hasExtras(BundleMatchers.hasEntry("key", "value")))
-
-        Intents.release()
-    }*/
-
     @Test
     fun deleteLastNote() {
         precondition_singleNote()
