@@ -33,14 +33,6 @@ Not all PC operating systems support Zip files with AES encryption by default.
 Therefore, you might need to install a PC software like 7-Zip.
 _____________________________________________________________________
 
-## Simple File Sync for Android
-The [SimpleFileSync](simplefilesync/) library is maintained as a separate module within this repository.
-
-## Tech-Stack Switch
-
-Due to unhappiness with native development tools, I shifted my focus from native apps towards cross-platform apps with Capacitor/React/TypeScript.
-Nevertheless, this project remains in maintenance.
-
 ## Attributions
 This app uses a modified version of the Zip4j library (Apache License 2.0).
 
