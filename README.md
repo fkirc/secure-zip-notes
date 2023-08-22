@@ -10,6 +10,15 @@ You do not trust bloated password managers with undocumented file formats?
 You want to retain 100% control over your data?
 Then Secure Zip Notes is a solution.
 
+# Deprecation Notice
+
+I deprecate this app because I believe the "XML-based UI" is no longer suitable for future development.
+Instead, I recommend embracing a modern declarative UI framework.
+Declarative UIs, popularized by frameworks like Flutter and React, are, in my opinion, vastly superior to traditional XML-UIs.
+However, due to other projects taking higher priority, I am unable to allocate time to rewriting this UI.
+
+Please note that notes created within this app can still be opened using independent programs (e.g., 7-Zip, WinZip, The Unarchiver for macOS, Gnome Archive Manager).
+
 ## Features
 - View and edit encrypted text files on any platform, using password-protected Zip files.
 - Optional sync with Dropbox (they cannot decrypt your data).
