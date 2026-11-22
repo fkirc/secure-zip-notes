@@ -76,3 +76,7 @@ button.small { padding: 4px 10px; min-height: 32px; font-size: 0.9rem; }
 .about dt { color: var(--muted); }
 .about dd { margin: 0; overflow-wrap: anywhere; }
 .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.85rem; }
+@media (max-width: 520px) {
+  .about { grid-template-columns: 1fr; gap: 2px; }
+  .about dd { margin-bottom: 10px; }
+}
