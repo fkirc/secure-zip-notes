@@ -1,6 +1,6 @@
 # Secure Zip Notes v2 — Specification (draft for review)
 
-Status: **proposal, nothing implemented yet.** Felix defines the spec; everything below is a proposal to review, accept, or strike. Open questions are collected in [section 11](#11-open-questions-for-felix) and marked inline as **(Q1)**, **(Q2)**, etc.
+Status: **spec, nothing implemented yet.** Felix defines the spec. Felix answered the first round of open questions on 2026-11-22; the decisions are recorded in [section 11](#11-decisions-log) and already applied in the sections below.
 
 The v1 Android app lives in [`legacy/`](legacy/) and serves as the reference for the file format, features, and test cases.
 
@@ -32,7 +32,7 @@ The v1 Android app lives in [`legacy/`](legacy/) and serves as the reference for
 
 ## 2. Features (carried over from v1, minus sync)
 
-| Feature | v1 | v2 proposal |
+| Feature | v1 | v2 |
 |---|---|---|
 | Create a vault with a new master password (min. 8 characters, confirm step) | yes | yes |
 | Generate a random password during setup | yes | yes, via `crypto.getRandomValues` |
@@ -43,11 +43,13 @@ The v1 Android app lives in [`legacy/`](legacy/) and serves as the reference for
 | Delete a note (with confirmation) | yes | yes |
 | Import an existing AES zip | yes | yes ("Open vault") |
 | Export the zip | yes | yes ("Save vault"), see section 5 |
-| Entries encrypted with different passwords in the same zip | yes | yes, ask for the password per entry when the cached one fails |
-| Remember master password via hardware keystore / biometrics | yes | **no**: the password lives only in memory while the app is open **(Q4)** |
+| Single master password per vault | yes | yes. New and edited entries always use the master password, exactly like v1. No UI for creating entries with a different password |
+| Reading imported zips whose entries use different passwords | yes | yes, same as v1: if the master password fails for an entry, ask for that entry's password (keeps v1's `MultiPasswordTests`) |
+| Remember master password via hardware keystore / biometrics | yes | **no**: the password lives only in memory, with an idle auto-lock (default 60 minutes, user-configurable) |
 | Install on the phone home screen | yes (Play Store) | yes, as a PWA, without any app store |
 | Dropbox / Google Drive sync | yes | **removed** |
-| Search across open notes (v1 backlog) | backlog | optional **(Q7)** |
+| Search | no (backlog) | **no**, dropped to keep v2 bare-bones |
+| Automatic updates | Play Store | **never**: a user only gets a new version by installing it manually (section 7) |
 
 ---
 
@@ -65,7 +67,7 @@ Identical to v1 (Zip4j settings in `legacy/app/src/main/java/com/ditronic/secure
 - Rejected on import, as in v1: non-encrypted entries, ZipCrypto entries, directory-only entries, empty file names, non-zip files (e.g. `.7z`).
 - Text encoding: UTF-8.
 
-**Security note for review.** The WinZip format caps PBKDF2 at 1000 iterations of SHA-1, which is weak by today's standards against offline brute force. That is the price of 7-Zip compatibility. The spec should state plainly that a long random password is the defence. A stronger, non-standard format would break goal 3, so this proposal keeps the standard format **(Q5)**.
+**Security note.** The WinZip format caps PBKDF2 at 1000 iterations of SHA-1, which is weak by today's standards against offline brute force. That is the price of 7-Zip compatibility. The README states plainly that a long random password is the defence. **Decided:** all crypto stays exactly as in v1. There is no alternative or stronger mode.
 
 ### Implementation without crypto/zip libraries
 
@@ -91,15 +93,15 @@ Note on AES-CTR: WebCrypto's AES-CTR increments the counter big-endian, while Wi
 
 The shipped zip contains only code from this repository. No React, no UI library, no crypto library, no zip library.
 
-### Framework: drop React (recommendation)
+### Framework: vanilla TypeScript (decided)
 
 | Option | Packages | Pros | Cons |
 |---|---|---|---|
-| **A. Vanilla TS + tiny in-house view helper** (recommended) | 0 | Zero runtime supply chain; every shipped line is ours and reviewable; small bundle | We write a ~100-line `h()`/render helper; less ergonomic for big UIs |
-| B. Preact | 1 (no transitive deps) | Declarative, React-like, ~4 KB | One third-party package in the shipped bundle |
-| C. React + ReactDOM | 3+ (`react`, `react-dom`, `scheduler`) | Familiar | Larger bundle and surface, no benefit at this app size |
+| **A. Vanilla TS + tiny in-house view helper** (chosen) | 0 | Zero runtime supply chain; every shipped line is ours and reviewable; small bundle | We write a ~100-line `h()`/render helper; less ergonomic for big UIs |
+| B. Preact (rejected) | 1 (no transitive deps) | Declarative, React-like, ~4 KB | One third-party package in the shipped bundle |
+| C. React + ReactDOM (rejected) | 3+ (`react`, `react-dom`, `scheduler`) | Familiar | Larger bundle and surface, no benefit at this app size |
 
-The UI is about four screens: setup, note list, editor, and password prompt. That's small enough that a declarative-style pattern (state → `render()` → DOM) works fine in plain TS without a library. This follows the v1 deprecation notice's preference for declarative UI without pulling in a dependency. **(Q1)**
+The UI is about four screens: setup, note list, editor, and password prompt. That's small enough that a declarative-style pattern (state → `render()` → DOM) works fine in plain TS without a library. This follows the v1 deprecation notice's preference for declarative UI without pulling in a dependency. **Decided:** vanilla TS only, no Preact, and nothing that isn't strictly needed.
 
 ### Dev dependencies (build and test only, never shipped)
 
@@ -116,10 +118,10 @@ Deliberately **not** used:
 
 - **Vitest / Jest**: replaced by Node's built-in `node:test` runner. Node ≥ 22.18 runs `.ts` files directly via type stripping, and Node ships WebCrypto and `DecompressionStream`, so the crypto and zip code can be unit-tested in Node with zero test dependencies.
 - **Vite / Webpack / Rollup**: esbuild alone covers it.
-- **ESLint / Prettier**: large dependency trees (ESLint) or optional (Prettier). We rely on `tsc --strict` plus extra checks (`noUncheckedIndexedAccess`, `exactOptionalPropertyTypes`, `erasableSyntaxOnly`). Prettier can be added later as a single zero-dep package if wanted **(Q2)**.
+- **ESLint / Prettier / any formatter or linter**: dropped (decided). We rely on `tsc --strict` plus extra checks (`noUncheckedIndexedAccess`, `exactOptionalPropertyTypes`, `erasableSyntaxOnly`).
 - **Any zip/crypto library** (JSZip, zip.js, fflate, ...): see section 3.
 
-Alternative with even fewer packages: replace `esbuild` with `tsc` plus a small in-house script that concatenates the output. That's possible but brittle. esbuild is worth its 2 packages **(Q3)**.
+**Why esbuild is strictly needed (accepted):** Chromium refuses to load ES modules from `file://`, and the CSP hash scheme needs a single inlined script, so the TS modules must be bundled into one classic script. `tsc` can't do that for ES modules, and an in-house bundler would be more code to trust than esbuild's single, dependency-free binary. It's a build-time tool only; nothing from it ships except the bundled output of our own code, and the reproducibility matrix checks that output.
 
 ### pnpm and supply-chain hardening
 
@@ -146,19 +148,22 @@ The **encrypted zip is the single source of truth.** The app keeps decrypted not
   - Baseline (all browsers): download the updated zip via a Blob URL, so the user saves or overwrites the file.
   - Enhancement (Chromium): File System Access API (`showOpenFilePicker` / `createWritable`), so the opened file is saved in place with a "Save" button. Feature-detected and never required.
 - **Unsaved changes:** a visible "unsaved changes" indicator plus a `beforeunload` warning.
-- **No persistent browser storage** in the zip variant (no localStorage or IndexedDB). On `file://` this storage is unreliable anyway, and its origin is shared with other local files in some browsers **(Q6)**.
+- **No recent-file list.** The app doesn't remember file handles between sessions. On each launch the user opens the file again; this keeps the feature set minimal and avoids browser storage on `file://`.
+- **No vault data in browser storage** in the zip variant. On `file://` this storage is unreliable anyway, and its origin is shared with other local files in some browsers. The only thing stored there, best effort, is the non-secret idle-lock setting (see below).
 
 **PWA variant (`https://`):** picking a file on every launch is painful on a phone, so the PWA additionally keeps a copy of the **encrypted** zip bytes (ciphertext only, exactly what's in the file) in the Origin Private File System, with IndexedDB as fallback. It's read on launch, so the user only types the password.
 
 - Never stored: the password, derived keys, decrypted notes.
-- Browser storage is not a backup. iOS can evict it, and uninstalling the PWA deletes it. The app says so, and nags with "last exported N days ago" when the vault has changed since the last export **(Q11)**.
+- Browser storage is not a backup. iOS can evict it, and uninstalling the PWA deletes it. The app says so, and nags with "last exported N days ago" when the vault has changed since the last export. **Decided:** keep the encrypted vault in browser storage.
 - "Export vault" (download or share sheet via `navigator.share` with a file, where supported) gets the zip into Files, Dropbox, etc. Backups remain the user's job.
 - `navigator.storage.persist()` is requested to make eviction less likely.
 
 ### Password handling
 
 - The master password is kept in memory for the session to decrypt and encrypt entries. It is never written anywhere.
-- Optional auto-lock after N minutes idle, which clears the password and decrypted notes from memory **(Q4)**.
+- **Idle auto-lock (decided):** after **60 minutes** without user input (default), the app clears the password, derived keys, and decrypted notes from memory and shows the password prompt again. Unsaved edits are never discarded. Before locking, they're encrypted into an updated vault: the PWA writes it to browser storage, and the zip variant keeps the encrypted zip in memory (still marked unsaved) until the user unlocks and saves it.
+- The timeout is configurable in Settings (e.g. 1–1440 minutes). The setting isn't secret; the PWA stores it in browser storage, and the zip variant stores it in `localStorage` best effort and falls back to 60 minutes.
+- Closing the tab or app always drops everything from memory.
 - Wrong password is detected via the 2-byte verifier and confirmed via the HMAC. A failed HMAC is reported as "file corrupted or wrong password", never shown as garbage text.
 
 ### Saving entries
@@ -171,9 +176,9 @@ v1 rewrote an entry by removing and re-adding it, which could lose data. v2 alwa
 src/
   crypto/    pbkdf2, aes-ctr-le, hmac, winzip-aes (encrypt/decrypt entry)
   zip/       reader, writer, crc32, inflate (DecompressionStream wrapper)
-  vault/     Vault model: list/add/rename/delete/update, multi-password handling, import validation
+  vault/     Vault model: list/add/rename/delete/update, per-entry password fallback on read, import validation
   ui/        h() helper, screens (setup, list, editor, password prompt), styles
-  pwa/       vault persistence (OPFS/IndexedDB), service-worker registration, update prompt
+  pwa/       vault persistence (OPFS/IndexedDB), service-worker registration
   sw.ts      service worker (precache + cache-first, no runtime fetches)
   main.ts    wiring; enables pwa/ only when served over https
 public/
@@ -211,13 +216,14 @@ One build produces two outputs from the same source and the same `index.html`:
 
 ```
 dist/
-  pwa/                                   deployed as-is to GitHub Pages
+  pwa/                                   deployed as-is to GitHub Pages under /v<version>/
     index.html                           identical bytes to the one in the zip
     sw.js
     manifest.webmanifest
     icons/icon-192.png, icon-512.png, apple-touch-icon.png
   secure-zip-notes-v2-<version>.zip      index.html, LICENSE, README.txt
-  SHA256SUMS                             hash of every file above, including the zip
+  secure-zip-notes-v2-<version>-pwa.zip  the pwa/ folder, attached to the release so Pages can be rebuilt from releases
+  SHA256SUMS                             hash of every file above, including both zips
 ```
 
 Minimum browsers: current Chrome/Edge, Firefox, and Safari (desktop and mobile). The baseline needs WebCrypto, `DecompressionStream('deflate-raw')` (Chrome 103+, Firefox 113+, Safari 16.4+), and `<input type=file>`. The PWA additionally needs service workers.
@@ -228,23 +234,32 @@ Download the zip from GitHub Releases, check it against `SHA256SUMS`, extract it
 
 ### Method 2: PWA (mobile and desktop, no app store)
 
-- Hosted on GitHub Pages **(Q12)**. Free, static, no server code, deployed only by the release pipeline.
+- Hosted on GitHub Pages at `https://fkirc.github.io/secure-zip-notes/` (decided, no custom domain). Free, static, no server code, deployed only by the release pipeline.
 - **Android (Chrome):** open the URL, then "Install app" / "Add to Home Screen". It runs full-screen with its own icon.
 - **iOS / iPadOS (Safari):** Share → "Add to Home Screen". Home-screen web apps run standalone and have their own storage.
 - **Desktop Chromium:** "Install" in the address bar. Firefox desktop has no install, but the page still works offline after the first visit.
 - No App Store, Google Play, developer accounts, contracts, signing keys, or review process. The only infrastructure is the GitHub repo.
-- Manifest: `start_url: "./"`, `scope: "./"`, `display: "standalone"`. Relative paths, so it works under the `/secure-zip-notes/` sub-path.
+- Manifest: `start_url: "./"`, `scope: "./"`, `display: "standalone"`. Relative paths, so each version works under its own `/secure-zip-notes/v<version>/` path.
 
-**What a PWA can't do compared with v1** (to be stated in the README): no hardware-keystore or biometric unlock, iOS may evict storage (hence export reminders), and there are no store-managed updates.
+**What a PWA can't do compared with v1** (to be stated in the README): no hardware-keystore or biometric unlock, iOS may evict storage (hence export reminders), and there are no automatic updates.
 
-### PWA updates: never silent
+### Updates: never automatic (decided)
 
-- `sw.js` embeds the release version and digest, so every release changes its bytes and the browser detects an update. The service worker is registered with `updateViaCache: 'none'`.
-- A new service worker installs into a **waiting** state and does **not** take over. The app shows "Version X is available. [Release notes] [Update] [Not now]". Only "Update" sends `skipWaiting` and reloads.
-- The running version and its release digest are shown under Settings → About.
-- Old caches are deleted only after the new version activates.
+The app never updates itself. A user gets a new version only by installing it manually.
 
-Honest limitation: whoever controls the GitHub Pages deployment (Felix's GitHub account, or GitHub itself) could publish a malicious update. Users would still be asked before it activates, but the prompt can't prove the update is the published one. The defences are the reproducible build, the public pipeline, published hashes, build attestations, and the verification script in section 8. Users who want zero trust in hosting use the zip.
+A normal PWA can't guarantee that: browsers re-check `sw.js` and activate a new version once all tabs are closed. So v2 makes every release **immutable and version-pinned**:
+
+- Each release is deployed to its own path, e.g. `https://fkirc.github.io/secure-zip-notes/v2.0.0/`, and the files at that path never change again. The service worker's scope is that path only.
+- An installed PWA points at its version path, so the browser's update check always finds the same `sw.js` bytes and there is nothing to update to.
+- The service worker never calls `skipWaiting()` or `clients.claim()`, never fetches anything outside its precache list, and the app shows no "update available" prompt. It makes no request of its own to look for new versions.
+- `https://fkirc.github.io/secure-zip-notes/` itself is a static landing page with no service worker and no app code. It lists every version with its release digest and a link to its GitHub Release.
+- Settings → About shows the running version and its release digest, plus the releases URL as plain text.
+
+**Manually updating the PWA:** in the old version, choose "Export vault". Open the new version's URL, install it, and choose "Open vault" with the exported file. Then uninstall the old version. All versions share the same origin, so the new version may already see the stored vault, but export/import is the documented path because iOS isolates the storage of each home-screen app. **Manually updating the zip variant:** download and extract the new zip.
+
+Old versions stay online, so an installed PWA keeps working even if a later release is bad.
+
+Honest limitation: whoever controls the GitHub Pages deployment (Felix's GitHub account, or GitHub itself) could replace files at an existing version path. Browsers would then pick up the changed `sw.js`. The defences are that the pipeline only ever adds version directories (and checks that the old ones are byte-identical to their releases), the published hashes, build attestations, and the verification script in section 8, which can run on a schedule. Users who want zero trust in hosting use the zip.
 
 GitHub Pages can't set HTTP headers, so the CSP is delivered via `<meta>` only. `frame-ancestors` (clickjacking protection) isn't available through `<meta>`, so the app adds a small frame-busting check instead.
 
@@ -280,7 +295,7 @@ Building the same tag on any machine must produce byte-identical files. The buil
 2. **Compare:** all three `SHA256SUMS` must be identical, or the release fails.
 3. **Attest:** `actions/attest-build-provenance` creates a signed SLSA provenance attestation for the zip and every PWA file. It ties the hashes to this repo, workflow, and commit, and anyone can check it with `gh attestation verify`.
 4. **Publish release:** a GitHub Release with the zip, `SHA256SUMS`, and the digest in the release notes.
-5. **Deploy PWA:** upload exactly `dist/pwa/` from the same job to GitHub Pages (`actions/upload-pages-artifact` + `actions/deploy-pages`). Pages is deployed only from this workflow, never from a branch.
+5. **Deploy PWA:** a GitHub Pages deployment replaces the whole site, so the job assembles it from scratch: it downloads the `-pwa.zip` of **every** published v2 release, checks each against that release's `SHA256SUMS` (and fails if any differ), unpacks each into `v<version>/`, adds the new `dist/pwa/` as `v<new version>/`, and generates the landing page. Then `actions/upload-pages-artifact` + `actions/deploy-pages`. Pages is deployed only from this workflow, never from a branch. The landing page is the only file that changes between deployments.
 
 Workflow hardening:
 
@@ -305,7 +320,7 @@ No output from `diff` means the published release is exactly what the source pro
 
 **Verify a downloaded zip:** `sha256sum -c SHA256SUMS --ignore-missing`, and optionally `gh attestation verify secure-zip-notes-v2-x.y.z.zip --repo fkirc/secure-zip-notes`.
 
-**Verify the deployed PWA:** `scripts/verify-pwa.sh v2.x.y` downloads every file listed under `pwa/` in that release's `SHA256SUMS` from the GitHub Pages URL and compares the hashes. It can be run by anyone at any time, including on a schedule from CI, which fails loudly if the live site ever differs from the release.
+**Verify the deployed PWA:** `scripts/verify-pwa.sh v2.x.y` downloads every file listed under `pwa/` in that release's `SHA256SUMS` from `https://fkirc.github.io/secure-zip-notes/v2.x.y/` and compares the hashes. With `--all` it checks every published version. It can be run by anyone at any time, including on a schedule from CI, which fails loudly if the live site ever differs from the release.
 
 **Verify on the device:** Settings → About shows the version and the release digest. The page itself could be tampered with, so this is a convenience, not proof. The proof is the script above, or comparing the files the browser cached (DevTools → Application → Cache Storage) with `SHA256SUMS`.
 
@@ -339,9 +354,9 @@ These port the v1 Espresso tests (`legacy/app/src/androidTest/.../tests/`):
 - Setup: create a new password, password too short, password mismatch, generate a random password (`SetupTests.kt`).
 - Notes: add multiple notes, add with naming conflict, rename from the list and from an open note, invalid renames, delete multiple, delete last note, export an empty note (`ITest.kt`).
 - Import: every fixture case from `ImportTests.kt`.
-- Multi-password: two and four passwords (`MultiPasswordTests.kt`).
-- New for v2: save via download and re-open gives identical notes; the unsaved-changes warning; **no network requests during any test** (section 6); CSP present and enforced (a probe `fetch` must fail); auto-lock if accepted **(Q4)**.
-- PWA (Chromium, served by `scripts/serve.ts` on `http://localhost`, which counts as a secure context): service worker installs; with the network switched off the app still loads and works; the vault persists across reloads; a new build shows the update prompt and only activates after the user accepts; manifest is valid and installable.
+- Reading entries with other passwords: two and four passwords (`MultiPasswordTests.kt`); new entries always use the master password.
+- New for v2: save via download and re-open gives identical notes; the unsaved-changes warning; **no network requests during any test** (section 6); CSP present and enforced (a probe `fetch` must fail); idle auto-lock after the default timeout and after a custom timeout (with a fake clock), with unsaved changes kept.
+- PWA (Chromium, served by `scripts/serve.ts` on `http://localhost`, which counts as a secure context): service worker installs; with the network switched off the app still loads and works; the vault persists across reloads; deploying a different build at another version path doesn't change what the installed version serves, and no update prompt or activation ever happens; manifest is valid and installable.
 - `SyncTests.kt` (Dropbox) is dropped.
 
 ### Reproducibility tests (CI)
@@ -360,18 +375,22 @@ These port the v1 Espresso tests (`legacy/app/src/androidTest/.../tests/`):
 
 ---
 
-## 11. Open questions for Felix
+## 11. Decisions log
 
-1. **Q1 — Framework:** vanilla TS with a tiny in-house view helper (recommended), or Preact, or React?
-2. **Q2 — Formatter/linter:** none (rely on strict `tsc`), or add Prettier (1 package, zero deps)?
-3. **Q3 — Bundler:** accept `esbuild` (2 packages), or go to the extreme of `tsc`-only with an in-house concatenation script?
-4. **Q4 — Password lifetime:** keep the password in memory until the tab closes, or auto-lock after an idle timeout (how many minutes)? Any wish for a "remember on this device" option (I'd argue against it)?
-5. **Q5 — Crypto strength:** keep the standard WinZip AES format (1000× PBKDF2-SHA1, 7-Zip compatible), or offer an optional stronger mode that breaks third-party compatibility? Recommendation: standard only.
-6. **Q6 — Save model:** is download-to-save as the baseline plus in-place save on Chromium acceptable? Should "recent file" handles be remembered on Chromium (that needs IndexedDB, which only stores a file handle, not content)?
-7. **Q7 — Scope additions:** include note search in v2.0, or later?
-8. **Q8 — Single vs multi-password vaults:** v1 can *read* zips with entries under different passwords. Should v2 also let users *create* entries with a different password, or always use the master password for new entries (as v1 did)?
-9. ~~Q9 — Target devices~~ **Decided:** desktop via the zip, mobile via the PWA.
-10. ~~Q10 — Distribution~~ **Decided:** zip download on GitHub Releases, and the PWA on GitHub Pages.
-11. **Q11 — PWA storage:** OK to keep the *encrypted* vault in browser storage on the PWA for convenience (recommended), or should the PWA also require opening the file on every launch?
-12. **Q12 — Hosting:** GitHub Pages at `fkirc.github.io/secure-zip-notes/`, or a custom domain? The origin can never change without losing installed users' stored vaults, so this should be decided before the first release.
-13. **Q13 — Update policy:** should the PWA ever update without asking (recommended: never), and should it show the new version's digest in the update prompt so careful users can compare it with the release page first?
+Answered by Felix on 2026-11-22:
+
+1. **Framework:** vanilla TypeScript with a tiny in-house view helper. No Preact, no React, nothing not strictly needed.
+2. **Formatter/linter:** none.
+3. **Bundler:** esbuild accepted, because it's strictly needed (section 4).
+4. **Password lifetime:** in memory only, with an idle auto-lock. The default is 60 minutes and the user can change it.
+5. **Crypto:** exactly the same as v1.
+6. **Save model:** download-to-save everywhere, plus in-place save on Chromium. No recent-file list.
+7. **Search:** dropped.
+8. **Passwords:** single master password, as in v1. Reading imported entries with other passwords stays as v1 did it.
+9. **Target devices:** desktop via the zip, mobile via the PWA.
+10. **Distribution:** zip on GitHub Releases, and the PWA on GitHub Pages.
+11. **PWA storage:** the encrypted vault is kept in browser storage.
+12. **Hosting:** GitHub Pages at `fkirc.github.io/secure-zip-notes/`, no custom domain.
+13. **Updates:** never automatic. Users update only by installing a new version manually (section 7).
+
+No open questions remain.
