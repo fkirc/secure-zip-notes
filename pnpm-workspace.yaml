@@ -1,0 +1,8 @@
+# Supply-chain hardening (see SPEC.md section 4).
+# Never pick up a package version younger than 7 days (value in minutes).
+minimumReleaseAge: 10080
+# No dependency may run install scripts. esbuild works through its
+# optional platform package without its postinstall script.
+onlyBuiltDependencies: []
+ignoredBuiltDependencies:
+  - esbuild
