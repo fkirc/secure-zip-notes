@@ -19,15 +19,16 @@ export const test = base.extend<{ requests: string[]; allowedOrigins: string[] }
   allowedOrigins: [[], { option: true }],
   requests: [
     async ({ page, allowedOrigins }, use) => {
+      // A request counts if it reached the network: it got a response, or it failed for a
+      // reason other than the CSP. Requests the CSP refused never leave the browser
+      // (Chromium reports them as failed with "csp"; WebKit reports no outcome at all).
       const urls: string[] = [];
-      const blocked = new Set<string>();
-      page.on("request", (r) => urls.push(r.url()));
-      // Requests the CSP refused never left the browser; they don't count.
+      page.on("response", (r) => urls.push(r.url()));
       page.on("requestfailed", (r) => {
-        if (/^csp$|BLOCKED_BY_CSP|Content Security Policy/i.test(r.failure()?.errorText ?? "")) blocked.add(r.url());
+        if (!/^csp$|BLOCKED_BY_CSP|Content Security Policy/i.test(r.failure()?.errorText ?? "")) urls.push(r.url());
       });
       await use(urls);
-      const unexpected = urls.filter((u) => !blocked.has(u)).filter(
+      const unexpected = urls.filter(
         (u) => u !== APP_URL && !u.startsWith("blob:") && !u.startsWith("data:") && !allowedOrigins.some((o) => u.startsWith(o)),
       );
       expect(unexpected, "unexpected network requests").toEqual([]);
