@@ -1,6 +1,8 @@
 /** CSP, no-network guarantee and the About hash. */
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
+import { createServer, type Server } from "node:http";
+import type { AddressInfo } from "node:net";
 import { test, expect, APP_FILE, openApp, createVault, vaultWithNotes } from "./helpers.ts";
 
 const html = readFileSync(APP_FILE, "utf8");
@@ -18,38 +20,64 @@ test("index.html is self-contained with a strict CSP", async () => {
   expect(scripts.length).toBe(1);
 });
 
-test("CSP blocks network access and injected scripts", async ({ page }) => {
-  await openApp(page);
-  const fetchResult = await page.evaluate(async () => {
-    try {
-      await fetch("https://example.com/");
-      return "allowed";
-    } catch {
-      return "blocked";
-    }
+test.describe("CSP enforcement", () => {
+  // A local server we control: the ground truth for "did anything leave the page".
+  // Browsers differ in how they report CSP-blocked requests to Playwright, so this
+  // test counts hits on the server instead.
+  let server: Server;
+  let hits = 0;
+  let origin = "";
+  test.use({ allowedOrigins: ["http://127.0.0.1:"] });
+
+  test.beforeAll(async () => {
+    server = createServer((_req, res) => {
+      hits++;
+      res.writeHead(200, { "access-control-allow-origin": "*", "content-type": "image/gif" });
+      res.end(Buffer.from("R0lGODlhAQABAAAAACw=", "base64"));
+    });
+    await new Promise<void>((resolve) => server.listen(0, "127.0.0.1", resolve));
+    origin = `http://127.0.0.1:${(server.address() as AddressInfo).port}`;
   });
-  expect(fetchResult).toBe("blocked");
-  const imageLoaded = await page.evaluate(
-    () =>
-      new Promise<boolean>((resolve) => {
-        const img = new Image();
-        img.onload = () => resolve(true);
-        img.onerror = () => resolve(false);
-        img.src = "https://example.com/pixel.png";
-      }),
-  );
-  expect(imageLoaded).toBe(false);
-  const injected = await page.evaluate(() => {
-    try {
-      const s = document.createElement("script");
-      s.text = "window.__injected = true";
-      document.body.appendChild(s);
-    } catch {
-      // Trusted Types may throw
-    }
-    return (window as unknown as { __injected?: boolean }).__injected === true;
+
+  test.afterAll(async () => {
+    await new Promise<void>((resolve) => server.close(() => resolve()));
   });
-  expect(injected).toBe(false);
+
+  test("CSP blocks network access and injected scripts", async ({ page }) => {
+    await openApp(page);
+    const fetchResult = await page.evaluate(async (url) => {
+      try {
+        await fetch(url);
+        return "allowed";
+      } catch {
+        return "blocked";
+      }
+    }, `${origin}/fetch`);
+    expect(fetchResult).toBe("blocked");
+    const imageLoaded = await page.evaluate(
+      (url) =>
+        new Promise<boolean>((resolve) => {
+          const img = new Image();
+          img.onload = () => resolve(true);
+          img.onerror = () => resolve(false);
+          img.src = url;
+        }),
+      `${origin}/pixel.gif`,
+    );
+    expect(imageLoaded).toBe(false);
+    const injected = await page.evaluate(() => {
+      try {
+        const s = document.createElement("script");
+        s.text = "window.__injected = true";
+        document.body.appendChild(s);
+      } catch {
+        // Trusted Types may throw
+      }
+      return (window as unknown as { __injected?: boolean }).__injected === true;
+    });
+    expect(injected).toBe(false);
+    expect(hits, "requests that reached the server").toBe(0);
+  });
 });
 
 test("About shows the version and the hash of the inline script", async ({ page }) => {
