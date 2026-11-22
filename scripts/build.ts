@@ -10,6 +10,7 @@
  *   dist/secure-zip-notes-v<version>-pwa.zip   the pwa/ folder
  *   dist/SHA256SUMS                            hashes of all of the above
  *   dist/RELEASE_DIGEST                        SHA-256 of SHA256SUMS (identifies the whole release)
+ *   dist/APP_SCRIPT_SHA256                     SHA-256 of the inline app script (shown in Settings > About)
  */
 import { build } from "esbuild";
 import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
@@ -167,6 +168,7 @@ async function main(): Promise<void> {
   writeFileSync(join(out, "SHA256SUMS"), sums);
   const digest = sha256Hex(sums);
   writeFileSync(join(out, "RELEASE_DIGEST"), `${digest}\n`);
+  writeFileSync(join(out, "APP_SCRIPT_SHA256"), `${sha256Hex(script)}\n`);
 
   console.log(sums.trimEnd());
   console.log(`\nApp script SHA-256 (shown in Settings > About): ${sha256Hex(script)}`);

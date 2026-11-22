@@ -1,0 +1,120 @@
+name: Release
+
+# Pushing a tag vX.Y.Z (matching package.json) builds the release on three operating
+# systems, requires byte-identical output, publishes the GitHub Release with
+# SHA256SUMS and provenance attestations, and deploys the PWA to GitHub Pages under
+# its own immutable path /secure-zip-notes/vX.Y.Z/.
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: read
+
+env:
+  COREPACK_ENABLE_DOWNLOAD_PROMPT: "0"
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  check-tag:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Tag matches package.json version
+        run: |
+          version=$(node -p "require('./package.json').version")
+          test "v$version" = "$GITHUB_REF_NAME" || { echo "Tag $GITHUB_REF_NAME does not match package.json $version"; exit 1; }
+
+  ci:
+    needs: check-tag
+    uses: ./.github/workflows/ci.yml
+
+  release:
+    name: Publish release
+    needs: ci
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+      id-token: write
+      attestations: write
+    steps:
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          pattern: dist-*
+      - name: Require identical builds on all platforms
+        run: |
+          set -eu
+          for d in dist-*; do diff -u dist-ubuntu-24.04/SHA256SUMS "$d/SHA256SUMS"; done
+          cd dist-ubuntu-24.04 && sha256sum -c SHA256SUMS
+      - uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+        with:
+          subject-checksums: dist-ubuntu-24.04/SHA256SUMS
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          set -eu
+          cd dist-ubuntu-24.04
+          {
+            echo "## Secure Zip Notes $TAG"
+            echo
+            echo "- Zip download: \`secure-zip-notes-$TAG.zip\` (extract and open index.html)"
+            echo "- Installable web app: https://fkirc.github.io/secure-zip-notes/$TAG/"
+            echo
+            echo "Release digest (SHA-256 of SHA256SUMS): \`$(cat RELEASE_DIGEST)\`"
+            echo
+            echo "App script SHA-256 (Settings > About): \`$(cat APP_SCRIPT_SHA256)\`"
+            echo
+            echo '```'
+            cat SHA256SUMS
+            echo '```'
+            echo
+            echo "Built identically on Linux, macOS and Windows by [this workflow run]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID)."
+            echo "Verify: rebuild from source (see SPEC.md section 8), \`sha256sum -c SHA256SUMS --ignore-missing\`, or \`gh attestation verify <file> --repo $GITHUB_REPOSITORY\`."
+          } > NOTES.md
+          gh release create "$TAG" --repo "$GITHUB_REPOSITORY" --title "$TAG" --notes-file NOTES.md --verify-tag \
+            "secure-zip-notes-$TAG.zip" "secure-zip-notes-$TAG-pwa.zip" SHA256SUMS
+
+  pages:
+    name: Deploy all versions to GitHub Pages
+    needs: release
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+      - name: Download every published release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -eu
+          mkdir -p releases
+          for tag in $(gh release list --repo "$GITHUB_REPOSITORY" --limit 1000 --json tagName --jq '.[].tagName'); do
+            mkdir -p "releases/$tag"
+            gh release download "$tag" --repo "$GITHUB_REPOSITORY" --dir "releases/$tag" \
+              --pattern SHA256SUMS --pattern "secure-zip-notes-$tag-pwa.zip" || rm -rf "releases/$tag"
+          done
+      - name: Verify hashes and assemble the site
+        run: node scripts/assemble-pages.ts --releases releases --out site
+      - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+        with:
+          path: site
+      - id: deploy
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1

@@ -1,6 +1,6 @@
 # Secure Zip Notes v2 — Specification (draft for review)
 
-Status: **spec, nothing implemented yet.** Felix defines the spec. Felix answered the first round of open questions on 2026-11-22; the decisions are recorded in [section 11](#11-decisions-log) and already applied in the sections below.
+Status: **implemented in v2.0.0** (see [README.md](README.md)); where the implementation refined a detail, this spec was updated to match. Felix defines the spec. Felix answered the first round of open questions on 2026-11-22; the decisions are recorded in [section 11](#11-decisions-log) and already applied in the sections below.
 
 The v1 Android app lives in [`legacy/`](legacy/) and serves as the reference for the file format, features, and test cases.
 
@@ -66,6 +66,8 @@ Identical to v1 (Zip4j settings in `legacy/app/src/main/java/com/ditronic/secure
 - Compression accepted when reading: STORE and DEFLATE. BZIP2, DEFLATE64, LZMA, and PPMD are rejected with a clear message (same as v1's import rules).
 - Rejected on import, as in v1: non-encrypted entries, ZipCrypto entries, directory-only entries, empty file names, non-zip files (e.g. `.7z`).
 - Text encoding: UTF-8.
+- Password encoding: written as UTF-8 (what 7-Zip and WinZip use). When decrypting, v2 also tries v1's encoding (Zip4j took the low byte of each UTF-16 character). The two are identical for ASCII passwords, so this only matters for v1 vaults with non-ASCII passwords.
+- Renaming a note only changes its Zip header. The file name isn't part of the encrypted data, so no re-encryption is needed.
 
 **Security note.** The WinZip format caps PBKDF2 at 1000 iterations of SHA-1, which is weak by today's standards against offline brute force. That is the price of 7-Zip compatibility. The README states plainly that a long random password is the defence. **Decided:** all crypto stays exactly as in v1. There is no alternative or stronger mode.
 
@@ -151,7 +153,7 @@ The **encrypted zip is the single source of truth.** The app keeps decrypted not
 - **No recent-file list.** The app doesn't remember file handles between sessions. On each launch the user opens the file again; this keeps the feature set minimal and avoids browser storage on `file://`.
 - **No vault data in browser storage** in the zip variant. On `file://` this storage is unreliable anyway, and its origin is shared with other local files in some browsers. The only thing stored there, best effort, is the non-secret idle-lock setting (see below).
 
-**PWA variant (`https://`):** picking a file on every launch is painful on a phone, so the PWA additionally keeps a copy of the **encrypted** zip bytes (ciphertext only, exactly what's in the file) in the Origin Private File System, with IndexedDB as fallback. It's read on launch, so the user only types the password.
+**PWA variant (`https://`):** picking a file on every launch is painful on a phone, so the PWA additionally keeps a copy of the **encrypted** zip bytes (ciphertext only, exactly what's in the file) in IndexedDB (available in every target browser, including iOS home-screen apps). It's read on launch, so the user only types the password.
 
 - Never stored: the password, derived keys, decrypted notes.
 - Browser storage is not a backup. iOS can evict it, and uninstalling the PWA deletes it. The app says so, and nags with "last exported N days ago" when the vault has changed since the last export. **Decided:** keep the encrypted vault in browser storage.
@@ -178,7 +180,7 @@ src/
   zip/       reader, writer, crc32, inflate (DecompressionStream wrapper)
   vault/     Vault model: list/add/rename/delete/update, per-entry password fallback on read, import validation
   ui/        h() helper, screens (setup, list, editor, password prompt), styles
-  pwa/       vault persistence (OPFS/IndexedDB), service-worker registration
+  pwa/       vault persistence (IndexedDB), service-worker registration
   sw.ts      service worker (precache + cache-first, no runtime fetches)
   main.ts    wiring; enables pwa/ only when served over https
 public/
@@ -221,8 +223,8 @@ dist/
     sw.js
     manifest.webmanifest
     icons/icon-192.png, icon-512.png, apple-touch-icon.png
-  secure-zip-notes-v2-<version>.zip      index.html, LICENSE, README.txt
-  secure-zip-notes-v2-<version>-pwa.zip  the pwa/ folder, attached to the release so Pages can be rebuilt from releases
+  secure-zip-notes-v<version>.zip        secure-zip-notes-v<version>/{index.html, LICENSE, README.txt}
+  secure-zip-notes-v<version>-pwa.zip    the pwa/ folder, attached to the release so Pages can be rebuilt from releases
   SHA256SUMS                             hash of every file above, including both zips
 ```
 
@@ -253,7 +255,7 @@ A normal PWA can't guarantee that: browsers re-check `sw.js` and activate a new 
 - An installed PWA points at its version path, so the browser's update check always finds the same `sw.js` bytes and there is nothing to update to.
 - The service worker never calls `skipWaiting()` or `clients.claim()`, never fetches anything outside its precache list, and the app shows no "update available" prompt. It makes no request of its own to look for new versions.
 - `https://fkirc.github.io/secure-zip-notes/` itself is a static landing page with no service worker and no app code. It lists every version with its release digest and a link to its GitHub Release.
-- Settings → About shows the running version and its release digest, plus the releases URL as plain text.
+- Settings → About shows the running version and the SHA-256 of the inline app script (the same hash pinned in the CSP and printed in the release notes), plus the releases URL as plain text. The release digest itself can't be embedded, because it covers `index.html`.
 
 **Manually updating the PWA:** in the old version, choose "Export vault". Open the new version's URL, install it, and choose "Open vault" with the exported file. Then uninstall the old version. All versions share the same origin, so the new version may already see the stored vault, but export/import is the documented path because iOS isolates the storage of each home-screen app. **Manually updating the zip variant:** download and extract the new zip.
 
@@ -318,11 +320,11 @@ diff dist/SHA256SUMS <(curl -sL https://github.com/fkirc/secure-zip-notes/releas
 
 No output from `diff` means the published release is exactly what the source produces.
 
-**Verify a downloaded zip:** `sha256sum -c SHA256SUMS --ignore-missing`, and optionally `gh attestation verify secure-zip-notes-v2-x.y.z.zip --repo fkirc/secure-zip-notes`.
+**Verify a downloaded zip:** `sha256sum -c SHA256SUMS --ignore-missing`, and optionally `gh attestation verify secure-zip-notes-v2.x.y.zip --repo fkirc/secure-zip-notes`.
 
 **Verify the deployed PWA:** `scripts/verify-pwa.sh v2.x.y` downloads every file listed under `pwa/` in that release's `SHA256SUMS` from `https://fkirc.github.io/secure-zip-notes/v2.x.y/` and compares the hashes. With `--all` it checks every published version. It can be run by anyone at any time, including on a schedule from CI, which fails loudly if the live site ever differs from the release.
 
-**Verify on the device:** Settings → About shows the version and the release digest. The page itself could be tampered with, so this is a convenience, not proof. The proof is the script above, or comparing the files the browser cached (DevTools → Application → Cache Storage) with `SHA256SUMS`.
+**Verify on the device:** Settings → About shows the version and the app script hash from the release notes. The page itself could be tampered with, so this is a convenience, not proof. The proof is the script above, or comparing the files the browser cached (DevTools → Application → Cache Storage) with `SHA256SUMS`.
 
 ---
 
