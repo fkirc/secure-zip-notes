@@ -1,0 +1,78 @@
+:root {
+  color-scheme: light dark;
+  --bg: #f6f7f9;
+  --fg: #1b1f24;
+  --muted: #5b6470;
+  --card: #ffffff;
+  --border: #d4d8de;
+  --accent: #1f5f8b;
+  --accent-fg: #ffffff;
+  --danger: #b42318;
+  --warning-bg: #fff4d6;
+  --warning-fg: #6b4e00;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px;
+  line-height: 1.45;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #14171b;
+    --fg: #e6e9ed;
+    --muted: #9aa3ad;
+    --card: #1d2126;
+    --border: #353b43;
+    --accent: #5aa9e0;
+    --accent-fg: #0b1620;
+    --danger: #ff7b6e;
+    --warning-bg: #3d3110;
+    --warning-fg: #f3d58a;
+  }
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body { background: var(--bg); color: var(--fg); }
+#app, .view { min-height: 100%; }
+.screen { max-width: 760px; margin: 0 auto; padding: 16px; }
+.screen.center { max-width: 460px; padding-top: 48px; }
+.screen.editor { display: flex; flex-direction: column; height: 100vh; height: 100dvh; }
+h1 { font-size: 1.5rem; margin: 0 0 8px; overflow-wrap: anywhere; }
+h2 { font-size: 1.15rem; margin: 24px 0 8px; }
+.bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
+.bar h1 { margin: 0; }
+.actions, .row { display: flex; flex-wrap: wrap; gap: 8px; }
+.stack { display: flex; flex-direction: column; gap: 12px; margin: 16px 0; }
+label { display: flex; flex-direction: column; gap: 4px; font-weight: 500; }
+input[type="text"], input[type="password"], input[type="number"], textarea {
+  font: inherit; color: inherit; background: var(--card);
+  border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; width: 100%;
+}
+textarea { flex: 1; resize: none; min-height: 50vh; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.95rem; }
+button, .button {
+  font: inherit; color: var(--fg); background: var(--card); border: 1px solid var(--border);
+  border-radius: 8px; padding: 8px 14px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; min-height: 40px;
+}
+button:focus-visible, .button:focus-within, input:focus-visible, textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+button.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-fg); }
+button.danger { color: var(--danger); }
+button.small { padding: 4px 10px; min-height: 32px; font-size: 0.9rem; }
+.visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.muted { color: var(--muted); }
+.small { font-size: 0.875rem; }
+.error { color: var(--danger); margin: 0; }
+.warning { background: var(--warning-bg); color: var(--warning-fg); padding: 8px 12px; border-radius: 8px; }
+.notes { list-style: none; padding: 0; margin: 8px 0; border: 1px solid var(--border); border-radius: 10px; background: var(--card); }
+.notes li { display: flex; gap: 6px; align-items: center; padding: 6px 8px; border-top: 1px solid var(--border); }
+.notes li:first-child { border-top: none; }
+.notes .note { flex: 1; justify-content: flex-start; text-align: left; border: none; background: transparent; overflow-wrap: anywhere; }
+.empty { padding: 24px 0; text-align: center; }
+.footer { margin-top: 24px; }
+.overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.45); display: flex; align-items: center; justify-content: center; padding: 16px; }
+.dialog { background: var(--card); border-radius: 12px; padding: 20px; width: 100%; max-width: 420px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3); }
+.dialog h2 { margin-top: 0; overflow-wrap: anywhere; }
+.toast { position: fixed; left: 50%; bottom: 16px; transform: translateX(-50%); max-width: calc(100% - 32px);
+  background: var(--fg); color: var(--bg); padding: 10px 16px; border-radius: 8px; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
+.toast.visible { opacity: 1; }
+.about { display: grid; grid-template-columns: max-content 1fr; gap: 6px 16px; }
+.about dt { color: var(--muted); }
+.about dd { margin: 0; overflow-wrap: anywhere; }
+.mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.85rem; }
